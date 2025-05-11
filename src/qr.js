@@ -5,7 +5,7 @@ async function generateQRCode(text) {
   document.getElementById("qr-code").src = await QRCode.toDataURL(text, {
     margin: 2,
     color: {
-      dark: "#fe007d",
+      dark: "#000000",
       light: "#FFFFFF",
     },
   });

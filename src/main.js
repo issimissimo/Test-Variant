@@ -66,12 +66,22 @@ function init() {
     })
   );
 
+
+  let cube;
+  function test() {
+    const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+    cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+  }
+  test();
+
   function onSelect() {
     if (reticle.visible && flowersGltf) {
       //pick random child from flowersGltf
       const flower =
         flowersGltf.children[
-          Math.floor(Math.random() * flowersGltf.children.length)
+        Math.floor(Math.random() * flowersGltf.children.length)
         ];
       const mesh = flower.clone();
 
