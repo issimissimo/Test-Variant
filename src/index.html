@@ -1,47 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Variant Launch ThreeJS Example</title>
+<html lang="it">
 
-    <!-- REPLACE WITH YOUR SDK KEY TAG FROM https://launchar.app -->
-    <script src="https://launchar.app/sdk/v1?key=VGzctezQqpavQxnTXtegZVxXGkjMRfRt&redirect=true"></script>
-    <!-- / REPLACE WITH YOUR SDK KEY TAG FROM https://launchar.app -->
+<head>
+  <title>AR Example</title>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-  </head>
-  <body> 
-    <div id="overlay">
+  <!-- REPLACE WITH YOUR SDK KEY TAG FROM https://launchar.app -->
+  <script src="https://launchar.app/sdk/v1?key=VGzctezQqpavQxnTXtegZVxXGkjMRfRt&redirect=true"></script>
+  <!-- / REPLACE WITH YOUR SDK KEY TAG FROM https://launchar.app -->
+
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="node_modules/spin.js/spin.css" rel="stylesheet">
+
+  <link rel="icon" href="/favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+
+<body>
+  <div x-data>
+
+    <div x-cloak x-show="$store.ui.visibility.overlay" id="overlay">
       <div id="tracking-prompt"><img src="hand.png" /></div>
       <div id="instructions">Tap to grow</div>
     </div>
+
+
     <div id="app">
-      <!-- <a href="https://launch.variant3d.com"
-        ><img id="variant-logo" alt="WebXR on iOS" src="favicon.ico"
-      /></a> -->
-      <h2>My ThreeJS Example</h2>
-      <div id="ar-not-supported">
+
+      <!-- AR NOT SUPPORTED -->
+      <div x-cloak x-show="$store.ui.visibility.arNotSupported">
         <p>
           WebXR Not Supported. Open this page on iOS or Android to view the
           example.
         </p>
         <p>
-          For documentation & support, visit
-          <a href="https://launch.variant3d.com/docs"
-            >https://launch.variant3d.com</a
-          >.
+          For documentation & support, mail to
+          <a href="mailto:info@issimissimo.com">info@issimissimo.com</a>.
         </p>
         <img id="qr-code" />
       </div>
+
     </div>
-    <script type="module" src="/main.js"></script>
-  </body>
+
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+
 </html>

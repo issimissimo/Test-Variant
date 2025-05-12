@@ -2,8 +2,10 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 import "./qr.js";
+import Alpine from 'alpinejs';
+import './ui.js';
 
-import "./style.css";
+// import "./style.css";
 
 let container;
 let camera, scene, renderer;
@@ -20,10 +22,12 @@ let flowersGltf;
 if ("xr" in navigator) {
   navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
     if (supported) {
-      //hide "ar-not-supported"
-      document.getElementById("ar-not-supported").style.display = "none";
+      Alpine.store('ui').setDivVisibility('overlay', true);
       init();
       animate();
+    }
+    else {
+      Alpine.store('ui').setDivVisibility('arNotSupported', true);
     }
   });
 }

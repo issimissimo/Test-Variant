@@ -17,7 +17,9 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
+    "alpinejs": "^3.14.9",
     "qrcode": "^1.5.3",
+    "spin.js": "^4.1.2",
     "three": "^0.153.0"
   }
 }
