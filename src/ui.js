@@ -1,9 +1,10 @@
 import Alpine from 'alpinejs';
 import {Spinner} from 'spin.js';
+import 'spin.js/spin.css';
 
 Alpine.store('ui', {
   visibility: {
-    loader: false,
+    loader: true,
     arNotSupported: false,
     overlay: false,
     game: false
@@ -30,7 +31,7 @@ Alpine.start();
 
 
 var opts = {
-  lines: 7, // The number of lines to draw
+  lines: 5, // The number of lines to draw
   length: 27, // The length of each line
   width: 17, // The line thickness
   radius: 45, // The radius of the inner circle

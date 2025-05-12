@@ -1,11 +1,12 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '/exp/AR/',
   root: 'src',
   publicDir: '../public',
   build: {
     outDir: '../build',
+    emptyOutDir: true,
   },
   server: {
     // Non cambiare porta automaticamente: ci serve sapere sempre

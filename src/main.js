@@ -21,6 +21,9 @@ let flowersGltf;
 // check for webxr session support
 if ("xr" in navigator) {
   navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
+    
+    Alpine.store('ui').setDivVisibility('loader', false);
+
     if (supported) {
       Alpine.store('ui').setDivVisibility('overlay', true);
       init();
