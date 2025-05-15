@@ -18,10 +18,15 @@ let hitTestSourceRequested = false;
 let planeFound = false;
 let flowersGltf;
 
+
+let initAnchorCreated = false;
+let initAnchor = null;
+
+
 // check for webxr session support
 if ("xr" in navigator) {
   navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
-    
+
     Alpine.store('ui').setDivVisibility('loader', false);
 
     if (supported) {
@@ -74,16 +79,17 @@ function init() {
   );
 
 
-  let cube;
-  function test() {
-    const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    const material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
-    cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-  }
-  test();
+  // let cube;
+  // function test() {
+  //   const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+  //   const material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+  //   cube = new THREE.Mesh(geometry, material);
+  //   scene.add(cube);
+  // }
+  // test();
 
   function onSelect() {
+    console.log("onSelect");
     if (reticle.visible && flowersGltf) {
       //pick random child from flowersGltf
       const flower =
@@ -93,21 +99,44 @@ function init() {
       const mesh = flower.clone();
 
       reticle.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-      const scale = Math.random() * 0.4 + 0.25;
-      mesh.scale.set(scale, scale, scale);
+      // const scale = Math.random() * 0.4 + 0.25;
+      // mesh.scale.set(scale, scale, scale);
       //random rotation
-      mesh.rotateY(Math.random() * Math.PI * 2);
+      // mesh.rotateY(Math.random() * Math.PI * 2);
       scene.add(mesh);
 
-      // animate growing via hacky setInterval then destroy it when fully grown
-      const interval = setInterval(() => {
-        mesh.scale.multiplyScalar(1.01);
+      // // animate growing via hacky setInterval then destroy it when fully grown
+      // const interval = setInterval(() => {
+      //   mesh.scale.multiplyScalar(1.01);
 
-        mesh.rotateY(0.03);
-      }, 16);
-      setTimeout(() => {
-        clearInterval(interval);
-      }, 500);
+      //   mesh.rotateY(0.03);
+      // }, 16);
+      // setTimeout(() => {
+      //   clearInterval(interval);
+      // }, 500);
+      if (!initAnchorCreated) {
+        initAnchorCreated = true;
+        console.log(reticle.matrix);
+        console.log(mesh.position);
+        console.log(mesh.quaternion);
+        console.log(mesh.scale);
+        console.log(mesh.rotation);
+        console.log("initAnchorCreated", initAnchorCreated);
+        initAnchor = {
+          position: {
+            x: reticle.position.x,
+            y: reticle.position.y,
+            z: reticle.position.z
+          },
+          rotation: {
+            x: reticle.rotation.x,
+            y: reticle.rotation.y,
+            z: reticle.rotation.z
+          }
+        }
+        console.log(initAnchor);
+      }
+
     }
   }
 
@@ -116,7 +145,7 @@ function init() {
   scene.add(controller);
 
   reticle = new THREE.Mesh(
-    new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
+    new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
     new THREE.MeshBasicMaterial()
   );
   reticle.matrixAutoUpdate = false;
@@ -126,7 +155,7 @@ function init() {
   //load flowers.glb
   const loader = new GLTFLoader();
 
-  loader.load("flowers.glb", (gltf) => {
+  loader.load("temp.glb", (gltf) => {
     flowersGltf = gltf.scene;
   });
 
@@ -175,6 +204,7 @@ function render(timestamp, frame) {
           //hide #tracking-prompt
           document.getElementById("tracking-prompt").style.display = "none";
           document.getElementById("instructions").style.display = "flex";
+          console.log("plane found");
         }
         const hit = hitTestResults[0];
 
