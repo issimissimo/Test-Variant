@@ -19,7 +19,7 @@ import { initDeviceSensors, getDeviceYaw } from './utils/deviceOrientation.js';
 
 import { LocalStorage } from "./utils/localStorage.js";
 
-import { XrReticle } from "./xr/reticle.js";
+import { Reticle } from "./xr/reticle.js";
 
 // await initDeviceSensors();
 
@@ -257,20 +257,27 @@ function init() {
   controller.addEventListener("select", onSelect);
   scene.add(controller);
 
-  // createReticle();
-  reticle = new XrReticle({
-    renderer: renderer,
-    scene: scene,
-    // session: renderer.xr.getSession(),
-    color: 0x00ff00,
-    radius: 0.3,
-    innerRadius: 0.15,
-    segments: 4,
-  });
-  reticle.addToScene();
+  // reticle = new THREE.Mesh(
+  //   new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
+  //   new THREE.MeshBasicMaterial()
+  // );
+  // reticle.matrixAutoUpdate = false;
+  // reticle.visible = false;
+  // scene.add(reticle);
 
-  // loadGizmo();
-  // loadFlower();
+
+
+
+  createReticle();
+  loadGizmo();
+
+
+  // //load flowers.glb
+  // const loader = new GLTFLoader();
+  // loader.load("temp.glb", (gltf) => {
+  //   flowersGltf = gltf.scene;
+  // });
+  loadFlower();
 
   window.addEventListener("resize", onWindowResize);
 }
@@ -290,168 +297,82 @@ function animate() {
 
 function render(timestamp, frame) {
   if (frame) {
-    // const referenceSpace = renderer.xr.getReferenceSpace();
-    // const session = renderer.xr.getSession();
+    const referenceSpace = renderer.xr.getReferenceSpace();
+    const session = renderer.xr.getSession();
 
-    reticle.update(frame);
+    if (hitTestSourceRequested === false) {
+      session.requestReferenceSpace("viewer").then(function (referenceSpace) {
+        session
+          .requestHitTestSource({ space: referenceSpace })
+          .then(function (source) {
+            hitTestSource = source;
+          });
+      });
 
-    // if (hitTestSourceRequested === false) {
-    //   session.requestReferenceSpace("viewer").then(function (referenceSpace) {
-    //     session
-    //       .requestHitTestSource({ space: referenceSpace })
-    //       .then(function (source) {
-    //         hitTestSource = source;
-    //       });
-    //   });
+      session.addEventListener("end", function () {
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+      });
 
-    //   session.addEventListener("end", function () {
-    //     hitTestSourceRequested = false;
-    //     hitTestSource = null;
-    //   });
-
-    //   hitTestSourceRequested = true;
-    // }
+      hitTestSourceRequested = true;
+    }
 
 
 
-    // if (hitTestSource) {
-    //   const hitTestResults = frame.getHitTestResults(hitTestSource);
+    if (hitTestSource) {
+      const hitTestResults = frame.getHitTestResults(hitTestSource);
 
-    //   if (hitTestResults.length) {
-    //     if (!planeFound) {
-    //       planeFound = true;
-    //       //hide #tracking-prompt
-    //       document.getElementById("tracking-prompt").style.display = "none";
-    //       document.getElementById("instructions").style.display = "flex";
-    //       console.log("plane found");
-    //     }
+      if (hitTestResults.length) {
+        if (!planeFound) {
+          planeFound = true;
+          //hide #tracking-prompt
+          document.getElementById("tracking-prompt").style.display = "none";
+          document.getElementById("instructions").style.display = "flex";
+          console.log("plane found");
+        }
 
-    //     const hit = hitTestResults[0];
-    //     reticle.visible = true;
-    //     // reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+        const hit = hitTestResults[0];
+        reticle.visible = true;
+        // reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
 
-    //     const pose = hit.getPose(referenceSpace);
-    //     const rawMatrix = pose.transform.matrix;
-    //     const threeMatrix = new THREE.Matrix4();
-    //     threeMatrix.fromArray(rawMatrix);
-    //     let pos = new THREE.Vector3();
-    //     let quat = new THREE.Quaternion();
-    //     let scale = new THREE.Vector3();
-    //     threeMatrix.decompose(pos, quat, scale);
+        const pose = hit.getPose(referenceSpace);
+        const rawMatrix = pose.transform.matrix;
+        const threeMatrix = new THREE.Matrix4();
+        threeMatrix.fromArray(rawMatrix);
+        let pos = new THREE.Vector3();
+        let quat = new THREE.Quaternion();
+        let scale = new THREE.Vector3();
+        threeMatrix.decompose(pos, quat, scale);
+        
+        reticle.position.copy(pos);
+        reticle.quaternion.copy(quat);
+        reticle.updateMatrix();
 
-    //     reticle.position.copy(pos);
-    //     reticle.quaternion.copy(quat);
-    //     reticle.updateMatrix();
+        
 
+        const surf = getReticleSurface();
 
+        // alignZAxisWithUp(reticle);
 
-    //     const surf = getReticleSurface();
-
-    //     // alignZAxisWithUp(reticle);
-
-    //     if (surf == 'wall') {
-    //       alignZAxisWithUp(reticle);
-    //     }
-
+        if (surf == 'wall') {
+          alignZAxisWithUp(reticle);
+        }
+        
 
 
 
 
 
 
-    //     data_output.innerHTML = surf;
+        data_output.innerHTML = surf;
 
 
-    //   } else {
-    //     reticle.visible = false;
-    //     gizmo.visible = false;
-    //   }
-    // }
+      } else {
+        reticle.visible = false;
+        gizmo.visible = false;
+      }
+    }
   }
 
   renderer.render(scene, camera);
 }
-
-
-// function render(timestamp, frame) {
-//   if (frame) {
-//     const referenceSpace = renderer.xr.getReferenceSpace();
-//     const session = renderer.xr.getSession();
-
-//     if (hitTestSourceRequested === false) {
-//       session.requestReferenceSpace("viewer").then(function (referenceSpace) {
-//         session
-//           .requestHitTestSource({ space: referenceSpace })
-//           .then(function (source) {
-//             hitTestSource = source;
-//           });
-//       });
-
-//       session.addEventListener("end", function () {
-//         hitTestSourceRequested = false;
-//         hitTestSource = null;
-//       });
-
-//       hitTestSourceRequested = true;
-//     }
-
-
-
-//     if (hitTestSource) {
-//       const hitTestResults = frame.getHitTestResults(hitTestSource);
-
-//       if (hitTestResults.length) {
-//         if (!planeFound) {
-//           planeFound = true;
-//           //hide #tracking-prompt
-//           document.getElementById("tracking-prompt").style.display = "none";
-//           document.getElementById("instructions").style.display = "flex";
-//           console.log("plane found");
-//         }
-
-//         const hit = hitTestResults[0];
-//         reticle.visible = true;
-//         // reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-
-//         const pose = hit.getPose(referenceSpace);
-//         const rawMatrix = pose.transform.matrix;
-//         const threeMatrix = new THREE.Matrix4();
-//         threeMatrix.fromArray(rawMatrix);
-//         let pos = new THREE.Vector3();
-//         let quat = new THREE.Quaternion();
-//         let scale = new THREE.Vector3();
-//         threeMatrix.decompose(pos, quat, scale);
-
-//         reticle.position.copy(pos);
-//         reticle.quaternion.copy(quat);
-//         reticle.updateMatrix();
-
-
-
-//         const surf = getReticleSurface();
-
-//         // alignZAxisWithUp(reticle);
-
-//         if (surf == 'wall') {
-//           alignZAxisWithUp(reticle);
-//         }
-
-
-
-
-
-
-
-//         data_output.innerHTML = surf;
-
-
-//       } else {
-//         reticle.visible = false;
-//         gizmo.visible = false;
-//       }
-//     }
-//   }
-
-//   renderer.render(scene, camera);
-// }
-

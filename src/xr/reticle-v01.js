@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-export class Reticle {
+export class XrReticle {
     constructor(options = {}) {
         this.options = {
-            scene: options.scene,
+            renderer: options.renderer, // Il renderer Three.js
+            scene: options.scene, // La scena Three.js in cui aggiungere il reticolo
+            // session: options.session, // La sessione XR corrente
             glbFileName: options.glbFileName || null,
             color: options.color || 0xFFFFFF,
             radius: options.radius || 0.05,
@@ -15,15 +17,16 @@ export class Reticle {
             pulseMin: options.pulseMin || 0.5,
             pulseMax: options.pulseMax || 1.0,
             hitTestEnabled: options.hitTestEnabled !== undefined ? options.hitTestEnabled : true,
-            visible: options.visible !== undefined ? options.visible : true
+            visible: options.visible !== undefined ? options.visible : false,
+            zUpOnWalls: options.zUpOnWalls !== undefined ? options.zUpOnWalls : true,
         };
 
         // Crea il mesh del reticolo
         this.mesh = this._createReticleMesh();
-        this.mesh.visible = this.options.visible;
+
 
         // Elementi di stato
-        this.xrSession = null;
+        // this.xrSession = this.options.session;
         this.hitTestSource = null;
         this.hitTestSourceRequested = false;
         this.lastHitPose = null;
@@ -45,24 +48,24 @@ export class Reticle {
 
 
     _createReticleMesh() {
+        let mesh = null;
+
+        // Carica il modello GLB se fornito
         if (this.options.glbFileName) {
             const loader = new GLTFLoader();
-            let mesh = null;
-
             loader.load(this.options.glbFileName, (gltf) => {
                 mesh = gltf.scene;
             }, undefined, (error) => {
                 alert('Errore nel caricamento del modello GLB:', error);
             });
-            this.mesh = mesh;
         }
-
+        // Crea un reticolo di base
         else {
             const ringGeometry = new THREE.RingGeometry(
                 this.options.innerRadius,
                 this.options.radius,
                 this.options.segments
-            );
+            ).rotateX(-Math.PI / 2);
 
             const material = new THREE.MeshBasicMaterial({
                 color: this.options.color,
@@ -71,17 +74,32 @@ export class Reticle {
                 opacity: 0.8
             });
 
-            this.mesh = new THREE.Mesh(ringGeometry, material);
-            this.mesh.rotation.x = -Math.PI / 2;
+            mesh = new THREE.Mesh(ringGeometry, material);
+            mesh.rotation.x = -Math.PI / 2;
         }
 
-        this.mesh.visible = this.options.visible;
-        this.mesh.matrixAutoUpdate = false;
-        this.addToScene();
+        mesh.visible = this.options.visible;
+        mesh.matrixAutoUpdate = false;
+
+        return mesh;
+
+        // this.addToScene();
+
+
+        // // Crea il Piano di riferimento per l'orientamento del reticolo
+        // this.geomLookAt = new THREE.PlaneGeometry(0.05, 0.05);
+        // this.reticleLookAt = new THREE.Mesh(
+        //     this.geomLookAt.rotateX(-Math.PI / 2),
+        //     new THREE.MeshBasicMaterial({ color: 0xff0000 })
+        // );
+        // this.reticleLookAt.translateY(0.3);
+        // this.reticleLookAt.visible = false;
+        // this.mesh.add(this.reticleLookAt);
     }
 
     addToScene() {
         this.options.scene.add(this.mesh);
+
     }
 
     removeFromScene() {
@@ -95,43 +113,140 @@ export class Reticle {
      */
     update(frame, referenceSpace) {
         // Aggiorna l'animazione pulsante
-        this._updatePulse();
+        // this._updatePulse();
 
-        if (!this.options.hitTestEnabled || !frame) return;
 
-        if (!this.hitTestSourceRequested) {
-            this._requestHitTestSource(referenceSpace);
-            this.hitTestSourceRequested = true;
-            return;
-        }
 
-        if (!this.hitTestSource) return;
+        // if (!this.options.hitTestEnabled || !frame) return;
 
-        // Esegui il hit test
-        const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+        // if (!this.hitTestSourceRequested) {
+        //     this._requestHitTestSource(referenceSpace);
+        //     this.hitTestSourceRequested = true;
+        //     return;
+        // }
 
-        if (hitTestResults.length > 0) {
-            const hit = hitTestResults[0];
-            this.lastHitPose = hit.getPose(referenceSpace);
+        // if (!this.hitTestSource){
+        //     console.log('No hit test source available');
+        //     return;
+        // };
 
-            if (this.lastHitPose) {
-                // Aggiorna la posizione del reticolo
-                this.mesh.position.set(
-                    this.lastHitPose.transform.position.x,
-                    this.lastHitPose.transform.position.y,
-                    this.lastHitPose.transform.position.z
-                );
+        // console.log('Hit test source:', this.hitTestSource);
+        // // Esegui il hit test
+        // const hitTestResults = frame.getHitTestResults(this.hitTestSource);
 
-                // Allinea l'orientamento del reticolo alla superficie
-                this._alignToSurface(this.lastHitPose.transform.orientation);
+        // if (hitTestResults.length > 0) {
+        //     const hit = hitTestResults[0];
+        //     this.lastHitPose = hit.getPose(referenceSpace);
+        //     console.log('Hit pose:', this.lastHitPose);
 
-                this.mesh.visible = this.options.visible;
-                this.isHitting = true;
+        //     if (this.lastHitPose) {
+        //         // Aggiorna la posizione del reticolo
+        //         this.mesh.position.set(
+        //             this.lastHitPose.transform.position.x,
+        //             this.lastHitPose.transform.position.y,
+        //             this.lastHitPose.transform.position.z
+        //         );
+
+        //         // Allinea l'orientamento del reticolo alla superficie
+        //         this._alignToSurface(this.lastHitPose.transform.orientation);
+
+        //         this.mesh.visible = this.options.visible;
+        //         this.isHitting = true;
+        //     }
+        // } else {
+        //     this.mesh.visible = false;
+        //     this.isHitting = false;
+        // }
+
+
+
+
+
+        const self = this;
+
+        if (frame) {
+            const referenceSpace = self.options.renderer.xr.getReferenceSpace();
+            const session = self.options.renderer.xr.getSession();
+
+            if (self.hitTestSourceRequested === false) {
+                session.requestReferenceSpace("viewer").then(function (referenceSpace) {
+                    session
+                        .requestHitTestSource({ space: referenceSpace })
+                        .then(function (source) {
+                            self.hitTestSource = source;
+                        });
+                });
+
+                session.addEventListener("end", function () {
+                    self.hitTestSourceRequested = false;
+                    self.hitTestSource = null;
+                });
+
+                self.hitTestSourceRequested = true;
             }
-        } else {
-            this.mesh.visible = false;
-            this.isHitting = false;
+
+
+
+            if (self.hitTestSource) {
+                const hitTestResults = frame.getHitTestResults(self.hitTestSource);
+
+                if (hitTestResults.length) {
+                    // if (!planeFound) {
+                    //     planeFound = true;
+                    //     //hide #tracking-prompt
+                    //     document.getElementById("tracking-prompt").style.display = "none";
+                    //     document.getElementById("instructions").style.display = "flex";
+                    //     console.log("plane found");
+                    // }
+                    this.mesh.visible = true;
+
+                    const hit = hitTestResults[0];
+                    // console.log(this.mesh);
+                    // reticle.visible = true;
+
+                    // console.log(this.mesh);
+                    // console.log(self.mesh);
+                    // return;
+
+
+                    const pose = hit.getPose(referenceSpace);
+                    const rawMatrix = pose.transform.matrix;
+                    const threeMatrix = new THREE.Matrix4();
+                    threeMatrix.fromArray(rawMatrix);
+                    let pos = new THREE.Vector3();
+                    let quat = new THREE.Quaternion();
+                    let scale = new THREE.Vector3();
+                    threeMatrix.decompose(pos, quat, scale);
+
+                    this.mesh.position.copy(pos);
+                    this.mesh.quaternion.copy(quat);
+                    this.mesh.updateMatrix();
+
+
+
+                    // const surf = getReticleSurface();
+
+                    // alignZAxisWithUp(reticle);
+
+                    // if (surf == 'wall') {
+                    //     alignZAxisWithUp(reticle);
+                    // }
+
+
+
+
+
+
+
+                    // data_output.innerHTML = surf;
+
+
+                } else {
+                    this.mesh.visible = this.options.visible;
+                }
+            }
         }
+
     }
 
     /**
@@ -164,6 +279,7 @@ export class Reticle {
      */
     _updatePulse() {
         const deltaTime = this.clock.getDelta();
+        console.log(this.mesh);
 
         // Aggiorna il valore della pulsazione
         this.pulseValue += this.pulseDirection * deltaTime * this.options.pulseSpeed;
@@ -280,10 +396,7 @@ export class Reticle {
         return this.isHitting;
     }
 
-    /**
-     * Imposta la visibilità del reticolo
-     * @param {boolean} visible - Stato di visibilità
-     */
+
     setVisible(visible) {
         this.options.visible = visible;
         this.mesh.visible = visible && this.isHitting;
