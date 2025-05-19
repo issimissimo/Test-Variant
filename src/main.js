@@ -1,17 +1,45 @@
+/// THREE.js
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
-import "./qr.js";
+
+
+import "./utils/qr.js";
+
+/// UI
 import Alpine from 'alpinejs';
 import './ui.js';
 
 // import "./style.css";
+
+///////////////////////////////////////////////
+
+import { initDeviceSensors, getDeviceYaw } from './utils/deviceOrientation.js';
+
+
+import { LocalStorage } from "./utils/localStorage.js";
+
+// await initDeviceSensors();
+
+var data_output = document.getElementById('data-output');
+
+
+
+
+
+
+/////////////////////////////////////////////////
+
+
 
 let container;
 let camera, scene, renderer;
 let controller;
 
 let reticle;
+let gizmo;
+let geomLookAt;
+let reticleLookAt;
 
 let hitTestSource = null;
 let hitTestSourceRequested = false;
@@ -40,11 +68,62 @@ if ("xr" in navigator) {
   });
 }
 
+
+
+
+
+function alignZAxisWithUp(mesh) {
+  // Calcola l'attuale direzione dell'asse Z della mesh
+  const zAxis = new THREE.Vector3(0, 0, 1);
+  zAxis.applyQuaternion(mesh.quaternion);
+
+  // Vettore di riferimento per "l'alto" (solitamente l'asse Y nel sistema di coordinate globale)
+  const upVector = new THREE.Vector3(0, 1, 0);
+
+  // Calcola l'angolo tra l'asse Z attuale e il vettore UP
+  const quaternion = new THREE.Quaternion();
+  quaternion.setFromUnitVectors(zAxis, upVector);
+
+  // Applica questa rotazione correttiva
+  mesh.quaternion.premultiply(quaternion);
+
+  // Aggiorna la matrice dell'oggetto
+  mesh.updateMatrix();
+}
+
+
+
+
+
+
+
+
+
 function sessionStart() {
   planeFound = false;
   //show #tracking-prompt
   document.getElementById("tracking-prompt").style.display = "block";
 }
+
+
+let reticleWorldPosition = new THREE.Vector3();
+let reticleLookAtWorldPosition = new THREE.Vector3();
+let reticleDirection = new THREE.Vector3();
+let reticleLookAtDirection = new THREE.Vector3();
+function getReticleSurface() {
+  reticleLookAt.getWorldPosition(reticleWorldPosition);
+  reticle.getWorldPosition(reticleLookAtWorldPosition);
+  reticleDirection.subVectors(reticleWorldPosition, reticleLookAtWorldPosition).normalize();
+  if (reticleDirection.y == 1) {
+    return 'floor';
+  } else if (reticleDirection.y == -1) {
+    return 'ceiling';
+  } else {
+    return 'wall';
+  }
+}
+
+
 
 function init() {
   container = document.createElement("div");
@@ -79,14 +158,46 @@ function init() {
   );
 
 
-  // let cube;
-  // function test() {
-  //   const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-  //   const material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
-  //   cube = new THREE.Mesh(geometry, material);
-  //   scene.add(cube);
-  // }
-  // test();
+  function createReticle() {
+    reticle = new THREE.Mesh(
+      new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial()
+    );
+    reticle.matrixAutoUpdate = false;
+    reticle.visible = false;
+    reticle.add(new THREE.AxesHelper(0.5));
+    scene.add(reticle);
+
+    geomLookAt = new THREE.PlaneGeometry(.05, .05);
+    reticleLookAt = new THREE.Mesh(
+      geomLookAt.rotateX(- Math.PI / 2),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    );
+    reticleLookAt.translateY(.3);
+    reticleLookAt.visible = false;
+    reticle.add(reticleLookAt);
+  }
+
+
+  function loadGizmo() {
+    const loader = new GLTFLoader();
+    loader.load("temp.glb", (gltf) => {
+      gizmo = gltf.scene;
+      gizmo.matrixAutoUpdate = false;
+      gizmo.visible = false;
+      gizmo.add(new THREE.AxesHelper(1));
+      scene.add(gizmo);
+    });
+  }
+
+
+  function loadFlower() {
+    const loader = new GLTFLoader();
+    loader.load("temp.glb", (gltf) => {
+      flowersGltf = gltf.scene;
+    });
+  }
+
 
   function onSelect() {
     console.log("onSelect");
@@ -144,20 +255,27 @@ function init() {
   controller.addEventListener("select", onSelect);
   scene.add(controller);
 
-  reticle = new THREE.Mesh(
-    new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
-    new THREE.MeshBasicMaterial()
-  );
-  reticle.matrixAutoUpdate = false;
-  reticle.visible = false;
-  scene.add(reticle);
+  // reticle = new THREE.Mesh(
+  //   new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
+  //   new THREE.MeshBasicMaterial()
+  // );
+  // reticle.matrixAutoUpdate = false;
+  // reticle.visible = false;
+  // scene.add(reticle);
 
-  //load flowers.glb
-  const loader = new GLTFLoader();
 
-  loader.load("temp.glb", (gltf) => {
-    flowersGltf = gltf.scene;
-  });
+
+
+  createReticle();
+  loadGizmo();
+
+
+  // //load flowers.glb
+  // const loader = new GLTFLoader();
+  // loader.load("temp.glb", (gltf) => {
+  //   flowersGltf = gltf.scene;
+  // });
+  loadFlower();
 
   window.addEventListener("resize", onWindowResize);
 }
@@ -172,6 +290,8 @@ function onWindowResize() {
 function animate() {
   renderer.setAnimationLoop(render);
 }
+
+
 
 function render(timestamp, frame) {
   if (frame) {
@@ -195,6 +315,8 @@ function render(timestamp, frame) {
       hitTestSourceRequested = true;
     }
 
+
+
     if (hitTestSource) {
       const hitTestResults = frame.getHitTestResults(hitTestSource);
 
@@ -206,12 +328,60 @@ function render(timestamp, frame) {
           document.getElementById("instructions").style.display = "flex";
           console.log("plane found");
         }
-        const hit = hitTestResults[0];
 
+        const hit = hitTestResults[0];
         reticle.visible = true;
-        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+        // reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+
+        const pose = hit.getPose(referenceSpace);
+        const rawMatrix = pose.transform.matrix;
+        const threeMatrix = new THREE.Matrix4();
+        threeMatrix.fromArray(rawMatrix);
+        let pos = new THREE.Vector3();
+        let quat = new THREE.Quaternion();
+        let scale = new THREE.Vector3();
+        threeMatrix.decompose(pos, quat, scale);
+        
+        reticle.position.copy(pos);
+        reticle.quaternion.copy(quat);
+        reticle.updateMatrix();
+
+        
+
+        const surf = getReticleSurface();
+
+        // alignZAxisWithUp(reticle);
+
+        if (surf == 'wall') {
+          alignZAxisWithUp(reticle);
+        }
+        // if (surf == 'floor') {
+        //   reticle.updateMatrix();
+        // } else if (surf == 'wall') {
+        //   alignZAxisWithUp(reticle);
+        // } else {
+        //   reticle.updateMatrix();
+        // } 
+
+
+
+
+
+        // gizmo.position.copy(pos);
+        // gizmo.quaternion.copy(quat);
+        // gizmo.updateMatrix();
+
+
+
+
+
+
+        data_output.innerHTML = surf;
+
+
       } else {
         reticle.visible = false;
+        gizmo.visible = false;
       }
     }
   }
