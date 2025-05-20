@@ -111,22 +111,22 @@ function sessionStart() {
 }
 
 
-let reticleWorldPosition = new THREE.Vector3();
-let reticleLookAtWorldPosition = new THREE.Vector3();
-let reticleDirection = new THREE.Vector3();
-let reticleLookAtDirection = new THREE.Vector3();
-function getReticleSurface() {
-  reticleLookAt.getWorldPosition(reticleWorldPosition);
-  reticle.getWorldPosition(reticleLookAtWorldPosition);
-  reticleDirection.subVectors(reticleWorldPosition, reticleLookAtWorldPosition).normalize();
-  if (reticleDirection.y == 1) {
-    return 'floor';
-  } else if (reticleDirection.y == -1) {
-    return 'ceiling';
-  } else {
-    return 'wall';
-  }
-}
+// let reticleWorldPosition = new THREE.Vector3();
+// let reticleLookAtWorldPosition = new THREE.Vector3();
+// let reticleDirection = new THREE.Vector3();
+// let reticleLookAtDirection = new THREE.Vector3();
+// function getReticleSurface() {
+//   reticleLookAt.getWorldPosition(reticleWorldPosition);
+//   reticle.getWorldPosition(reticleLookAtWorldPosition);
+//   reticleDirection.subVectors(reticleWorldPosition, reticleLookAtWorldPosition).normalize();
+//   if (reticleDirection.y == 1) {
+//     return 'floor';
+//   } else if (reticleDirection.y == -1) {
+//     return 'ceiling';
+//   } else {
+//     return 'wall';
+//   }
+// }
 
 
 
@@ -281,7 +281,7 @@ function init() {
     color: 0x00ff00,
     radius: 0.2,
     innerRadius: 0.1,
-    segments: 8,
+    segments: 4,
   })
 
 
@@ -312,6 +312,8 @@ function render(timestamp, frame) {
 
     // reticle.update(frame);
     XrReticle.update(frame);
+
+    console.log(XrReticle.isHitting());
 
     // if (hitTestSourceRequested === false) {
     //   session.requestReferenceSpace("viewer").then(function (referenceSpace) {

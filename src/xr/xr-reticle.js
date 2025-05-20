@@ -8,7 +8,6 @@ let _mesh = null;
 // Elementi di stato
 let _hitTestSource = null;
 let _hitTestSourceRequested = false;
-let _lastHitPose = null;
 let _isHitting = false;
 
 // Variabili per il Piano di riferimento per l'orientamento del reticolo
@@ -17,7 +16,49 @@ let _reticleLookAt = null;
 let _reticleWorldPosition = new THREE.Vector3();
 let _reticleLookAtWorldPosition = new THREE.Vector3();
 let _reticleDirection = new THREE.Vector3();
-let _reticleLookAtDirection = new THREE.Vector3();
+
+
+
+function _addPlaneForReticleSurface() {
+    _geomLookAt = new THREE.PlaneGeometry(0.1, 0.1);
+    _reticleLookAt = new THREE.Mesh(
+        _geomLookAt.rotateX(- Math.PI / 2),
+        new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    );
+    _reticleLookAt.translateY(.3);
+    _reticleLookAt.visible = false;
+    _mesh.add(_reticleLookAt);
+}
+
+
+function _getReticleSurface() {
+    _reticleLookAt.getWorldPosition(_reticleWorldPosition);
+    _mesh.getWorldPosition(_reticleLookAtWorldPosition);
+    _reticleDirection.subVectors(_reticleWorldPosition, _reticleLookAtWorldPosition).normalize();
+    if (_reticleDirection.y == 1) {
+        return 'floor';
+    } else if (_reticleDirection.y == -1) {
+        return 'ceiling';
+    } else {
+        return 'wall';
+    }
+}
+
+
+function _alignZAxisWithUp() {
+    // Calcola l'attuale direzione dell'asse Z della mesh
+    const zAxis = new THREE.Vector3(0, 0, 1);
+    zAxis.applyQuaternion(_mesh.quaternion);
+    // Vettore di riferimento per "l'alto" (solitamente l'asse Y nel sistema di coordinate globale)
+    const upVector = new THREE.Vector3(0, 1, 0);
+    // Calcola l'angolo tra l'asse Z attuale e il vettore UP
+    const quaternion = new THREE.Quaternion();
+    quaternion.setFromUnitVectors(zAxis, upVector);
+    // Applica questa rotazione correttiva
+    _mesh.quaternion.premultiply(quaternion);
+    // Aggiorna la matrice dell'oggetto
+    _mesh.updateMatrix();
+}
 
 
 const XrReticle = {
@@ -55,13 +96,15 @@ const XrReticle = {
         _mesh.matrixAutoUpdate = false;
         _mesh.visible = false;
         _scene.add(_mesh);
+
+        _addPlaneForReticleSurface();
     },
 
 
-    update(frame) {
+    update(frame, callback) {
         const referenceSpace = _renderer.xr.getReferenceSpace();
         const session = _renderer.xr.getSession();
-        
+
         if (_hitTestSourceRequested === false) {
             session.requestReferenceSpace("viewer").then(function (referenceSpace) {
                 session
@@ -82,7 +125,7 @@ const XrReticle = {
         if (_hitTestSource) {
             const hitTestResults = frame.getHitTestResults(_hitTestSource);
             if (hitTestResults.length) {
-                
+
                 _isHitting = true;
                 _mesh.visible = true;
 
@@ -95,40 +138,25 @@ const XrReticle = {
                 let quat = new THREE.Quaternion();
                 let scale = new THREE.Vector3();
                 threeMatrix.decompose(pos, quat, scale);
-
                 _mesh.position.copy(pos);
                 _mesh.quaternion.copy(quat);
                 _mesh.updateMatrix();
 
-
-
-                // const surf = getReticleSurface();
-
-                // alignZAxisWithUp(reticle);
-
-                // if (surf == 'wall') {
-                //     alignZAxisWithUp(reticle);
-                // }
-
-
-
-
-
-
-
-                // data_output.innerHTML = surf;
-
+                const surf = _getReticleSurface();
+                if (surf == 'wall') _alignZAxisWithUp();
+                
+                if (callback) callback(surf);
 
             } else {
                 _isHitting = false;
                 _mesh.visible = false;
             }
         }
-    }
+    },
 
+    isHitting() {
+        return _isHitting;
+    },
 }
-
-
-
 
 export default XrReticle;   
