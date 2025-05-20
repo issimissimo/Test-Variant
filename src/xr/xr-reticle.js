@@ -9,6 +9,7 @@ let _mesh = null;
 let _hitTestSource = null;
 let _hitTestSourceRequested = false;
 let _isHitting = false;
+let _surfType = null;
 
 // Variabili per il Piano di riferimento per l'orientamento del reticolo
 let _geomLookAt = null;
@@ -16,7 +17,6 @@ let _reticleLookAt = null;
 let _reticleWorldPosition = new THREE.Vector3();
 let _reticleLookAtWorldPosition = new THREE.Vector3();
 let _reticleDirection = new THREE.Vector3();
-
 
 
 function _addPlaneForReticleSurface() {
@@ -61,6 +61,14 @@ function _alignZAxisWithUp() {
 }
 
 
+const _options = {
+    radius: 0.2,
+    innerRadius: 0.1,
+    segments: 32,
+    color: 0x00ff00
+}
+
+
 const XrReticle = {
     /**
      * Configura le opzioni per l'oggetto XrReticle.
@@ -74,36 +82,51 @@ const XrReticle = {
      * @param {number} [options.segments] - Il numero di segmenti del reticolo.
      * @param {number} [options.color] - Il colore del reticolo.
      */
-    init(options = {}) {
+    set(options = {}) {
 
-        _renderer = options.renderer;
-        _scene = options.scene;
+        if (options.renderer) _renderer = options.renderer;
+        if (options.scene) _scene = options.scene;
+
+        if (!_renderer || !_scene) {
+            console.error("XrReticle: renderer or scene not set");
+            return;
+        }
+
+        if (options.radius) _options.radius = options.radius;
+        if (options.innerRadius) _options.innerRadius = options.innerRadius;
+        if (options.segments) _options.segments = options.segments;
+        if (options.color) _options.color = options.color;
+
+        const reticleMesh = _mesh;
 
         if (options.fileName) {
             const loader = new GLTFLoader();
-            loader.load(options.fileName, (gltf) => {
+            loader.load(_options.fileName, (gltf) => {
                 _mesh = gltf.scene;
             });
         }
         else {
-            const ringGeometry = new THREE.RingGeometry(options.innerRadius || 0.3, options.radius || 0.2, options.segments || 32).rotateX(-Math.PI / 2);
+            const ringGeometry = new THREE.RingGeometry(_options.innerRadius, _options.radius, _options.segments).rotateX(-Math.PI / 2);
             const material = new THREE.MeshBasicMaterial({
-                color: options.color || 0x00ff00, transparent: true,
+                color: _options.color || 0x00ff00, transparent: true,
                 opacity: 0.8, side: THREE.DoubleSide
             });
             _mesh = new THREE.Mesh(ringGeometry, material);
         }
-        _mesh.matrixAutoUpdate = false;
-        _mesh.visible = false;
-        _scene.add(_mesh);
 
-        _addPlaneForReticleSurface();
+        if (reticleMesh == null) {
+            _mesh.matrixAutoUpdate = false;
+            _mesh.visible = false;
+            _scene.add(_mesh);
+            _addPlaneForReticleSurface();
+        }
     },
 
 
     update(frame, callback) {
         const referenceSpace = _renderer.xr.getReferenceSpace();
         const session = _renderer.xr.getSession();
+        _surfType = null;
 
         if (_hitTestSourceRequested === false) {
             session.requestReferenceSpace("viewer").then(function (referenceSpace) {
@@ -142,10 +165,10 @@ const XrReticle = {
                 _mesh.quaternion.copy(quat);
                 _mesh.updateMatrix();
 
-                const surf = _getReticleSurface();
-                if (surf == 'wall') _alignZAxisWithUp();
-                
-                if (callback) callback(surf);
+                _surfType = _getReticleSurface();
+                if (_surfType == 'wall') _alignZAxisWithUp();
+
+                if (callback) callback(_surfType);
 
             } else {
                 _isHitting = false;
@@ -157,6 +180,10 @@ const XrReticle = {
     isHitting() {
         return _isHitting;
     },
+
+    surfType() {
+        return _surfType;
+    }
 }
 
 export default XrReticle;   

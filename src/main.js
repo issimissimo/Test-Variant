@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 
 import XrReticle from "./xr/xr-reticle.js";
-import { Reticle } from "./xr/reticle.js";
+
 
 
 import "./utils/qr.js";
@@ -17,14 +17,12 @@ import './ui.js';
 
 ///////////////////////////////////////////////
 
-import { initDeviceSensors, getDeviceYaw } from './utils/deviceOrientation.js';
+
 
 
 import { LocalStorage } from "./utils/localStorage.js";
 
-// import { XrReticle } from "./xr/reticle.js";
 
-// await initDeviceSensors();
 
 var data_output = document.getElementById('data-output');
 
@@ -77,24 +75,6 @@ if ("xr" in navigator) {
 
 
 
-function alignZAxisWithUp(mesh) {
-  // Calcola l'attuale direzione dell'asse Z della mesh
-  const zAxis = new THREE.Vector3(0, 0, 1);
-  zAxis.applyQuaternion(mesh.quaternion);
-
-  // Vettore di riferimento per "l'alto" (solitamente l'asse Y nel sistema di coordinate globale)
-  const upVector = new THREE.Vector3(0, 1, 0);
-
-  // Calcola l'angolo tra l'asse Z attuale e il vettore UP
-  const quaternion = new THREE.Quaternion();
-  quaternion.setFromUnitVectors(zAxis, upVector);
-
-  // Applica questa rotazione correttiva
-  mesh.quaternion.premultiply(quaternion);
-
-  // Aggiorna la matrice dell'oggetto
-  mesh.updateMatrix();
-}
 
 
 
@@ -163,25 +143,6 @@ function init() {
   );
 
 
-  // function createReticle() {
-  //   reticle = new THREE.Mesh(
-  //     new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
-  //     new THREE.MeshBasicMaterial()
-  //   );
-  //   reticle.matrixAutoUpdate = false;
-  //   reticle.visible = false;
-  //   reticle.add(new THREE.AxesHelper(0.5));
-  //   scene.add(reticle);
-
-  //   geomLookAt = new THREE.PlaneGeometry(.05, .05);
-  //   reticleLookAt = new THREE.Mesh(
-  //     geomLookAt.rotateX(- Math.PI / 2),
-  //     new THREE.MeshBasicMaterial({ color: 0xff0000 })
-  //   );
-  //   reticleLookAt.translateY(.3);
-  //   reticleLookAt.visible = false;
-  //   reticle.add(reticleLookAt);
-  // }
 
 
   function loadGizmo() {
@@ -261,21 +222,12 @@ function init() {
   scene.add(controller);
 
 
-  // reticle = new Reticle({
-  //   renderer: renderer,
-  //   scene: scene,
-  //   color: 0x00ff00,
-  //   radius: 0.3,
-  //   innerRadius: 0.15,
-  //   segments: 4,
-  // });
-  // reticle.addToScene();
 
 
 
 
 
-  XrReticle.init({
+  XrReticle.set({
     renderer: renderer,
     scene: scene,
     color: 0x00ff00,
@@ -310,168 +262,18 @@ function animate() {
 function render(timestamp, frame) {
   if (frame) {
 
-    // reticle.update(frame);
-    XrReticle.update(frame);
 
-    console.log(XrReticle.isHitting());
+    XrReticle.update(frame, (surfType) => {
+      ///console.log("surfType", surfType);
+    });
 
-    // if (hitTestSourceRequested === false) {
-    //   session.requestReferenceSpace("viewer").then(function (referenceSpace) {
-    //     session
-    //       .requestHitTestSource({ space: referenceSpace })
-    //       .then(function (source) {
-    //         hitTestSource = source;
-    //       });
-    //   });
+    
 
-    //   session.addEventListener("end", function () {
-    //     hitTestSourceRequested = false;
-    //     hitTestSource = null;
-    //   });
-
-    //   hitTestSourceRequested = true;
-    // }
-
-
-
-    // if (hitTestSource) {
-    //   const hitTestResults = frame.getHitTestResults(hitTestSource);
-
-    //   if (hitTestResults.length) {
-    //     if (!planeFound) {
-    //       planeFound = true;
-    //       //hide #tracking-prompt
-    //       document.getElementById("tracking-prompt").style.display = "none";
-    //       document.getElementById("instructions").style.display = "flex";
-    //       console.log("plane found");
-    //     }
-
-    //     const hit = hitTestResults[0];
-    //     reticle.visible = true;
-    //     // reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-
-    //     const pose = hit.getPose(referenceSpace);
-    //     const rawMatrix = pose.transform.matrix;
-    //     const threeMatrix = new THREE.Matrix4();
-    //     threeMatrix.fromArray(rawMatrix);
-    //     let pos = new THREE.Vector3();
-    //     let quat = new THREE.Quaternion();
-    //     let scale = new THREE.Vector3();
-    //     threeMatrix.decompose(pos, quat, scale);
-
-    //     reticle.position.copy(pos);
-    //     reticle.quaternion.copy(quat);
-    //     reticle.updateMatrix();
-
-
-
-    //     const surf = getReticleSurface();
-
-    //     // alignZAxisWithUp(reticle);
-
-    //     if (surf == 'wall') {
-    //       alignZAxisWithUp(reticle);
-    //     }
-
-
-
-
-
-
-
-    //     data_output.innerHTML = surf;
-
-
-    //   } else {
-    //     reticle.visible = false;
-    //     gizmo.visible = false;
-    //   }
-    // }
+    
   }
 
   renderer.render(scene, camera);
 }
 
 
-// function render(timestamp, frame) {
-//   if (frame) {
-//     const referenceSpace = renderer.xr.getReferenceSpace();
-//     const session = renderer.xr.getSession();
-
-//     if (hitTestSourceRequested === false) {
-//       session.requestReferenceSpace("viewer").then(function (referenceSpace) {
-//         session
-//           .requestHitTestSource({ space: referenceSpace })
-//           .then(function (source) {
-//             hitTestSource = source;
-//           });
-//       });
-
-//       session.addEventListener("end", function () {
-//         hitTestSourceRequested = false;
-//         hitTestSource = null;
-//       });
-
-//       hitTestSourceRequested = true;
-//     }
-
-
-
-//     if (hitTestSource) {
-//       const hitTestResults = frame.getHitTestResults(hitTestSource);
-
-//       if (hitTestResults.length) {
-//         if (!planeFound) {
-//           planeFound = true;
-//           //hide #tracking-prompt
-//           document.getElementById("tracking-prompt").style.display = "none";
-//           document.getElementById("instructions").style.display = "flex";
-//           console.log("plane found");
-//         }
-
-//         const hit = hitTestResults[0];
-//         reticle.visible = true;
-//         // reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-
-//         const pose = hit.getPose(referenceSpace);
-//         const rawMatrix = pose.transform.matrix;
-//         const threeMatrix = new THREE.Matrix4();
-//         threeMatrix.fromArray(rawMatrix);
-//         let pos = new THREE.Vector3();
-//         let quat = new THREE.Quaternion();
-//         let scale = new THREE.Vector3();
-//         threeMatrix.decompose(pos, quat, scale);
-
-//         reticle.position.copy(pos);
-//         reticle.quaternion.copy(quat);
-//         reticle.updateMatrix();
-
-
-
-//         const surf = getReticleSurface();
-
-//         // alignZAxisWithUp(reticle);
-
-//         if (surf == 'wall') {
-//           alignZAxisWithUp(reticle);
-//         }
-
-
-
-
-
-
-
-//         data_output.innerHTML = surf;
-
-
-//       } else {
-//         reticle.visible = false;
-//         gizmo.visible = false;
-//       }
-//     }
-//   }
-
-//   renderer.render(scene, camera);
-// }
 
