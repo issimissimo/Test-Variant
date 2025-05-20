@@ -1,12 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-export class XrReticle {
+export class Reticle {
     constructor(options = {}) {
         this.options = {
-            renderer: options.renderer, // Il renderer Three.js
-            scene: options.scene, // La scena Three.js in cui aggiungere il reticolo
-            // session: options.session, // La sessione XR corrente
+            renderer: options.renderer, // Obbligatorio
+            scene: options.scene, // Obbligatorio
             glbFileName: options.glbFileName || null,
             color: options.color || 0xFFFFFF,
             radius: options.radius || 0.05,
@@ -24,9 +23,7 @@ export class XrReticle {
         // Crea il mesh del reticolo
         this.mesh = this._createReticleMesh();
 
-
         // Elementi di stato
-        // this.xrSession = this.options.session;
         this.hitTestSource = null;
         this.hitTestSourceRequested = false;
         this.lastHitPose = null;
@@ -48,6 +45,7 @@ export class XrReticle {
 
 
     _createReticleMesh() {
+
         let mesh = null;
 
         // Carica il modello GLB se fornito
@@ -81,9 +79,9 @@ export class XrReticle {
         mesh.visible = this.options.visible;
         mesh.matrixAutoUpdate = false;
 
+        this.options.scene.add(mesh);
         return mesh;
 
-        // this.addToScene();
 
 
         // // Crea il Piano di riferimento per l'orientamento del reticolo
@@ -143,27 +141,21 @@ export class XrReticle {
         }
 
 
-
+        
         if (self.hitTestSource) {
+            console.log(self.hitTestSource);
             const hitTestResults = frame.getHitTestResults(self.hitTestSource);
-
+            console.log(hitTestResults);
             if (hitTestResults.length) {
-                // if (!planeFound) {
-                //     planeFound = true;
-                //     //hide #tracking-prompt
-                //     document.getElementById("tracking-prompt").style.display = "none";
-                //     document.getElementById("instructions").style.display = "flex";
-                //     console.log("plane found");
-                // }
+
+
+                this.isHitting = true;
                 this.mesh.visible = true;
 
                 const hit = hitTestResults[0];
-                // console.log(this.mesh);
-                // reticle.visible = true;
 
-                // console.log(this.mesh);
-                // console.log(self.mesh);
-                // return;
+
+
 
 
                 const pose = hit.getPose(referenceSpace);
@@ -199,6 +191,7 @@ export class XrReticle {
 
 
             } else {
+                this.isHitting = false;
                 this.mesh.visible = this.options.visible;
             }
         }
@@ -206,29 +199,7 @@ export class XrReticle {
 
     }
 
-    /**
-     * Richiede una sorgente di hit test per la sessione XR
-     * @param {XRReferenceSpace} referenceSpace - Lo spazio di riferimento XR
-     * @private
-     */
-    _requestHitTestSource(referenceSpace) {
-        if (!this.xrSession) return;
 
-        this.xrSession.requestReferenceSpace('viewer')
-            .then((viewerSpace) => {
-                this.xrSession.requestHitTestSource({
-                    space: viewerSpace
-                }).then((source) => {
-                    this.hitTestSource = source;
-                }).catch(err => {
-                    console.error('Error creating hit test source:', err);
-                    this.hitTestSourceRequested = false;
-                });
-            }).catch(err => {
-                console.error('Error requesting viewer reference space:', err);
-                this.hitTestSourceRequested = false;
-            });
-    }
 
     /**
      * Aggiorna l'effetto pulsante del reticolo
@@ -306,19 +277,9 @@ export class XrReticle {
         }
     }
 
-    /**
-     * Imposta la sessione XR
-     * @param {XRSession} session - La sessione XR
-     */
-    setXRSession(session) {
-        this.xrSession = session;
-        this.hitTestSourceRequested = false;
-        this.hitTestSource = null;
-    }
 
-    /**
-     * Termina e pulisce le risorse
-     */
+
+
     dispose() {
         if (this.hitTestSource) {
             this.hitTestSource.cancel();
@@ -337,10 +298,7 @@ export class XrReticle {
         this.xrSession = null;
     }
 
-    /**
-     * Restituisce la posizione corrente del reticolo
-     * @returns {THREE.Vector3} La posizione del reticolo
-     */
+
     getPosition() {
         return this.mesh.position.clone();
     }
@@ -354,10 +312,7 @@ export class XrReticle {
     }
 
 
-    setVisible(visible) {
-        this.options.visible = visible;
-        this.mesh.visible = visible && this.isHitting;
-    }
+
 
     /**
      * Imposta il colore del reticolo

@@ -3,6 +3,9 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 
+import XrReticle from "./xr/xr-reticle.js";
+import { Reticle } from "./xr/reticle.js";
+
 
 import "./utils/qr.js";
 
@@ -19,7 +22,7 @@ import { initDeviceSensors, getDeviceYaw } from './utils/deviceOrientation.js';
 
 import { LocalStorage } from "./utils/localStorage.js";
 
-import { XrReticle } from "./xr/reticle.js";
+// import { XrReticle } from "./xr/reticle.js";
 
 // await initDeviceSensors();
 
@@ -160,25 +163,25 @@ function init() {
   );
 
 
-  function createReticle() {
-    reticle = new THREE.Mesh(
-      new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
-      new THREE.MeshBasicMaterial()
-    );
-    reticle.matrixAutoUpdate = false;
-    reticle.visible = false;
-    reticle.add(new THREE.AxesHelper(0.5));
-    scene.add(reticle);
+  // function createReticle() {
+  //   reticle = new THREE.Mesh(
+  //     new THREE.RingGeometry(0.15, 0.2, 4).rotateX(-Math.PI / 2),
+  //     new THREE.MeshBasicMaterial()
+  //   );
+  //   reticle.matrixAutoUpdate = false;
+  //   reticle.visible = false;
+  //   reticle.add(new THREE.AxesHelper(0.5));
+  //   scene.add(reticle);
 
-    geomLookAt = new THREE.PlaneGeometry(.05, .05);
-    reticleLookAt = new THREE.Mesh(
-      geomLookAt.rotateX(- Math.PI / 2),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    );
-    reticleLookAt.translateY(.3);
-    reticleLookAt.visible = false;
-    reticle.add(reticleLookAt);
-  }
+  //   geomLookAt = new THREE.PlaneGeometry(.05, .05);
+  //   reticleLookAt = new THREE.Mesh(
+  //     geomLookAt.rotateX(- Math.PI / 2),
+  //     new THREE.MeshBasicMaterial({ color: 0xff0000 })
+  //   );
+  //   reticleLookAt.translateY(.3);
+  //   reticleLookAt.visible = false;
+  //   reticle.add(reticleLookAt);
+  // }
 
 
   function loadGizmo() {
@@ -257,22 +260,38 @@ function init() {
   controller.addEventListener("select", onSelect);
   scene.add(controller);
 
-  // createReticle();
-  reticle = new XrReticle({
+
+  // reticle = new Reticle({
+  //   renderer: renderer,
+  //   scene: scene,
+  //   color: 0x00ff00,
+  //   radius: 0.3,
+  //   innerRadius: 0.15,
+  //   segments: 4,
+  // });
+  // reticle.addToScene();
+
+
+
+
+
+  XrReticle.init({
     renderer: renderer,
     scene: scene,
-    // session: renderer.xr.getSession(),
     color: 0x00ff00,
-    radius: 0.3,
-    innerRadius: 0.15,
-    segments: 4,
-  });
-  reticle.addToScene();
+    radius: 0.2,
+    innerRadius: 0.1,
+    segments: 8,
+  })
+
+
 
   // loadGizmo();
   // loadFlower();
 
   window.addEventListener("resize", onWindowResize);
+
+
 }
 
 function onWindowResize() {
@@ -290,10 +309,9 @@ function animate() {
 
 function render(timestamp, frame) {
   if (frame) {
-    // const referenceSpace = renderer.xr.getReferenceSpace();
-    // const session = renderer.xr.getSession();
 
-    reticle.update(frame);
+    // reticle.update(frame);
+    XrReticle.update(frame);
 
     // if (hitTestSourceRequested === false) {
     //   session.requestReferenceSpace("viewer").then(function (referenceSpace) {
