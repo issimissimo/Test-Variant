@@ -20,9 +20,10 @@ export const LocalStorage = {
      * @param {string} key 
      * @param {any} value 
      */
-    set(key, value) {
+    save(key, value) {
         if (!this.isAvailable()) return;
         const serialized = JSON.stringify(value);
+        console.log(serialized);
         window.localStorage.setItem(key, serialized);
     },
 
@@ -31,7 +32,7 @@ export const LocalStorage = {
      * @param {string} key 
      * @returns {any|null}
      */
-    get(key) {
+    load(key) {
         if (!this.isAvailable()) return null;
         const raw = window.localStorage.getItem(key);
         return raw ? JSON.parse(raw) : null;

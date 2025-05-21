@@ -69,7 +69,8 @@ const _options = {
 }
 
 
-const XrReticle = {
+
+const Reticle = {
     /**
      * Configura le opzioni per l'oggetto XrReticle.
      *
@@ -122,11 +123,17 @@ const XrReticle = {
         }
     },
 
-
+    /**
+     * Updates the reticle's position and visibility based on the current XR frame's hit test results.
+     *
+     * @param {XRFrame} frame - The current XRFrame from the XR session.
+     * @param {function} [callback] - Optional callback invoked with the detected surface type ('wall', 'floor', etc.) after a successful hit test.
+     *
+     * @returns {void}
+     */
     update(frame, callback) {
         const referenceSpace = _renderer.xr.getReferenceSpace();
         const session = _renderer.xr.getSession();
-        _surfType = null;
 
         if (_hitTestSourceRequested === false) {
             session.requestReferenceSpace("viewer").then(function (referenceSpace) {
@@ -173,6 +180,7 @@ const XrReticle = {
             } else {
                 _isHitting = false;
                 _mesh.visible = false;
+                _surfType = null;
             }
         }
     },
@@ -181,9 +189,25 @@ const XrReticle = {
         return _isHitting;
     },
 
+    getHitPosition() {
+        return _mesh.position;
+    },
+
+    getHitQuaternion() {
+        return _mesh.quaternion;
+    },
+
+    getHitMatrix() {
+        return _mesh.matrix;
+    },
+
+    setVisible(visible) {
+        _mesh.visible = visible;
+    },
+
     surfType() {
         return _surfType;
     }
 }
 
-export default XrReticle;   
+export default Reticle;   

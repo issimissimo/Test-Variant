@@ -3,7 +3,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 
-import XrReticle from "./xr/xr-reticle.js";
+import Reticle from "./xr/reticle.js";
+import Persistence from "./xr/persistence.js";
 
 
 
@@ -20,7 +21,6 @@ import './ui.js';
 
 
 
-import { LocalStorage } from "./utils/localStorage.js";
 
 
 
@@ -50,7 +50,7 @@ let planeFound = false;
 let flowersGltf;
 
 
-let initAnchorCreated = false;
+// let initAnchorCreated = false;
 let initAnchor = null;
 
 
@@ -91,22 +91,6 @@ function sessionStart() {
 }
 
 
-// let reticleWorldPosition = new THREE.Vector3();
-// let reticleLookAtWorldPosition = new THREE.Vector3();
-// let reticleDirection = new THREE.Vector3();
-// let reticleLookAtDirection = new THREE.Vector3();
-// function getReticleSurface() {
-//   reticleLookAt.getWorldPosition(reticleWorldPosition);
-//   reticle.getWorldPosition(reticleLookAtWorldPosition);
-//   reticleDirection.subVectors(reticleWorldPosition, reticleLookAtWorldPosition).normalize();
-//   if (reticleDirection.y == 1) {
-//     return 'floor';
-//   } else if (reticleDirection.y == -1) {
-//     return 'ceiling';
-//   } else {
-//     return 'wall';
-//   }
-// }
 
 
 
@@ -149,38 +133,132 @@ function init() {
     const loader = new GLTFLoader();
     loader.load("temp.glb", (gltf) => {
       gizmo = gltf.scene;
-      gizmo.matrixAutoUpdate = false;
-      gizmo.visible = false;
-      gizmo.add(new THREE.AxesHelper(1));
-      scene.add(gizmo);
+      // gizmo.matrixAutoUpdate = false;
+      // gizmo.visible = false;
+      // gizmo.add(new THREE.AxesHelper(1));
+      // scene.add(gizmo);
     });
   }
 
 
   function loadFlower() {
     const loader = new GLTFLoader();
-    loader.load("temp.glb", (gltf) => {
+    loader.load("flowers.glb", (gltf) => {
       flowersGltf = gltf.scene;
     });
   }
 
 
-  function onSelect() {
-    console.log("onSelect");
-    if (reticle.visible && flowersGltf) {
-      //pick random child from flowersGltf
-      const flower =
-        flowersGltf.children[
-        Math.floor(Math.random() * flowersGltf.children.length)
-        ];
-      const mesh = flower.clone();
+  // function onSelect() {
+  //   console.log("onSelect");
+  //   if (reticle.visible && flowersGltf) {
+  //     //pick random child from flowersGltf
+  //     const flower =
+  //       flowersGltf.children[
+  //       Math.floor(Math.random() * flowersGltf.children.length)
+  //       ];
+  //     const mesh = flower.clone();
 
-      reticle.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+  //     reticle.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+  //     // const scale = Math.random() * 0.4 + 0.25;
+  //     // mesh.scale.set(scale, scale, scale);
+  //     //random rotation
+  //     // mesh.rotateY(Math.random() * Math.PI * 2);
+  //     scene.add(mesh);
+
+  //     // // animate growing via hacky setInterval then destroy it when fully grown
+  //     // const interval = setInterval(() => {
+  //     //   mesh.scale.multiplyScalar(1.01);
+
+  //     //   mesh.rotateY(0.03);
+  //     // }, 16);
+  //     // setTimeout(() => {
+  //     //   clearInterval(interval);
+  //     // }, 500);
+  //     if (!initAnchorCreated) {
+  //       initAnchorCreated = true;
+  //       console.log(reticle.matrix);
+  //       console.log(mesh.position);
+  //       console.log(mesh.quaternion);
+  //       console.log(mesh.scale);
+  //       console.log(mesh.rotation);
+  //       console.log("initAnchorCreated", initAnchorCreated);
+  //       initAnchor = {
+  //         position: {
+  //           x: reticle.position.x,
+  //           y: reticle.position.y,
+  //           z: reticle.position.z
+  //         },
+  //         rotation: {
+  //           x: reticle.rotation.x,
+  //           y: reticle.rotation.y,
+  //           z: reticle.rotation.z
+  //         }
+  //       }
+  //       console.log(initAnchor);
+  //     }
+
+  //   }
+  // }
+
+  function onSelect() {
+
+    if (Reticle.isHitting() && flowersGltf) {
+
+      const hitMatrix = Reticle.getHitMatrix();
+
+      // Initialize the persistence system
+      if (!Persistence.isInitialized()) {
+        Persistence.setReference(hitMatrix);
+
+        const ref =
+          gizmo.children[
+          Math.floor(Math.random() * gizmo.children.length)
+          ];
+        const mesh = ref.clone();
+        hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        scene.add(mesh);
+
+      }
+      else {
+        // Persistence.save(hitMatrix);
+
+
+
+        const flower =
+          flowersGltf.children[
+          Math.floor(Math.random() * flowersGltf.children.length)
+          ];
+        const mesh = flower.clone();
+
+        hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        scene.add(mesh);
+      }
+
+
+
+
+
+
+
+
+      //pick random child from flowersGltf
+      // const flower =
+      //   flowersGltf.children[
+      //   Math.floor(Math.random() * flowersGltf.children.length)
+      //   ];
+      // const mesh = flower.clone();
+
+      // hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
       // const scale = Math.random() * 0.4 + 0.25;
       // mesh.scale.set(scale, scale, scale);
       //random rotation
       // mesh.rotateY(Math.random() * Math.PI * 2);
-      scene.add(mesh);
+
+      // mesh.position.copy(Reticle.hitPosition());
+      // mesh.quaternion.copy(Reticle.hitQuaternion());
+
+      // scene.add(mesh);
 
       // // animate growing via hacky setInterval then destroy it when fully grown
       // const interval = setInterval(() => {
@@ -191,28 +269,27 @@ function init() {
       // setTimeout(() => {
       //   clearInterval(interval);
       // }, 500);
-      if (!initAnchorCreated) {
-        initAnchorCreated = true;
-        console.log(reticle.matrix);
-        console.log(mesh.position);
-        console.log(mesh.quaternion);
-        console.log(mesh.scale);
-        console.log(mesh.rotation);
-        console.log("initAnchorCreated", initAnchorCreated);
-        initAnchor = {
-          position: {
-            x: reticle.position.x,
-            y: reticle.position.y,
-            z: reticle.position.z
-          },
-          rotation: {
-            x: reticle.rotation.x,
-            y: reticle.rotation.y,
-            z: reticle.rotation.z
-          }
-        }
-        console.log(initAnchor);
-      }
+      // if (!initAnchorCreated) {
+      //   initAnchorCreated = true;
+      //   console.log(mesh.position);
+      //   console.log(mesh.quaternion);
+      //   console.log(mesh.scale);
+      //   console.log(mesh.rotation);
+      //   console.log("initAnchorCreated", initAnchorCreated);
+      //   // initAnchor = {
+      //   //   position: {
+      //   //     x: reticle.position.x,
+      //   //     y: reticle.position.y,
+      //   //     z: reticle.position.z
+      //   //   },
+      //   //   rotation: {
+      //   //     x: reticle.rotation.x,
+      //   //     y: reticle.rotation.y,
+      //   //     z: reticle.rotation.z
+      //   //   }
+      //   // }
+      //   // console.log(initAnchor);
+      // }
 
     }
   }
@@ -227,19 +304,19 @@ function init() {
 
 
 
-  XrReticle.set({
+  Reticle.set({
     renderer: renderer,
     scene: scene,
     color: 0x00ff00,
-    radius: 0.2,
-    innerRadius: 0.1,
+    radius: 0.06,
+    innerRadius: 0.05,
     segments: 4,
   })
 
 
 
-  // loadGizmo();
-  // loadFlower();
+  loadGizmo();
+  loadFlower();
 
   window.addEventListener("resize", onWindowResize);
 
@@ -259,21 +336,29 @@ function animate() {
 
 
 
-function render(timestamp, frame) {
+// function render(timestamp, frame) {
+//   if (frame) {
+//     Reticle.update(frame, (surfType) => {
+//       ///console.log("surfType", surfType);
+//     });
+//   }
+
+//   renderer.render(scene, camera);
+// }
+
+const render = (timestamp, frame) => {
   if (frame) {
 
-
-    XrReticle.update(frame, (surfType) => {
+    Reticle.update(frame, (surfType) => {
       ///console.log("surfType", surfType);
     });
-
-    
-
-    
   }
 
   renderer.render(scene, camera);
 }
+
+
+
 
 
 
