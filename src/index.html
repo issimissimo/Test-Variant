@@ -27,7 +27,13 @@
     <div x-cloak x-show="$store.ui.visibility.overlay" id="overlay">
       <div id="tracking-prompt"><img src="hand.png" /></div>
       <div id="instructions">Tap to grow</div>
-      <div id="data-output">DATA</div>
+
+
+      <!-- <div id="data-output">DATA</div> -->
+      <button id="save">SAVE</button>
+      <button id="load">LOAD</button>
+
+
     </div>
 
 
@@ -77,8 +83,8 @@
     new Spinner(opts).spin(target);
   </script>
 
-<!-- MAIN -->  
-<script type="module" src="/main.js"></script>
+  <!-- MAIN -->
+  <script type="module" src="/main.js"></script>
 </body>
 
 </html>

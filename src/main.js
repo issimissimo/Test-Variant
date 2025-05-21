@@ -201,6 +201,7 @@ function init() {
   //   }
   // }
 
+  const mode = "load";
   function onSelect() {
 
     if (Reticle.isHitting() && flowersGltf) {
@@ -219,78 +220,37 @@ function init() {
         hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         scene.add(mesh);
 
+        if (mode == "load") {
+          const modelsMatrix = Persistence.load();
+          console.log(modelsMatrix);
+
+          if (modelsMatrix) {
+            modelsMatrix.forEach((modelMatrix) => {
+              const flower =
+                flowersGltf.children[0];
+              const mesh = flower.clone();
+              modelMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+              scene.add(mesh);
+            });
+          }
+        }
+
       }
       else {
-        // Persistence.save(hitMatrix);
 
+        if (mode == "save") {
+          const flower =
+            flowersGltf.children[
+            Math.floor(Math.random() * flowersGltf.children.length)
+            ];
+          const mesh = flower.clone();
 
+          hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+          scene.add(mesh);
 
-        const flower =
-          flowersGltf.children[
-          Math.floor(Math.random() * flowersGltf.children.length)
-          ];
-        const mesh = flower.clone();
-
-        hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        scene.add(mesh);
+          Persistence.save(hitMatrix);
+        }
       }
-
-
-
-
-
-
-
-
-      //pick random child from flowersGltf
-      // const flower =
-      //   flowersGltf.children[
-      //   Math.floor(Math.random() * flowersGltf.children.length)
-      //   ];
-      // const mesh = flower.clone();
-
-      // hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-      // const scale = Math.random() * 0.4 + 0.25;
-      // mesh.scale.set(scale, scale, scale);
-      //random rotation
-      // mesh.rotateY(Math.random() * Math.PI * 2);
-
-      // mesh.position.copy(Reticle.hitPosition());
-      // mesh.quaternion.copy(Reticle.hitQuaternion());
-
-      // scene.add(mesh);
-
-      // // animate growing via hacky setInterval then destroy it when fully grown
-      // const interval = setInterval(() => {
-      //   mesh.scale.multiplyScalar(1.01);
-
-      //   mesh.rotateY(0.03);
-      // }, 16);
-      // setTimeout(() => {
-      //   clearInterval(interval);
-      // }, 500);
-      // if (!initAnchorCreated) {
-      //   initAnchorCreated = true;
-      //   console.log(mesh.position);
-      //   console.log(mesh.quaternion);
-      //   console.log(mesh.scale);
-      //   console.log(mesh.rotation);
-      //   console.log("initAnchorCreated", initAnchorCreated);
-      //   // initAnchor = {
-      //   //   position: {
-      //   //     x: reticle.position.x,
-      //   //     y: reticle.position.y,
-      //   //     z: reticle.position.z
-      //   //   },
-      //   //   rotation: {
-      //   //     x: reticle.rotation.x,
-      //   //     y: reticle.rotation.y,
-      //   //     z: reticle.rotation.z
-      //   //   }
-      //   // }
-      //   // console.log(initAnchor);
-      // }
-
     }
   }
 
