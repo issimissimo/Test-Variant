@@ -98,8 +98,6 @@ const Reticle = {
         if (options.segments) _options.segments = options.segments;
         if (options.color) _options.color = options.color;
 
-        const reticleMesh = _mesh;
-
         if (options.fileName) {
             const loader = new GLTFLoader();
             loader.load(_options.fileName, (gltf) => {
@@ -115,12 +113,10 @@ const Reticle = {
             _mesh = new THREE.Mesh(ringGeometry, material);
         }
 
-        if (reticleMesh == null) {
-            _mesh.matrixAutoUpdate = false;
-            _mesh.visible = false;
-            _scene.add(_mesh);
-            _addPlaneForReticleSurface();
-        }
+        _mesh.matrixAutoUpdate = false;
+        _mesh.visible = false;
+        _scene.add(_mesh);
+        _addPlaneForReticleSurface();
     },
 
     /**
@@ -170,10 +166,12 @@ const Reticle = {
                 threeMatrix.decompose(pos, quat, scale);
                 _mesh.position.copy(pos);
                 _mesh.quaternion.copy(quat);
-                _mesh.updateMatrix();
+                _mesh.updateMatrix(); ////// NON QUI!!!!!!!!
 
                 _surfType = _getReticleSurface();
                 if (_surfType == 'wall') _alignZAxisWithUp();
+
+                ///// MA QUI!!!!!
 
                 if (callback) callback(_surfType);
 

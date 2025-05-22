@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 
+import SceneManager from "./xr/sceneManager.js";
 import Reticle from "./xr/reticle.js";
 import Persistence from "./xr/persistence.js";
 
@@ -133,10 +134,6 @@ function init() {
     const loader = new GLTFLoader();
     loader.load("temp.glb", (gltf) => {
       gizmo = gltf.scene;
-      // gizmo.matrixAutoUpdate = false;
-      // gizmo.visible = false;
-      // gizmo.add(new THREE.AxesHelper(1));
-      // scene.add(gizmo);
     });
   }
 
@@ -149,62 +146,24 @@ function init() {
   }
 
 
-  // function onSelect() {
-  //   console.log("onSelect");
-  //   if (reticle.visible && flowersGltf) {
-  //     //pick random child from flowersGltf
-  //     const flower =
-  //       flowersGltf.children[
-  //       Math.floor(Math.random() * flowersGltf.children.length)
-  //       ];
-  //     const mesh = flower.clone();
+  function save() {
+    console.log("save");
+  }
+  
+  function load() {
+    console.log("load");
+  }
 
-  //     reticle.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-  //     // const scale = Math.random() * 0.4 + 0.25;
-  //     // mesh.scale.set(scale, scale, scale);
-  //     //random rotation
-  //     // mesh.rotateY(Math.random() * Math.PI * 2);
-  //     scene.add(mesh);
 
-  //     // // animate growing via hacky setInterval then destroy it when fully grown
-  //     // const interval = setInterval(() => {
-  //     //   mesh.scale.multiplyScalar(1.01);
+  
 
-  //     //   mesh.rotateY(0.03);
-  //     // }, 16);
-  //     // setTimeout(() => {
-  //     //   clearInterval(interval);
-  //     // }, 500);
-  //     if (!initAnchorCreated) {
-  //       initAnchorCreated = true;
-  //       console.log(reticle.matrix);
-  //       console.log(mesh.position);
-  //       console.log(mesh.quaternion);
-  //       console.log(mesh.scale);
-  //       console.log(mesh.rotation);
-  //       console.log("initAnchorCreated", initAnchorCreated);
-  //       initAnchor = {
-  //         position: {
-  //           x: reticle.position.x,
-  //           y: reticle.position.y,
-  //           z: reticle.position.z
-  //         },
-  //         rotation: {
-  //           x: reticle.rotation.x,
-  //           y: reticle.rotation.y,
-  //           z: reticle.rotation.z
-  //         }
-  //       }
-  //       console.log(initAnchor);
-  //     }
 
-  //   }
-  // }
+
 
   const mode = "load";
   function onSelect() {
 
-    if (Reticle.isHitting() && flowersGltf) {
+    if (Reticle.isHitting()) {
 
       const hitMatrix = Reticle.getHitMatrix();
 
