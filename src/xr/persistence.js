@@ -29,17 +29,17 @@ const Persistence = {
             return null;
         };
 
-        /// TEST CON UNA SOLA MATRICE
-        const savedOffset = LocalStorage.load("modelsMatrix");
-        const offsetMatrix = new THREE.Matrix4();
-        offsetMatrix.fromArray(savedOffset); 
-        const globalMatrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
-        return globalMatrix;
+        // /// TEST CON UNA SOLA MATRICE
+        // const savedOffset = LocalStorage.load("modelsMatrix");
+        // const offsetMatrix = new THREE.Matrix4();
+        // offsetMatrix.fromArray(savedOffset); 
+        // const globalMatrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
+        // return globalMatrix;
 
 
         const _modelsMatrix = LocalStorage.load("modelsMatrix");
-        console.log("--- LOADED OFFSET ----");
-        console.log(_modelsMatrix);
+        // console.log("--- LOADED OFFSET ----");
+        // console.log(_modelsMatrix);
 
 
         // const offsetMatrix = new THREE.Matrix4();
@@ -48,35 +48,35 @@ const Persistence = {
         // console.log(offsetMatrix);
         // return;
 
-        let globalsMatrix = [];
+        let allMatrix = [];
         if (_modelsMatrix.length > 0) {
 
             _modelsMatrix.forEach((el) => {
 
-                console.log("---------");
-                console.log(el);
-                console.log("---------");
+                // console.log("---------");
+                // console.log(el);
+                // console.log("---------");
 
                 const offsetMatrix = new THREE.Matrix4();
                 offsetMatrix.fromArray(el);
 
-                console.log("----------------------------");
-                console.log(offsetMatrix);
-                console.log("----------------------------");
+                // console.log("----------------------------");
+                // console.log(offsetMatrix);
+                // console.log("----------------------------");
 
-                const globalMatrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
-                globalsMatrix.push(globalMatrix);
+                const matrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
+                allMatrix.push(matrix);
 
                 
-                let pos = new THREE.Vector3();
-                let quat = new THREE.Quaternion();
-                let scale = new THREE.Vector3();
-                offsetMatrix.decompose(pos, quat, scale);
-                console.log("Loaded Diff position", pos);
-                console.log("Loaded Diff quaternion", quat);
+                // let pos = new THREE.Vector3();
+                // let quat = new THREE.Quaternion();
+                // let scale = new THREE.Vector3();
+                // offsetMatrix.decompose(pos, quat, scale);
+                // console.log("Loaded Diff position", pos);
+                // console.log("Loaded Diff quaternion", quat);
             })
 
-            return globalsMatrix;
+            return allMatrix;
         }
         else {
             console.error("No models matrix found");
@@ -98,8 +98,8 @@ const Persistence = {
         _modelsMatrix.push(offset.elements);
 
 
-        // LocalStorage.save("modelsMatrix", _modelsMatrix);
-        LocalStorage.save("modelsMatrix", offset.elements); /// TEST CON UNA SOLA MATRICE
+        LocalStorage.save("modelsMatrix", _modelsMatrix);
+        // LocalStorage.save("modelsMatrix", offset.elements); /// TEST CON UNA SOLA MATRICE
 
 
 

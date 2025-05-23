@@ -76,6 +76,7 @@ async function init() {
 
 
   const mode = "save";
+
   function onSelect() {
     console.log("onSelect!");
 
@@ -99,28 +100,31 @@ async function init() {
         console.log(gizmo)
         SceneManager.addGltfToScene(gizmo, hitMatrix, "reference");
 
-        // if (mode == "load") {
-        //   const modelsMatrix = Persistence.load();
-        //   console.log(modelsMatrix);
 
-        //   if (modelsMatrix) {
-        //     modelsMatrix.forEach((modelMatrix) => {
-        //       const flower =
-        //         flowersGltf.children[0];
-        //       const mesh = flower.clone();
-        //       modelMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        //       scene.add(mesh);
-        //     });
-        //   }
-        // }
+
+        if (mode == "load") {
+          const modelsMatrix = Persistence.load();
+
+
+
+          modelsMatrix.forEach((modelMatrix) => {
+            // const flower =
+            //   flowersGltf.children[0];
+            // const mesh = flower.clone();
+            // modelMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+            // scene.add(mesh);
+            SceneManager.addTestCube(modelMatrix);
+          });
+
+        }
 
       }
       else {
 
-        Persistence.save(hitMatrix);
-        SceneManager.addGltfToScene(flowersGltf, hitMatrix, "flower");
-        const modelGlobalMatrix = Persistence.load();
-        SceneManager.addTestCube(modelGlobalMatrix);
+        // Persistence.save(hitMatrix);
+        // SceneManager.addGltfToScene(flowersGltf, hitMatrix, "flower");
+        // const modelGlobalMatrix = Persistence.load();
+        // SceneManager.addTestCube(modelGlobalMatrix);
 
 
 
@@ -129,18 +133,19 @@ async function init() {
 
 
 
-        //   if (mode == "save") {
-        //     const flower =
-        //       flowersGltf.children[
-        //       Math.floor(Math.random() * flowersGltf.children.length)
-        //       ];
-        //     const mesh = flower.clone();
+        if (mode == "save") {
+          // const flower =
+          //   flowersGltf.children[
+          //   Math.floor(Math.random() * flowersGltf.children.length)
+          //   ];
+          // const mesh = flower.clone();
 
-        //     hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        //     scene.add(mesh);
+          // hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+          // scene.add(mesh);
 
-        //     Persistence.save(hitMatrix);
-        //   }
+          Persistence.save(hitMatrix);
+          SceneManager.addTestCube(hitMatrix);
+        }
       }
     }
   }
