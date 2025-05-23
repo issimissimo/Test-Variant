@@ -10,6 +10,7 @@ body {
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
@@ -45,6 +46,10 @@ a:hover {
 body {
   margin: 0;
   background-color: #242424;
+}
+
+p {
+  text-align: center;
 }
 
 h1 {

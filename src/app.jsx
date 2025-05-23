@@ -5,10 +5,9 @@ function App() {
     const [arSupported, setArSupported] = createSignal(true)
 
 
-    // check for webxr session support
+    // 1st we need to check for webxr session support
     if ("xr" in navigator) {
         navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
-
             document.getElementById("loading").style.display = "none";
             setArSupported(supported);
             if (supported) init();

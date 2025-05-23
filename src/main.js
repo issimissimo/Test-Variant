@@ -12,8 +12,8 @@ import Persistence from "./xr/persistence.js";
 import "./utils/qr.js";
 
 /// UI
-import Alpine from 'alpinejs';
-import './ui.js';
+// import Alpine from 'alpinejs';
+// import './ui.js';
 
 
 var data_output = document.getElementById('data-output');
