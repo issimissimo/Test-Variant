@@ -12,15 +12,6 @@ const Persistence = {
     init(referenceMatrix) {
         _initMatrix.copy(referenceMatrix);
         _initialized = true;
-        console.log(referenceMatrix);
-        console.log("Persistence is initialized");
-
-        // let pos = new THREE.Vector3();
-        // let quat = new THREE.Quaternion();
-        // let scale = new THREE.Vector3();
-        // referenceMatrix.decompose(pos, quat, scale);
-        // console.log("Reference position", pos);
-        // console.log("Reference quaternion", quat);
     },
 
     load() {
@@ -29,53 +20,16 @@ const Persistence = {
             return null;
         };
 
-        // /// TEST CON UNA SOLA MATRICE
-        // const savedOffset = LocalStorage.load("modelsMatrix");
-        // const offsetMatrix = new THREE.Matrix4();
-        // offsetMatrix.fromArray(savedOffset); 
-        // const globalMatrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
-        // return globalMatrix;
-
-
         const _modelsMatrix = LocalStorage.load("modelsMatrix");
-        // console.log("--- LOADED OFFSET ----");
-        // console.log(_modelsMatrix);
-
-
-        // const offsetMatrix = new THREE.Matrix4();
-        // offsetMatrix.fromArray(_modelsMatrix);
-        // console.log("-------MATRIX----------");
-        // console.log(offsetMatrix);
-        // return;
-
         let allMatrix = [];
         if (_modelsMatrix.length > 0) {
 
             _modelsMatrix.forEach((el) => {
-
-                // console.log("---------");
-                // console.log(el);
-                // console.log("---------");
-
                 const offsetMatrix = new THREE.Matrix4();
                 offsetMatrix.fromArray(el);
-
-                // console.log("----------------------------");
-                // console.log(offsetMatrix);
-                // console.log("----------------------------");
-
                 const matrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
                 allMatrix.push(matrix);
-
-                
-                // let pos = new THREE.Vector3();
-                // let quat = new THREE.Quaternion();
-                // let scale = new THREE.Vector3();
-                // offsetMatrix.decompose(pos, quat, scale);
-                // console.log("Loaded Diff position", pos);
-                // console.log("Loaded Diff quaternion", quat);
             })
-
             return allMatrix;
         }
         else {
@@ -93,28 +47,9 @@ const Persistence = {
             console.error("Persistence not initialized");
             return;
         };
-
         const offset = getOffsetMatrix(_initMatrix, matrix);
         _modelsMatrix.push(offset.elements);
-
-
         LocalStorage.save("modelsMatrix", _modelsMatrix);
-        // LocalStorage.save("modelsMatrix", offset.elements); /// TEST CON UNA SOLA MATRICE
-
-
-
-
-
-
-        // console.log("---- SAVED OFFSET ----");
-        // console.log(offset);
-
-        // let pos = new THREE.Vector3();
-        // let quat = new THREE.Quaternion();
-        // let scale = new THREE.Vector3();
-        // offset.decompose(pos, quat, scale);
-        // console.log("Diff position", pos);
-        // console.log("Diff quaternion", quat);
     },
 
     isInitialized() {

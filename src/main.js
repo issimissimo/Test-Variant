@@ -1,7 +1,7 @@
-/// THREE.js
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
+
+// import * as THREE from "three";
+// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+// import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 
 import SceneManager from "./xr/sceneManager.js";
 import Reticle from "./xr/reticle.js";
@@ -35,7 +35,6 @@ if ("xr" in navigator) {
     if (supported) {
       Alpine.store('ui').setDivVisibility('overlay', true);
       init();
-      // animate();
     }
     else {
       Alpine.store('ui').setDivVisibility('arNotSupported', true);
@@ -78,7 +77,6 @@ async function init() {
   const mode = "save";
 
   function onSelect() {
-    console.log("onSelect!");
 
     if (Reticle.isHitting()) {
       const hitMatrix = Reticle.getHitMatrix();
@@ -86,62 +84,22 @@ async function init() {
       // Initialize the persistence system
       if (!Persistence.isInitialized()) {
 
-
         Persistence.init(hitMatrix);
-
-        // const ref =
-        //   gizmo.children[
-        //   Math.floor(Math.random() * gizmo.children.length)
-        //   ];
-        // const mesh = ref.clone();
-        // hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        // scene.add(mesh);
-        console.log("2")
-        console.log(gizmo)
         SceneManager.addGltfToScene(gizmo, hitMatrix, "reference");
 
-
-
+        // Load all saved matrix
         if (mode == "load") {
+
           const modelsMatrix = Persistence.load();
-
-
-
           modelsMatrix.forEach((modelMatrix) => {
-            // const flower =
-            //   flowersGltf.children[0];
-            // const mesh = flower.clone();
-            // modelMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-            // scene.add(mesh);
             SceneManager.addTestCube(modelMatrix);
           });
-
         }
-
       }
       else {
 
-        // Persistence.save(hitMatrix);
-        // SceneManager.addGltfToScene(flowersGltf, hitMatrix, "flower");
-        // const modelGlobalMatrix = Persistence.load();
-        // SceneManager.addTestCube(modelGlobalMatrix);
-
-
-
-
-
-
-
-
+        // Save this matrix
         if (mode == "save") {
-          // const flower =
-          //   flowersGltf.children[
-          //   Math.floor(Math.random() * flowersGltf.children.length)
-          //   ];
-          // const mesh = flower.clone();
-
-          // hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-          // scene.add(mesh);
 
           Persistence.save(hitMatrix);
           SceneManager.addTestCube(hitMatrix);
