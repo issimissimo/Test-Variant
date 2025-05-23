@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import solid from 'vite-plugin-solid'
 
 export default defineConfig({
   base: './',
@@ -18,4 +19,5 @@ export default defineConfig({
     // la stringa che inizia con '.' abilita il wildcard matching
     allowedHosts: ['.trycloudflare.com'],
   },
+  plugins: [solid()],
 });

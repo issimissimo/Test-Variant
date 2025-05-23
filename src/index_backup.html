@@ -6,20 +6,53 @@
 
   <!-- REPLACE WITH YOUR SDK KEY TAG FROM https://launchar.app -->
   <script src="https://launchar.app/sdk/v1?key=VGzctezQqpavQxnTXtegZVxXGkjMRfRt&redirect=true"></script>
-  
-  <link rel="icon" href="/favicon.ico" />
-  <link href="index.css" rel="stylesheet">
+  <!-- / REPLACE WITH YOUR SDK KEY TAG FROM https://launchar.app -->
+
+  <link href="style.css" rel="stylesheet">
   <link href="spin.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap" rel="stylesheet" />
 
+  <link rel="icon" href="/favicon.ico" />
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 </head>
 
 <body>
-  <div id="root">
-    <div class="full-screen-div" id="loading">
+  <div x-data>
+
+    <div x-show="$store.ui.visibility.loader" class="full-screen-div" id="loader">
+      LOADING
     </div>
+
+    <div x-cloak x-show="$store.ui.visibility.overlay" id="overlay">
+      <div id="tracking-prompt"><img src="hand.png" /></div>
+      <div id="instructions">Tap to grow</div>
+
+
+      <!-- <div id="data-output">DATA</div> -->
+      
+
+
+    </div>
+
+
+    <div id="app">
+
+      <!-- AR NOT SUPPORTED -->
+      <div x-cloak x-show="$store.ui.visibility.arNotSupported">
+        <p>
+          WebXR Not Supported. Open this page on iOS or Android to view the
+          example.
+        </p>
+        <p>
+          For documentation & support, mail to
+          <a href="mailto:info@issimissimo.com">info@issimissimo.com</a>.
+        </p>
+        <img id="qr-code" />
+      </div>
+
+    </div>
+
   </div>
 
   <!-- SPINNER -->
@@ -32,7 +65,7 @@
       radius: 45, // The radius of the inner circle
       scale: 1, // Scales overall size of the spinner
       corners: 1, // Corner roundness (0..1)
-      speed: 1, // Rounds per second
+      speed: 0.7, // Rounds per second
       rotate: 0, // The rotation offset
       animation: 'spinner-line-shrink', // The CSS animation name for the lines
       direction: 1, // 1: clockwise, -1: counterclockwise
@@ -45,11 +78,12 @@
       className: 'spinner', // The CSS class to assign to the spinner
       position: 'absolute', // Element positioning
     };
-    const target = document.getElementById('loading');
+    const target = document.getElementById('loader');
     new Spinner(opts).spin(target);
   </script>
 
-  <script type="module" src="/index.jsx"></script>
+  <!-- MAIN -->
+  <script type="module" src="/main.js"></script>
 </body>
 
 </html>
