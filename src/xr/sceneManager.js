@@ -45,6 +45,10 @@ const SceneManager = {
 
 
     update() {
+        if (!_initialized) {
+            console.error("SceneManager not initialized");
+            return;
+        }
         this.renderer.render(this.scene, this.camera);
     },
 
@@ -71,26 +75,6 @@ const SceneManager = {
         cube.name = name;
         this.scene.add(cube);
     },
-
-    // loadGltf(fileName) {
-    //     const loader = new GLTFLoader();
-    //     loader.load(
-    //         fileName,
-    //         (gltf) => {
-    //             // this.scene.add(gltf.scene);
-    //             console.log("AAAAA")
-    //             console.log(gltf.scene)
-    //             return gltf.scene;
-    //         },
-    //         (xhr) => {
-    //             // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-    //         },
-    //         (error) => {
-    //             console.error('An error happened', error);
-    //             return null;
-    //         }
-    //     );
-    // },
 
     loadGltf(fileName) {
         return new Promise((resolve, reject) => {

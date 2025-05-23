@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { LocalStorage } from "../utils/localStorage.js";
 import { getOffsetMatrix, getGlobalMatrixFromOffsetMatrix } from "../utils/three/maths.js";
+import { initializer } from "../utils/common/initializer.js";
 
 let _initMatrix = new THREE.Matrix4();
 let _initialized = false;
@@ -8,12 +9,11 @@ let _modelsMatrix = [];
 
 
 const Persistence = {
-
-    setReference(referenceMatrix) {
+    init(referenceMatrix) {
         _initMatrix.copy(referenceMatrix);
         _initialized = true;
         console.log(referenceMatrix);
-        console.log("Reference is set");
+        console.log("Persistence is initialized");
 
         // let pos = new THREE.Vector3();
         // let quat = new THREE.Quaternion();
@@ -25,9 +25,17 @@ const Persistence = {
 
     load() {
         if (!_initialized) {
-            console.error("Reference not set");
+            console.error("Persistence not initialized");
             return null;
         };
+
+        /// TEST CON UNA SOLA MATRICE
+        const savedOffset = LocalStorage.load("modelsMatrix");
+        const offsetMatrix = new THREE.Matrix4();
+        offsetMatrix.fromArray(savedOffset); 
+        const globalMatrix = getGlobalMatrixFromOffsetMatrix(_initMatrix, offsetMatrix);
+        return globalMatrix;
+
 
         const _modelsMatrix = LocalStorage.load("modelsMatrix");
         console.log("--- LOADED OFFSET ----");
@@ -82,7 +90,7 @@ const Persistence = {
      */
     save(matrix) {
         if (!_initialized) {
-            console.error("Reference not set");
+            console.error("Persistence not initialized");
             return;
         };
 
@@ -90,7 +98,13 @@ const Persistence = {
         _modelsMatrix.push(offset.elements);
 
 
-        LocalStorage.save("modelsMatrix", _modelsMatrix);
+        // LocalStorage.save("modelsMatrix", _modelsMatrix);
+        LocalStorage.save("modelsMatrix", offset.elements); /// TEST CON UNA SOLA MATRICE
+
+
+
+
+
 
         // console.log("---- SAVED OFFSET ----");
         // console.log(offset);

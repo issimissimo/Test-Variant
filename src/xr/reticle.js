@@ -18,6 +18,8 @@ let _reticleWorldPosition = new THREE.Vector3();
 let _reticleLookAtWorldPosition = new THREE.Vector3();
 let _reticleDirection = new THREE.Vector3();
 
+let _initialized = false;
+
 
 function _addPlaneForReticleSurface() {
     _geomLookAt = new THREE.PlaneGeometry(0.1, 0.1);
@@ -117,6 +119,8 @@ const Reticle = {
         _mesh.visible = false;
         _scene.add(_mesh);
         _addPlaneForReticleSurface();
+
+        _initialized = true;
     },
 
     /**
@@ -128,6 +132,11 @@ const Reticle = {
      * @returns {void}
      */
     update(frame, callback) {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
+
         const referenceSpace = _renderer.xr.getReferenceSpace();
         const session = _renderer.xr.getSession();
 
@@ -184,26 +193,50 @@ const Reticle = {
     },
 
     isHitting() {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
         return _isHitting;
     },
 
     getHitPosition() {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
         return _mesh.position;
     },
 
     getHitQuaternion() {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
         return _mesh.quaternion;
     },
 
     getHitMatrix() {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
         return _mesh.matrix;
     },
 
     setVisible(visible) {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
         _mesh.visible = visible;
     },
 
     surfType() {
+        if (!_initialized) {
+            console.error("Reticle is not set");
+            return;
+        }
         return _surfType;
     }
 }

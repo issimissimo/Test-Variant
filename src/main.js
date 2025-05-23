@@ -15,44 +15,15 @@ import "./utils/qr.js";
 import Alpine from 'alpinejs';
 import './ui.js';
 
-// import "./style.css";
-
-///////////////////////////////////////////////
-
-
-
-
-
-
 
 var data_output = document.getElementById('data-output');
 
 
-
-
-
-
-/////////////////////////////////////////////////
-
-
-
-let container;
-let camera, scene, renderer;
-let controller;
-
-let reticle;
 let gizmo;
-let geomLookAt;
-let reticleLookAt;
-
-let hitTestSource = null;
-let hitTestSourceRequested = false;
-let planeFound = false;
 let flowersGltf;
 
 
-// let initAnchorCreated = false;
-let initAnchor = null;
+
 
 
 // check for webxr session support
@@ -64,23 +35,13 @@ if ("xr" in navigator) {
     if (supported) {
       Alpine.store('ui').setDivVisibility('overlay', true);
       init();
-      animate();
+      // animate();
     }
     else {
       Alpine.store('ui').setDivVisibility('arNotSupported', true);
     }
   });
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -95,71 +56,18 @@ function sessionStart() {
 
 
 
-function init() {
-  // container = document.createElement("div");
-  // document.body.appendChild(container);
-
-  // scene = new THREE.Scene();
-
-  // camera = new THREE.PerspectiveCamera(
-  //   70,
-  //   window.innerWidth / window.innerHeight,
-  //   0.01,
-  //   20
-  // );
-
-  // const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-  // light.position.set(0.5, 1, 0.25);
-  // scene.add(light);
-
-  // renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  // renderer.setPixelRatio(window.devicePixelRatio);
-  // renderer.setSize(window.innerWidth, window.innerHeight);
-  // renderer.xr.enabled = true;
-  // container.appendChild(renderer.domElement);
-
-  // renderer.xr.addEventListener("sessionstart", sessionStart);
-
-  // document.body.appendChild(
-  //   ARButton.createButton(renderer, {
-  //     requiredFeatures: ["local", "hit-test", "dom-overlay"],
-  //     domOverlay: { root: document.querySelector("#overlay") },
-  //   })
-  // );
-
-  // controller = renderer.xr.getController(0);
-  // controller.addEventListener("select", onSelect);
-  // scene.add(controller);
+async function init() {
 
   SceneManager.init();
   SceneManager.renderer.xr.addEventListener("sessionstart", sessionStart);
   SceneManager.controller.addEventListener("select", onSelect);
 
 
+  gizmo = await SceneManager.loadGltf("temp.glb");
+  flowersGltf = await SceneManager.loadGltf("flowers.glb");
 
 
-  // function loadGizmo() {
-  //   const loader = new GLTFLoader();
-  //   loader.load("temp.glb", (gltf) => {
-  //     gizmo = gltf.scene;
-  //   });
-  // }
-
-
-  // function loadFlower() {
-  //   const loader = new GLTFLoader();
-  //   loader.load("flowers.glb", (gltf) => {
-  //     flowersGltf = gltf.scene;
-  //   });
-  // }
-
-  gizmo = SceneManager.loadGltf("temp.glb");
-  console.log("1")
-  console.log(gizmo)
-  flowersGltf = SceneManager.loadGltf("flowers.glb");
-
-
-
+  SceneManager.renderer.setAnimationLoop(render);
 
 
 
@@ -170,14 +78,15 @@ function init() {
   const mode = "save";
   function onSelect() {
     console.log("onSelect!");
-    
-    if (Reticle.isHitting()) {
 
+    if (Reticle.isHitting()) {
       const hitMatrix = Reticle.getHitMatrix();
 
       // Initialize the persistence system
       if (!Persistence.isInitialized()) {
-        Persistence.setReference(hitMatrix);
+
+
+        Persistence.init(hitMatrix);
 
         // const ref =
         //   gizmo.children[
@@ -206,26 +115,35 @@ function init() {
         // }
 
       }
-      // else {
+      else {
 
-      //   if (mode == "save") {
-      //     const flower =
-      //       flowersGltf.children[
-      //       Math.floor(Math.random() * flowersGltf.children.length)
-      //       ];
-      //     const mesh = flower.clone();
+        Persistence.save(hitMatrix);
+        SceneManager.addGltfToScene(flowersGltf, hitMatrix, "flower");
+        const modelGlobalMatrix = Persistence.load();
+        SceneManager.addTestCube(modelGlobalMatrix);
 
-      //     hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-      //     scene.add(mesh);
 
-      //     Persistence.save(hitMatrix);
-      //   }
-      // }
+
+
+
+
+
+
+        //   if (mode == "save") {
+        //     const flower =
+        //       flowersGltf.children[
+        //       Math.floor(Math.random() * flowersGltf.children.length)
+        //       ];
+        //     const mesh = flower.clone();
+
+        //     hitMatrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        //     scene.add(mesh);
+
+        //     Persistence.save(hitMatrix);
+        //   }
+      }
     }
   }
-
-
-
 
 
 
@@ -242,39 +160,11 @@ function init() {
   })
 
 
-
-  // loadGizmo();
-  // loadFlower();
-
-  // window.addEventListener("resize", onWindowResize);
-
-
-}
-
-// function onWindowResize() {
-//   camera.aspect = window.innerWidth / window.innerHeight;
-//   camera.updateProjectionMatrix();
-
-//   renderer.setSize(window.innerWidth, window.innerHeight);
-// }
-
-function animate() {
-  SceneManager.renderer.setAnimationLoop(render);
 }
 
 
 
-// function render(timestamp, frame) {
-//   if (frame) {
-//     Reticle.update(frame, (surfType) => {
-//       ///console.log("surfType", surfType);
-//     });
-//   }
-
-//   renderer.render(scene, camera);
-// }
-
-const render = (timestamp, frame) => {
+function render(timestamp, frame) {
   if (frame) {
 
     Reticle.update(frame, (surfType) => {
@@ -283,7 +173,6 @@ const render = (timestamp, frame) => {
   }
 
   SceneManager.update();
-  // renderer.render(scene, camera);
 }
 
 
