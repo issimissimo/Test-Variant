@@ -1,5 +1,5 @@
 // SOLID
-import { createSignal, createEffect, onMount } from 'solid-js'
+import { createSignal, createEffect } from 'solid-js'
 import { Dynamic } from "solid-js/web"
 
 // UI
@@ -32,17 +32,23 @@ function App() {
     const [currentMode, setCurrentMode] = createSignal(AppMode.LOAD);
 
 
-    onMount(() => {
-        if ("xr" in navigator) {
-            navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
-                document.getElementById("loading").style.display = "none";
 
-                if (!supported) setCurrentState(() => AppState.AR_NOT_SUPPORTED);
-                else init();
-            });
-        }
-    });
 
+    // 1 - check for webxr session support
+    if ("xr" in navigator) {
+        navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
+            document.getElementById("loading").style.display = "none";
+            // setArSupported(supported);
+
+            if (!supported){
+                console.log("NOOOOOOOOOOOOO")
+                setCurrentState(AppState.AR_NOT_SUPPORTED);
+            } 
+            else init();
+
+            // if (supported) init();
+        });
+    }
 
 
     // 2 - initialize
@@ -85,9 +91,10 @@ function App() {
 
     return (
         <>
+            {/* {!arSupported() && <ArNotSupported />} */}
             {
                 <div id="overlay">
-                    <Dynamic component={currentState()} />
+                    <Dynamic component={currentState()}/>
                 </div>
 
                 /* {value() && (

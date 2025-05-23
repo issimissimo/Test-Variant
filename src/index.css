@@ -7,14 +7,13 @@ body {
 }
 
 .full-screen-div {
-  width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-family: sans-serif;
 }
 
@@ -50,6 +49,7 @@ body {
 
 p {
   text-align: center;
+  /* font-size: 1em; */
 }
 
 h1 {
