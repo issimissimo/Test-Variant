@@ -1,13 +1,13 @@
 // SOLID
 import { createSignal, createEffect } from 'solid-js'
+import { SwitchPrimitive, SwitchPrimitiveThumb, Switch } from "@hope-ui/solid"
 
-function Welcome(){
+function Welcome() {
     return (
-        <>
-            {<div>
-                Welcome
-            </div>}
-        </>
+        <div>
+            Welcome
+            <Switch variant="filled">Switch</Switch>
+        </div>
     )
 }
 

@@ -2,6 +2,9 @@
 import { createSignal, createEffect, onMount } from 'solid-js'
 import { Dynamic } from "solid-js/web"
 
+//HOPE-UI
+import { HopeProvider } from '@hope-ui/solid'
+
 // UI
 import ArNotSupported from './components/ui/arNotSupported';
 import Welcome from './components/ui/welcome';
@@ -27,6 +30,12 @@ const AppMode = {
     SAVE: "save",
     LOAD: "load"
 }
+
+// Hope-UI theme
+const AppTheme = {
+    initialColorMode: "dark", // 'dark' | 'light' | 'system'
+}
+
 
 
 // APP
@@ -73,7 +82,7 @@ function App() {
         SceneManager.controller.addEventListener("select", onSelect);
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
-            
+
             // Show UI WaitingForSurface
             setCurrentState(() => AppState.WAITING_FOR_SURFACE);
         });
@@ -90,7 +99,7 @@ function App() {
             segments: 4,
         })
 
-        
+
     }
 
 
@@ -109,7 +118,7 @@ function App() {
                 // console.log("surfType", surfType);
 
                 if (surfType && currentState() === AppState.WAITING_FOR_SURFACE) {
-                    
+
                     // Show UI SettingReference
                     setCurrentState(() => AppState.SETTING_REFERENCE);
                 }
@@ -127,13 +136,11 @@ function App() {
 
 
     return (
-        <>
-            {
-                <div id="overlay">
-                    <Dynamic component={currentState()} setCurrentMode={setCurrentMode} />
-                </div>
-            }
-        </>
+        <HopeProvider config={AppTheme}>
+            <div id="overlay">
+                <Dynamic component={currentState()} setCurrentMode={setCurrentMode} />
+            </div>
+        </HopeProvider>
     )
 
 }

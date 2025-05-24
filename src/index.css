@@ -64,6 +64,10 @@ h1 {
   min-height: 80vh;
   justify-content: center;
   align-items: center;
+  
+  /* importante per avere interazione */
+  z-index: 999;
+  position: relative;
 }
 
 #instructions {
