@@ -18,7 +18,7 @@ import Persistence from "./xr/persistence.js";
 
 
 // AppState
-const AppState = {
+export const AppState = {
     AR_NOT_SUPPORTED: ArNotSupported,
     WELCOME: Welcome,
     WAITING_FOR_SURFACE: WaitingForSurface,
@@ -26,14 +26,14 @@ const AppState = {
 };
 
 // AppMode
-const AppMode = {
+export const AppMode = {
     SAVE: "save",
     LOAD: "load"
 }
 
 // Hope-UI theme
 const AppTheme = {
-    initialColorMode: "dark", // 'dark' | 'light' | 'system'
+    initialColorMode: "dark",
 }
 
 
@@ -44,10 +44,7 @@ function App() {
     const [currentMode, setCurrentMode] = createSignal(AppMode.LOAD);
 
 
-
     /**
-    * Lifecycle hook that runs after the component is mounted.
-    * 
     * Checks if the WebXR API is available in the browser. If available, it verifies
     * support for "immersive-ar" sessions. Hides the loading indicator and updates
     * the application state based on AR support. If AR is supported, initializes the AR scene.
@@ -65,14 +62,13 @@ function App() {
 
 
 
+    createEffect(() => {
+        console.log("AppMode:", currentMode());
+    });
+
+
     /**
      * Initializes the AR scene and related components.
-     *
-     * - Sets up the SceneManager.
-     * - Adds an event listener for the "select" event on the controller.
-     * - Sets the animation loop for the renderer to the render function.
-     * - Configures the Reticle with specified renderer, scene, color, radius, inner radius, and segments.
-     *
      * This function should be called once AR support is confirmed.
      */
     function init() {
@@ -83,7 +79,7 @@ function App() {
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
 
-            // Show UI WaitingForSurface
+            // Show UI WaitingForSurface when AR button is clicked
             setCurrentState(() => AppState.WAITING_FOR_SURFACE);
         });
 
@@ -106,9 +102,6 @@ function App() {
     /**
      * Handles the rendering loop for the AR scene.
      * 
-     * @param {DOMHighResTimeStamp} timestamp - The current time when the callback is run.
-     * @param {XRFrame} frame - The XRFrame object for the current animation frame, if available.
-     * 
      * If an XR frame is available, updates the Reticle based on the current frame and surface type.
      * Always updates the SceneManager for each animation frame.
      */
@@ -130,11 +123,15 @@ function App() {
 
     // On Select
     function onSelect() {
-
+        
     }
 
 
-
+    /**
+     * Renders the main application UI wrapped in a HopeProvider with the specified theme.
+     * Displays an overlay containing a dynamic component based on the current application state.
+     *
+     */
     return (
         <HopeProvider config={AppTheme}>
             <div id="overlay">
@@ -142,8 +139,8 @@ function App() {
             </div>
         </HopeProvider>
     )
-
 }
 
 export default App;
-export { AppState };
+// export { AppState };
+// export { AppMode };

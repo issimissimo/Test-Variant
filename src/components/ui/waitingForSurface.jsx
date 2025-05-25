@@ -1,11 +1,26 @@
 // SOLID
-import { createSignal, createEffect, onMount } from 'solid-js'
+import { createSignal, createEffect, onMount, onCleanup } from 'solid-js'
 
-function WaitingForSurface(){
+function WaitingForSurface() {
+    const [problems, setProblems] = createSignal(false);
+
+    let timeout;
+
+    onMount(() => {
+        console.log("MOUNTED!!!")
+        timeout = setTimeout(() => { setProblems(true) }, 3000)
+    })
+
+    onCleanup(() => {
+        // console.log("...unmounted :(");
+        clearTimeout(timeout);
+    });
+
     return (
         <>
             {<div>
-                WaitingForSurface
+                {problems() ? "Prova ad allontanarti" : "Inquadra il piano" }
+                <img src="hand.png" />
             </div>}
         </>
     )
