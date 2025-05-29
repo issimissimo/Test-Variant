@@ -18,7 +18,7 @@ function WaitingForSurface() {
 
     return (
         <>
-            {<div>
+            {<div id="instructions">
                 {problems() ? "Prova ad allontanarti" : "Inquadra il piano" }
                 <img src="hand.png" />
             </div>}

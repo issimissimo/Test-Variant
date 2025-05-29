@@ -8,8 +8,8 @@ import { HopeProvider } from '@hope-ui/solid'
 // UI
 import ArNotSupported from './components/ui/arNotSupported';
 import Welcome from './components/ui/welcome';
-import WaitingForSurface from './components/ui/waitingForSurface';
-import SettingReference from './components/ui/settingReference';
+import Instructions from './components/ui/instructions';
+
 
 // XR
 import SceneManager from "./xr/sceneManager.js";
@@ -21,8 +21,7 @@ import Persistence from "./xr/persistence.js";
 export const AppState = {
     AR_NOT_SUPPORTED: ArNotSupported,
     WELCOME: Welcome,
-    WAITING_FOR_SURFACE: WaitingForSurface,
-    SETTING_REFERENCE: SettingReference
+    INSTRUCTIONS: Instructions,
 };
 
 // AppMode
@@ -42,6 +41,7 @@ const AppTheme = {
 function App() {
     const [currentState, setCurrentState] = createSignal(AppState.WELCOME);
     const [currentMode, setCurrentMode] = createSignal(AppMode.LOAD);
+    const [planeFound, setPlaneFound] = createSignal(false);
 
 
     /**
@@ -64,6 +64,7 @@ function App() {
 
     createEffect(() => {
         console.log("AppMode:", currentMode());
+        console.log("PlaneFound:", planeFound());
     });
 
 
@@ -79,10 +80,9 @@ function App() {
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
 
-            // Show UI WaitingForSurface when AR button is clicked
-            setCurrentState(() => AppState.WAITING_FOR_SURFACE);
+            // Show Instructions when AR button is clicked
+            setCurrentState(() => AppState.INSTRUCTIONS);
         });
-
 
 
         // Init Reticle
@@ -96,7 +96,7 @@ function App() {
         })
 
 
-    }
+    };
 
 
     /**
@@ -106,25 +106,20 @@ function App() {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
+        
         if (frame) {
             Reticle.update(frame, (surfType) => {
-                // console.log("surfType", surfType);
-
-                if (surfType && currentState() === AppState.WAITING_FOR_SURFACE) {
-
-                    // Show UI SettingReference
-                    setCurrentState(() => AppState.SETTING_REFERENCE);
-                }
             });
+            setPlaneFound(Reticle.isHitting())
         }
         SceneManager.update();
-    }
+    };
 
 
     // On Select
     function onSelect() {
-        
-    }
+
+    };
 
 
     /**
@@ -135,12 +130,14 @@ function App() {
     return (
         <HopeProvider config={AppTheme}>
             <div id="overlay">
-                <Dynamic component={currentState()} setCurrentMode={setCurrentMode} />
+                <Dynamic
+                    component={currentState()}
+                    setCurrentMode={setCurrentMode}
+                    planeFound={planeFound}
+                />
             </div>
         </HopeProvider>
-    )
+    );
 }
 
 export default App;
-// export { AppState };
-// export { AppMode };
