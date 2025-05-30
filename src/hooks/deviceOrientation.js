@@ -1,4 +1,4 @@
-import FULLTILT from './third-party/fulltilt.js';
+import FULLTILT from '../lib/fulltilt/fulltilt.js';
 
 let controls = null;
 
