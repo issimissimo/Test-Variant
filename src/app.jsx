@@ -8,7 +8,8 @@ import { HopeProvider } from '@hope-ui/solid'
 // UI
 import ArNotSupported from './components/ui/arNotSupported';
 import Welcome from './components/ui/welcome';
-import Instructions from './components/ui/instructions';
+import Calibration from './components/ui/calibration';
+// import Instructions from './components/ui/instructions';
 
 
 // XR
@@ -21,7 +22,8 @@ import Persistence from "./xr/persistence.js";
 export const AppState = {
     AR_NOT_SUPPORTED: ArNotSupported,
     WELCOME: Welcome,
-    INSTRUCTIONS: Instructions,
+    // INSTRUCTIONS: Instructions,
+    CALIBRATION: Calibration,
 };
 
 // AppMode
@@ -80,8 +82,8 @@ function App() {
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
 
-            // Show Instructions when AR button is clicked
-            setCurrentState(() => AppState.INSTRUCTIONS);
+            // Show Calibration when AR button is clicked
+            setCurrentState(() => AppState.CALIBRATION);
         });
 
 
@@ -118,7 +120,7 @@ function App() {
 
     // On Select
     function onSelect() {
-
+        console.log("SELECT")
     };
 
 
@@ -133,7 +135,8 @@ function App() {
                 <Dynamic
                     component={currentState()}
                     setCurrentMode={setCurrentMode}
-                    planeFound={planeFound}
+                    planeFound={planeFound()}
+                    onSelect={onSelect}
                 />
             </div>
         </HopeProvider>

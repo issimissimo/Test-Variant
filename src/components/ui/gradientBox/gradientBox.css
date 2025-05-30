@@ -1,0 +1,68 @@
+@property --opacity-start {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.7;
+}
+
+@property --opacity-mid {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.7;
+}
+
+@property --opacity-end {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.7;
+}
+
+.gradient-box {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9;
+  
+  background: 
+    radial-gradient(
+      circle, 
+      rgba(0, 0, 0, var(--opacity-start)) 0%, 
+      rgba(0, 0, 0, var(--opacity-mid)) 50%, 
+      rgba(0, 0, 0, var(--opacity-end)) 100%
+    );
+}
+
+.gradient-box.animateIn {
+  animation: animateOpacityIn 1s forwards;
+}
+
+.gradient-box.animateOut {
+  animation: animateOpacityOut 1s forwards;
+}
+
+@keyframes animateOpacityIn {
+  0% {
+    --opacity-start: 0.7;
+    --opacity-mid: 0.7;
+    --opacity-end: 0.7;
+  }
+  100% {
+    --opacity-start: 0.1;
+    --opacity-mid: 0.5;
+    --opacity-end: 0.7;
+  }
+}
+
+@keyframes animateOpacityOut {
+  0% {
+    --opacity-start: 0;
+    --opacity-mid: 0.4;
+    --opacity-end: 0.7;
+  }
+  100% {
+    --opacity-start: 0.7;
+    --opacity-mid: 0.7;
+    --opacity-end: 0.7;
+  }
+}
