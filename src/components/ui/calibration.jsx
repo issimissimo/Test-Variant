@@ -58,7 +58,7 @@ function Scanning(props) {
             clearInterval(timeout)
         }
     })
-    
+
     createEffect(() => {
         // impostiamo la UI in modo che se !props.planeFound
         // è già pronta
@@ -68,7 +68,7 @@ function Scanning(props) {
             }, 1000)
         }
     })
-    
+
 
     return (
         <div class={containerStyle}>
@@ -173,7 +173,7 @@ function Targeting(props) {
                         {/* <br></br>
                         per completare la calibrazione */}
                     </p>
-                    <button class={startButtonStyle} onClick={props.onSelect}>
+                    <button class={startButtonStyle} onClick={props.startGame}>
                         <img src="images/checkmark.png"
                         // width={32}
                         // height={32}
@@ -191,7 +191,7 @@ function Calibration(props) {
         <div>
             <GradientBox planeFound={props.planeFound} />
             <Scanning planeFound={props.planeFound} />
-            <Targeting planeFound={props.planeFound} click={props.click} />
+            <Targeting planeFound={props.planeFound} startGame={props.startGame} />
         </div>
     );
 }

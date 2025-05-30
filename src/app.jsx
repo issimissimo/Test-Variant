@@ -9,7 +9,7 @@ import { HopeProvider } from '@hope-ui/solid'
 import ArNotSupported from './components/ui/arNotSupported';
 import Welcome from './components/ui/welcome';
 import Calibration from './components/ui/calibration';
-// import Instructions from './components/ui/instructions';
+import Game from './components/ui/game';
 
 
 // XR
@@ -22,8 +22,8 @@ import Persistence from "./xr/persistence.js";
 export const AppState = {
     AR_NOT_SUPPORTED: ArNotSupported,
     WELCOME: Welcome,
-    // INSTRUCTIONS: Instructions,
     CALIBRATION: Calibration,
+    GAME: Game,
 };
 
 // AppMode
@@ -78,7 +78,7 @@ function App() {
 
         // Init SceneManager
         SceneManager.init();
-        SceneManager.controller.addEventListener("select", onSelect);
+        // SceneManager.controller.addEventListener("select", onSelect);
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
 
@@ -108,7 +108,7 @@ function App() {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-        
+
         if (frame) {
             Reticle.update(frame, (surfType) => {
             });
@@ -119,8 +119,44 @@ function App() {
 
 
     // On Select
-    function onSelect() {
-        console.log("SELECT")
+    // function onSelect() {
+    //     console.log("SELECT2")
+    //     if (currentState() !== AppState.GAME) return;
+    // };
+
+    const myTest = () => {
+        console.log("MY TEST")
+    }
+
+    let gizmo;
+    /**
+     * START GAME
+     * 
+     */
+    async function startGame() {
+        console.log("startGame")
+        setCurrentState(() => AppState.GAME);
+
+        const hitMatrix = Reticle.getHitMatrix();
+
+        gizmo = await SceneManager.loadGltf("temp.glb");
+
+        // Initialize the persistence system
+        // if (!Persistence.isInitialized()) {
+        Persistence.init(hitMatrix);
+        SceneManager.addGltfToScene(gizmo, hitMatrix, "reference");
+
+        // Load all saved matrix
+        if (currentMode() === AppMode.LOAD) {
+
+            const modelsMatrix = Persistence.load();
+            modelsMatrix.forEach((matrix) => {
+                console.log(matrix)
+                SceneManager.addTestCube(matrix);
+            });
+        }
+
+        // }
     };
 
 
@@ -134,9 +170,11 @@ function App() {
             <div id="overlay">
                 <Dynamic
                     component={currentState()}
+                    currentMode={currentMode()}
                     setCurrentMode={setCurrentMode}
                     planeFound={planeFound()}
-                    onSelect={onSelect}
+                    startGame={startGame}
+                    onButtonClick={myTest}
                 />
             </div>
         </HopeProvider>
