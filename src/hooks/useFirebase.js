@@ -1,11 +1,10 @@
-import { onMount } from 'solid-js';
 import {
     useAuthState,
     registerUser,
     loginUser,
     logoutUser
 } from '../lib/firebase/auth';
-import { saveUserData, fetchUserData } from '../lib/firebase/firestore';
+import { updateLastLogin, fetchUserData } from '../lib/firebase/firestore';
 import { saveData, loadData, useRealtimeData } from '../lib/firebase/realtimeDb';
 
 export const useFirebase = () => {
@@ -17,13 +16,10 @@ export const useFirebase = () => {
             authLoading,
             register: async (credentials) => {
                 const newUser = await registerUser(credentials);
-                // Salva i dati con il flag isNewUser=true
-                await saveUserData(newUser, true);
                 return newUser;
             },
             login: async (credentials) => {
                 const loggedInUser = await loginUser(credentials);
-                // Aggiorna solo lastLogin
                 await updateLastLogin(loggedInUser.uid);
                 return loggedInUser;
             },
@@ -32,7 +28,6 @@ export const useFirebase = () => {
 
         firestore: {
             fetchUserData: () => user() ? fetchUserData(user().uid) : Promise.resolve(null),
-            // Non è più necessario esporre saveUserData
         },
 
         realtimeDb: {
