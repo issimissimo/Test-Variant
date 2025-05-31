@@ -14,11 +14,14 @@ const VIEWS = {
 
 export default function App() {
     const firebase = useFirebase();
-    const [currentView, setCurrentView] = createSignal(VIEWS.REGISTER);
+    const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
     const [loading, setLoading] = createSignal(true);
 
     // Controlla se l'utente è già autenticato all'avvio
     onMount(() => {
+
+        document.getElementById("loading").style.display = "none";
+
         const unsubscribe = firebase.auth.authLoading();
         if (!firebase.auth.authLoading()) {
             checkAuthStatus();
@@ -35,9 +38,6 @@ export default function App() {
     const checkAuthStatus = () => {
         if (firebase.auth.user()) {
             setCurrentView(VIEWS.HOME);
-        }
-        else {
-            console.log("NOOOOO")
         }
         setLoading(false);
     };

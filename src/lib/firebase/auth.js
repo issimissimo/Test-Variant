@@ -3,7 +3,14 @@ import {
     signInWithEmailAndPassword,
     signOut
 } from "firebase/auth";
-import { auth } from "./init";
+
+import {
+    doc,
+    setDoc,
+    serverTimestamp
+} from "firebase/firestore";
+
+import { auth, firestore } from "./init";
 
 export const registerUser = async (credentials) => {
     try {
@@ -12,6 +19,10 @@ export const registerUser = async (credentials) => {
             credentials.email,
             credentials.password
         );
+
+        // Salva i dati del nuovo utente in Firestore
+        await saveNewUserData(userCredential.user);
+
         return userCredential.user;
     } catch (error) {
         throw new Error(`Registration failed: ${error.message}`);
@@ -53,4 +64,15 @@ export const useAuthState = () => {
     onCleanup(() => unsubscribe());
 
     return { user, loading };
+};
+
+export const saveNewUserData = async (user) => {
+    const userRef = doc(firestore, "users", user.uid);
+
+    await setDoc(userRef, {
+        id: user.uid,
+        email: user.email,
+        created: serverTimestamp(),
+        lastLogin: serverTimestamp()
+    }, { merge: true });
 };

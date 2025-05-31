@@ -11,29 +11,28 @@ import { saveData, loadData, useRealtimeData } from '../lib/firebase/realtimeDb'
 export const useFirebase = () => {
     const { user, loading: authLoading } = useAuthState();
 
-    // Aggiorna lastLogin su Firestore dopo il login
-    onMount(async () => {
-        if (user()) {
-            try {
-                await saveUserData(user());
-            } catch (error) {
-                console.error("Errore nel salvataggio dati utente:", error);
-            }
-        }
-    });
-
     return {
         auth: {
-            user,          // Stato dell'utente (null se non autenticato)
-            authLoading,   // Stato di caricamento dell'autenticazione (true/false)
-            register: registerUser,
-            login: loginUser,
+            user,
+            authLoading,
+            register: async (credentials) => {
+                const newUser = await registerUser(credentials);
+                // Salva i dati con il flag isNewUser=true
+                await saveUserData(newUser, true);
+                return newUser;
+            },
+            login: async (credentials) => {
+                const loggedInUser = await loginUser(credentials);
+                // Aggiorna solo lastLogin
+                await updateLastLogin(loggedInUser.uid);
+                return loggedInUser;
+            },
             logout: logoutUser
         },
 
         firestore: {
             fetchUserData: () => user() ? fetchUserData(user().uid) : Promise.resolve(null),
-            saveUserData: () => user() ? saveUserData(user()) : Promise.resolve()
+            // Non è più necessario esporre saveUserData
         },
 
         realtimeDb: {

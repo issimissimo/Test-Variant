@@ -40,22 +40,18 @@ export default function Register(props) {
     setLoading(true);
 
     try {
-      // Registra l'utente
-      await auth.register({
-        email: form().email,
-        password: form().password
-      });
+      // CORREZIONE: usa form() invece di credentials
+      await auth.register(form());  // <--- Questa è la linea corretta
 
       setMessage({
         type: 'success',
-        text: 'Registrazione completata con successo!'
+        text: 'Registrazione completata!'
       });
 
-      // Notifica l'App di navigare verso la home
-      if (props.onSuccess) props.onSuccess();
-      
+      setTimeout(() => {
+        if (props.onSuccess) props.onSuccess();
+      }, 2000);
     } catch (error) {
-      // Gestione errori Firebase
       let errorMessage = error.message;
 
       if (errorMessage.includes('email-already-in-use')) {
