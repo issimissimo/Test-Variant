@@ -63,6 +63,15 @@ const secondaryButton = css`
   }
 `;
 
+const infoButton = css`
+  ${buttonStyle}
+  background-color: #8b5cf6;
+  color: white;
+  &:hover {
+    background-color: #7c3aed;
+  }
+`;
+
 export default function EditMarker(props) {
     const [name, setName] = createSignal(props.marker?.name || '');
     const [loading, setLoading] = createSignal(false);
@@ -137,6 +146,17 @@ export default function EditMarker(props) {
                             disabled={loading()}
                         >
                             Elimina
+                        </button>
+                    )}
+
+                    {props.marker?.id && (
+                        <button
+                            type="button"
+                            class={infoButton}
+                            onClick={() => props.onOpenFinalComponentA(props.marker.id)}
+                            disabled={loading()}
+                        >
+                            Apri Final Component A
                         </button>
                     )}
                 </div>

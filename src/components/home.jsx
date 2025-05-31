@@ -2,6 +2,7 @@ import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 import EditMarker from './editMarker';
+import FinalComponentA from './finalComponentA';
 
 // Stili con Goober
 const containerStyle = css`
@@ -105,6 +106,7 @@ export default function Home(props) {
   const [markers, setMarkers] = createSignal([]);
   const [markersLoading, setMarkersLoading] = createSignal(true);
   const [editingMarker, setEditingMarker] = createSignal(null);
+  const [finalComponentA, setFinalComponentA] = createSignal(null); // { userId: string, elementId: string } | null
 
   // Effetto per caricare i dati utente quando lo stato di autenticazione cambia
   createEffect(() => {
@@ -191,7 +193,13 @@ export default function Home(props) {
 
   return (
     <div class={containerStyle}>
-      {editingMarker() !== null ? (
+      {finalComponentA() ? (
+        <FinalComponentA
+          userId={finalComponentA().userId}
+          elementId={finalComponentA().elementId}
+          onBack={() => setFinalComponentA(null)}
+        />
+      ) : editingMarker() !== null ? (
         <EditMarker
           marker={editingMarker()}
           onCreate={handleAddMarker}
@@ -199,6 +207,12 @@ export default function Home(props) {
           onDelete={handleDeleteMarker}
           onSuccess={() => setEditingMarker(null)}
           onCancel={() => setEditingMarker(null)}
+          onOpenFinalComponentA={(markerId) => {
+            setFinalComponentA({
+              userId: firebase.auth.user().uid,
+              elementId: markerId
+            });
+          }}
         />
       ) : (
         <>
@@ -212,10 +226,16 @@ export default function Home(props) {
             <div>
               <p>Non sei autenticato.</p>
               <div>
-                <button onClick={props.onGoToLogin} class={primaryButton}>
+                <button
+                  onClick={props.onGoToLogin}
+                  class={primaryButton}
+                >
                   Accedi
                 </button>
-                <button onClick={props.onGoToRegister} class={secondaryButton}>
+                <button
+                  onClick={props.onGoToRegister}
+                  class={secondaryButton}
+                >
                   Registrati
                 </button>
               </div>
@@ -228,7 +248,16 @@ export default function Home(props) {
             <div>
               <div class={userInfoStyle}>
                 <p><strong>Email:</strong> {firebase.auth.user().email}</p>
-                {/* ... altri dati utente ... */}
+                {userData() && userData().lastLogin && (
+                  <p>
+                    <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
+                  </p>
+                )}
+                {userData() && userData().created && (
+                  <p>
+                    <strong>Account creato:</strong> {userData().created.toLocaleString()}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -257,10 +286,26 @@ export default function Home(props) {
               </div>
 
               <div>
-                <button onClick={handleLogout} class={primaryButton}>
+                <button
+                  onClick={handleLogout}
+                  class={primaryButton}
+                >
                   Logout
                 </button>
-                {/* ... altri pulsanti ... */}
+
+                <button
+                  onClick={props.onGoToRegister}
+                  class={secondaryButton}
+                >
+                  Vai alla registrazione
+                </button>
+
+                <button
+                  onClick={props.onGoToLogin}
+                  class={secondaryButton}
+                >
+                  Vai al login
+                </button>
               </div>
             </div>
           )}
