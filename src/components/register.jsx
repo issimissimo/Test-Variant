@@ -71,10 +71,7 @@ export default function Register(props) {
 
       {/* Messaggi di stato */}
       {message().text && (
-        <div class={`mb-4 p-3 rounded ${message().type === 'error'
-          ? 'bg-red-100 text-red-700'
-          : 'bg-green-100 text-green-700'
-          }`}>
+        <div>
           {message().text}
         </div>
       )}
@@ -92,7 +89,7 @@ export default function Register(props) {
           />
         </div>
 
-        <div class="mb-4">
+        <div>
           <label for="password">Password</label>
           <input
             type="password"
@@ -120,7 +117,6 @@ export default function Register(props) {
         <button
           type="submit"
           disabled={loading()}
-          class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300"
         >
           {loading() ? 'Registrazione in corso...' : 'Registrati'}
         </button>

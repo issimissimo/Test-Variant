@@ -1,4 +1,8 @@
 import {
+    collection,
+    getDocs,
+    addDoc,
+    deleteDoc,
     doc,
     setDoc,
     getDoc,
@@ -66,6 +70,48 @@ export const saveNewUserData = async (user) => {
         console.log("Dati nuovo utente salvati per:", user.email);
     } catch (error) {
         console.error("Errore nel salvataggio nuovo utente:", error);
+        throw error;
+    }
+};
+
+export const fetchMarkers = async (userId) => {
+    try {
+        const markersRef = collection(firestore, `users/${userId}/markers`);
+        const snapshot = await getDocs(markersRef);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Errore nel caricamento markers:", error);
+        throw error;
+    }
+};
+
+export const addMarker = async (userId, name) => {
+    try {
+        const markersRef = collection(firestore, `users/${userId}/markers`);
+        const newMarkerRef = await addDoc(markersRef, { name });
+        return newMarkerRef.id;
+    } catch (error) {
+        console.error("Errore nell'aggiunta marker:", error);
+        throw error;
+    }
+};
+
+export const updateMarker = async (userId, markerId, name) => {
+    try {
+        const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
+        await setDoc(markerRef, { name }, { merge: true });
+    } catch (error) {
+        console.error("Errore nell'aggiornamento marker:", error);
+        throw error;
+    }
+};
+
+export const deleteMarker = async (userId, markerId) => {
+    try {
+        const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
+        await deleteDoc(markerRef);
+    } catch (error) {
+        console.error("Errore nella cancellazione marker:", error);
         throw error;
     }
 };

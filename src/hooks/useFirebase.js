@@ -4,7 +4,16 @@ import {
     loginUser,
     logoutUser
 } from '../lib/firebase/auth';
-import { updateLastLogin, fetchUserData } from '../lib/firebase/firestore';
+
+import {
+    updateLastLogin,
+    fetchUserData,
+    fetchMarkers,
+    addMarker,
+    updateMarker,
+    deleteMarker
+} from '../lib/firebase/firestore';
+
 import { saveData, loadData, useRealtimeData } from '../lib/firebase/realtimeDb';
 
 export const useFirebase = () => {
@@ -28,6 +37,10 @@ export const useFirebase = () => {
 
         firestore: {
             fetchUserData: () => user() ? fetchUserData(user().uid) : Promise.resolve(null),
+            fetchMarkers: (userId) => fetchMarkers(userId),
+            addMarker: (userId, name) => addMarker(userId, name),
+            updateMarker: (userId, markerId, name) => updateMarker(userId, markerId, name),
+            deleteMarker: (userId, markerId) => deleteMarker(userId, markerId)
         },
 
         realtimeDb: {

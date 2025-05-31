@@ -1,13 +1,14 @@
 import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
+import EditMarker from './editMarker';
 
 // Stili con Goober
 const containerStyle = css`
   max-width: 28rem;
   margin: 0 auto;
   padding: 1.5rem;
-  background-color: white;
+  background-color: grey;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 `;
@@ -69,30 +70,71 @@ const loadingStyle = css`
   color: #6b7280;
 `;
 
+const markersListStyle = css`
+  margin-bottom: 1.5rem;
+`;
+
+const markerItemStyle = css`
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #f3f4f6;
+  }
+`;
+
+const addButtonStyle = css`
+  ${buttonStyle}
+  background-color: #10b981;
+  color: white;
+  margin-bottom: 1.5rem;
+  &:hover {
+    background-color: #059669;
+  }
+`;
+
 export default function Home(props) {
   const firebase = useFirebase();
   const [userData, setUserData] = createSignal(null);
   const [dataLoading, setDataLoading] = createSignal(true);
+  const [markers, setMarkers] = createSignal([]);
+  const [markersLoading, setMarkersLoading] = createSignal(true);
+  const [editingMarker, setEditingMarker] = createSignal(null);
 
   // Effetto per caricare i dati utente quando lo stato di autenticazione cambia
   createEffect(() => {
-    // 1. Se l'autenticazione è ancora in corso, non fare nulla
-    if (firebase.auth.authLoading()) {
-      console.log("Autenticazione in corso...");
-      return;
-    }
+    if (firebase.auth.authLoading()) return;
 
-    // 2. Se non c'è utente autenticato
     if (!firebase.auth.user()) {
-      console.log("Nessun utente autenticato");
       setDataLoading(false);
       return;
     }
 
+    loadUserData();
+    loadMarkers();
+
     // 3. Se c'è un utente autenticato, carica i dati
     console.log("Utente autenticato:", firebase.auth.user().email);
-    loadUserData();
   });
+
+
+  // Funzione per caricare i markers
+  const loadMarkers = async () => {
+    setMarkersLoading(true);
+    try {
+      const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
+      setMarkers(data);
+    } catch (error) {
+      console.error("Errore caricamento markers:", error);
+    } finally {
+      setMarkersLoading(false);
+    }
+  };
 
   // Funzione per caricare i dati utente da Firestore
   const loadUserData = async () => {
@@ -118,86 +160,112 @@ export default function Home(props) {
     }
   };
 
+
+  // Gestione markers
+  const handleAddMarker = async (name) => {
+    try {
+      await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+      loadMarkers();
+    } catch (error) {
+      console.error("Errore aggiunta marker:", error);
+    }
+  };
+
+  const handleUpdateMarker = async (markerId, name) => {
+    try {
+      await firebase.firestore.updateMarker(firebase.auth.user().uid, markerId, name);
+      loadMarkers();
+    } catch (error) {
+      console.error("Errore aggiornamento marker:", error);
+    }
+  };
+
+  const handleDeleteMarker = async (markerId) => {
+    try {
+      await firebase.firestore.deleteMarker(firebase.auth.user().uid, markerId);
+      loadMarkers();
+    } catch (error) {
+      console.error("Errore cancellazione marker:", error);
+    }
+  };
+
   return (
     <div class={containerStyle}>
-      <h2 class={headingStyle}>Benvenuto</h2>
+      {editingMarker() !== null ? (
+        <EditMarker
+          marker={editingMarker()}
+          onCreate={handleAddMarker}
+          onUpdate={handleUpdateMarker}
+          onDelete={handleDeleteMarker}
+          onSuccess={() => setEditingMarker(null)}
+          onCancel={() => setEditingMarker(null)}
+        />
+      ) : (
+        <>
+          <h2 class={headingStyle}>Benvenuto</h2>
 
-      {/* Stato di caricamento autenticazione */}
-      {firebase.auth.authLoading() ? (
-        <div class={loadingStyle}>
-          <p>Verifica autenticazione in corso...</p>
-        </div>
-      ) :
-
-        /* Nessun utente autenticato */
-        !firebase.auth.user() ? (
-          <div>
-            <p>Non sei autenticato.</p>
-            <div>
-              <button
-                onClick={props.onGoToLogin}
-                class={primaryButton}
-              >
-                Accedi
-              </button>
-              <button
-                onClick={props.onGoToRegister}
-                class={secondaryButton}
-              >
-                Registrati
-              </button>
-            </div>
-          </div>
-        ) :
-
-          /* Caricamento dati utente */
-          dataLoading() ? (
+          {firebase.auth.authLoading() ? (
             <div class={loadingStyle}>
-              <p>Caricamento dati utente...</p>
+              <p>Verifica autenticazione in corso...</p>
             </div>
-          ) :
-
-            /* Dati utente disponibili */
-            (
+          ) : !firebase.auth.user() ? (
+            <div>
+              <p>Non sei autenticato.</p>
               <div>
-                <div class={userInfoStyle}>
-                  <p><strong>Email:</strong> {firebase.auth.user().email}</p>
-                  {userData() && userData().lastLogin && (
-                    <p>
-                      <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
-                    </p>
+                <button onClick={props.onGoToLogin} class={primaryButton}>
+                  Accedi
+                </button>
+                <button onClick={props.onGoToRegister} class={secondaryButton}>
+                  Registrati
+                </button>
+              </div>
+            </div>
+          ) : dataLoading() || markersLoading() ? (
+            <div class={loadingStyle}>
+              <p>Caricamento dati...</p>
+            </div>
+          ) : (
+            <div>
+              <div class={userInfoStyle}>
+                <p><strong>Email:</strong> {firebase.auth.user().email}</p>
+                {/* ... altri dati utente ... */}
+              </div>
+
+              <div>
+                <button
+                  onClick={() => setEditingMarker({})}
+                  class={addButtonStyle}
+                >
+                  + Crea nuovo elemento
+                </button>
+
+                <div class={markersListStyle}>
+                  <h3>I tuoi elementi</h3>
+                  {markers().length === 0 ? (
+                    <p>Nessun elemento presente</p>
+                  ) : (
+                    markers().map(marker => (
+                      <div
+                        class={markerItemStyle}
+                        onClick={() => setEditingMarker(marker)}
+                      >
+                        {marker.name}
+                      </div>
+                    ))
                   )}
-                  {userData() && userData().created && (
-                    <p>
-                      <strong>Account creato:</strong> {userData().created.toLocaleString()}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <button
-                    onClick={handleLogout}
-                    class={primaryButton}
-                  >
-                    Logout
-                  </button>
-
-                  <button
-                    onClick={props.onGoToRegister}
-                    class={secondaryButton}
-                  >
-                    Vai alla registrazione
-                  </button>
-
-                  <button
-                    onClick={props.onGoToLogin}
-                    class={secondaryButton}
-                  >
-                    Vai al login
-                  </button>
                 </div>
               </div>
-            )}
+
+              <div>
+                <button onClick={handleLogout} class={primaryButton}>
+                  Logout
+                </button>
+                {/* ... altri pulsanti ... */}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -48,16 +48,13 @@ export default function Login(props) {
       <h2>Accedi</h2>
 
       {message().text && (
-        <div class={`mb-4 p-3 rounded ${message().type === 'error'
-          ? 'bg-red-100 text-red-700'
-          : 'bg-green-100 text-green-700'
-          }`}>
+        <div>
           {message().text}
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
-        <div class="mb-4">
+        <div>
           <label for="email">Email</label>
           <input
             type="email"
@@ -66,11 +63,10 @@ export default function Login(props) {
             value={form().email}
             onInput={handleInput}
             required
-            class="w-full p-2 border rounded"
           />
         </div>
 
-        <div class="mb-6">
+        <div>
           <label for="password">Password</label>
           <input
             type="password"
@@ -79,25 +75,22 @@ export default function Login(props) {
             value={form().password}
             onInput={handleInput}
             required
-            class="w-full p-2 border rounded"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading()}
-          class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300"
         >
           {loading() ? 'Accesso in corso...' : 'Accedi'}
         </button>
       </form>
 
-      <div class="mt-6 text-center">
-        <p class="text-sm">
+      <div>
+        <p>
           Non hai un account?{' '}
           <button
             type="button"
-            class="text-blue-500 hover:underline focus:outline-none"
             onClick={props.onGoToRegister}
           >
             Registrati
