@@ -14,7 +14,7 @@ import {
     deleteMarker
 } from '../lib/firebase/firestore';
 
-import { saveData, loadData, useRealtimeData } from '../lib/firebase/realtimeDb';
+import { saveData, loadData, useRealtimeData, deleteData } from '../lib/firebase/realtimeDb';
 
 export const useFirebase = () => {
     const { user, loading: authLoading } = useAuthState();
@@ -46,7 +46,8 @@ export const useFirebase = () => {
         realtimeDb: {
             saveData,
             loadData,
-            useRealtimeData
+            useRealtimeData,
+            deleteData
         }
     };
 };

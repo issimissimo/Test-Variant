@@ -99,10 +99,13 @@ export default function EditMarker(props) {
 
         setLoading(true);
         try {
+            console.log(`Inizio eliminazione marker: ${props.marker.id}`);
             await props.onDelete(props.marker.id);
+            console.log(`Marker eliminato con successo: ${props.marker.id}`);
             props.onSuccess();
         } catch (error) {
-            console.error("Errore cancellazione:", error);
+            console.error("Errore durante la cancellazione:", error);
+            setMessage({ type: 'error', text: 'Errore durante la cancellazione' });
         } finally {
             setLoading(false);
         }

@@ -1,11 +1,6 @@
-import {
-    ref,
-    set,
-    get,
-    onValue,
-    off
-} from "firebase/database";
+import { ref, set, get, onValue, off, remove } from "firebase/database";
 import { realtimeDb } from "./init";
+import { createSignal, onCleanup } from "solid-js";
 
 export const saveData = async (path, data) => {
     const dbRef = ref(realtimeDb, path);
@@ -26,7 +21,18 @@ export const loadData = async (path) => {
     }
 };
 
-import { createSignal, onCleanup } from "solid-js";
+export const deleteData = async (path) => {
+    const dbRef = ref(realtimeDb, path);
+    try {
+        console.log(`Tentativo di eliminare il percorso: ${path}`);
+        await remove(dbRef);
+        console.log(`Percorso ${path} eliminato con successo`);
+        return true;
+    } catch (error) {
+        console.error(`Errore durante l'eliminazione del percorso ${path}:`, error);
+        throw new Error(`Delete failed: ${error.message}`);
+    }
+};
 
 export const useRealtimeData = (path) => {
     const [data, setData] = createSignal(null);

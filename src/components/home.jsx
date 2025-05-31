@@ -184,10 +184,19 @@ export default function Home(props) {
 
   const handleDeleteMarker = async (markerId) => {
     try {
-      await firebase.firestore.deleteMarker(firebase.auth.user().uid, markerId);
+      const userId = firebase.auth.user().uid;
+      console.log(`Eliminazione marker Firestore: ${userId}/${markerId}`);
+      await firebase.firestore.deleteMarker(userId, markerId);
+
+      const path = `${userId}/${markerId}`;
+      console.log(`Tentativo di eliminazione Real Time DB: ${path}`);
+
+      await firebase.realtimeDb.deleteData(path);
+      console.log(`Dati Real Time DB eliminati per: ${path}`);
+
       loadMarkers();
     } catch (error) {
-      console.error("Errore cancellazione marker:", error);
+      console.error("Errore completo cancellazione marker:", error);
     }
   };
 
