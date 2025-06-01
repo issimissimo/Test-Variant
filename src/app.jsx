@@ -4,33 +4,53 @@ import Register from './components/register';
 import LoginForm from './components/login';
 import Home from './components/home';
 import Welcome from './components/welcome';
-import { collapseStyles } from '@hope-ui/solid';
+import Game from './components/game';
 
-// Definiamo le viste disponibili
+
 const VIEWS = {
     REGISTER: 'register',
     LOGIN: 'login',
     HOME: 'home',
-    WELCOME: 'welcome'
+    WELCOME: 'welcome',
+    GAME: 'game'
 };
 
 export default function App() {
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
     const [loading, setLoading] = createSignal(true);
+    const [userId, setUserId] = createSignal(null);
+    const [markerId, setMarkerId] = createSignal(null);
+
+
+    const startAnonymous = () => {
+        // Accesso anonimo
+        setUserId(() => urlParams.get('userId'));
+        setMarkerId(() => urlParams.get('elementId'));
+        setCurrentView(VIEWS.WELCOME);
+        setLoading(false);
+    }
 
 
     onMount(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
 
         document.getElementById("loading").style.display = "none";
 
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
+
         if (hasQueryParams) {
-            setCurrentView(VIEWS.WELCOME);
-            setLoading(false);
+
+            // // Accesso anonimo
+            // setUserId(() => urlParams.get('userId'));
+            // setMarkerId(() => urlParams.get('elementId'));
+            // setCurrentView(VIEWS.WELCOME);
+            // setLoading(false);
+            startAnonymous();
+
         } else {
-            const unsubscribe = firebase.auth.authLoading();
+
             if (!firebase.auth.authLoading()) {
                 checkAuthStatus();
             } else {
@@ -55,6 +75,7 @@ export default function App() {
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
     const goToHome = () => setCurrentView(VIEWS.HOME);
+    const goToGame = () => setCurrentView(VIEWS.GAME);
 
     // Renderizza la vista corrente
     const renderView = () => {
@@ -80,10 +101,19 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
+                    onStart={goToGame}
                 />;
 
             case VIEWS.WELCOME:
-                return <Welcome />;
+                return <Welcome
+                    onStart={goToGame}
+                />;
+
+            case VIEWS.GAME:
+                return <Game
+                    userId={userId()}
+                    markerId={markerId()}
+                />;
 
             default:
                 return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;
@@ -92,14 +122,7 @@ export default function App() {
 
     return (
         <div>
-
-
-
             {renderView()}
-
-
-
-
         </div>
     );
 }

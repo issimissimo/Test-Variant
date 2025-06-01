@@ -224,6 +224,7 @@ export default function Home(props) {
               elementId: markerId
             });
           }}
+          onEditMarker={props.onStart}
         />
       ) : (
         <>
