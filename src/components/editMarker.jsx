@@ -1,4 +1,4 @@
-import { createSignal, onMount } from 'solid-js';
+import { createSignal, onMount, createEffect } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
@@ -98,10 +98,11 @@ export default function EditMarker(props) {
     const [jsonExists, setJsonExists] = createSignal(false);
 
     // Verifica se esiste il JSON per questo marker
-    onMount(async () => {
-        if (props.marker?.id) {
+    createEffect(async () => {
+        const user = firebase.auth.user();
+        if (user && props.marker?.id) {
             try {
-                const path = `${firebase.auth.user().uid}/${props.marker.id}/data`;
+                const path = `${user.uid}/${props.marker.id}/data`;
                 const jsonData = await firebase.realtimeDb.loadData(path);
                 setJsonExists(!!jsonData);
             } catch (error) {
@@ -116,15 +117,18 @@ export default function EditMarker(props) {
 
         try {
             if (props.marker?.id) {
+                // Caso modifica marker esistente
                 await props.onUpdate(props.marker.id, name());
-            } else {
-                const newMarkerId = await props.onCreate(name());
-                props.onSuccess(newMarkerId);
-                return;
-            }
 
-            // Dopo il salvataggio, vai direttamente a FinalComponentA
-            props.onOpenFinalComponentA(props.marker.id);
+                // Vai direttamente a FinalComponentA
+                props.onOpenFinalComponentA(props.marker.id);
+            } else {
+                // Caso creazione nuovo marker
+                const newMarkerId = await props.onCreate(name());
+
+                // Vai direttamente a FinalComponentA con il nuovo ID
+                props.onOpenFinalComponentA(newMarkerId);
+            }
         } catch (error) {
             console.error("Errore:", error);
         } finally {

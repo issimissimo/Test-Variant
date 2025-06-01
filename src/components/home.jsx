@@ -168,17 +168,11 @@ export default function Home(props) {
   const handleAddMarker = async (name) => {
     try {
       const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-
-      // Dopo la creazione, vai direttamente a FinalComponentA
-      setFinalComponentA({
-        userId: firebase.auth.user().uid,
-        elementId: newMarkerId
-      });
-
-      // Ricarica la lista markers
-      loadMarkers();
+      loadMarkers(); // Ricarica la lista markers
+      return newMarkerId; // Restituisci l'ID per EditMarker
     } catch (error) {
       console.error("Errore aggiunta marker:", error);
+      throw error;
     }
   };
 
