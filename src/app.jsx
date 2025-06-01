@@ -3,13 +3,15 @@ import { useFirebase } from './hooks/useFirebase';
 import Register from './components/register';
 import LoginForm from './components/login';
 import Home from './components/home';
+import Welcome from './components/welcome';
 import { collapseStyles } from '@hope-ui/solid';
 
 // Definiamo le viste disponibili
 const VIEWS = {
     REGISTER: 'register',
     LOGIN: 'login',
-    HOME: 'home'
+    HOME: 'home',
+    WELCOME: 'welcome'
 };
 
 export default function App() {
@@ -17,21 +19,28 @@ export default function App() {
     const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
     const [loading, setLoading] = createSignal(true);
 
-    // Controlla se l'utente è già autenticato all'avvio
+
     onMount(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
 
         document.getElementById("loading").style.display = "none";
 
-        const unsubscribe = firebase.auth.authLoading();
-        if (!firebase.auth.authLoading()) {
-            checkAuthStatus();
+        if (hasQueryParams) {
+            setCurrentView(VIEWS.WELCOME);
+            setLoading(false);
         } else {
-            const timer = setInterval(() => {
-                if (!firebase.auth.authLoading()) {
-                    clearInterval(timer);
-                    checkAuthStatus();
-                }
-            }, 100);
+            const unsubscribe = firebase.auth.authLoading();
+            if (!firebase.auth.authLoading()) {
+                checkAuthStatus();
+            } else {
+                const timer = setInterval(() => {
+                    if (!firebase.auth.authLoading()) {
+                        clearInterval(timer);
+                        checkAuthStatus();
+                    }
+                }, 100);
+            }
         }
     });
 
@@ -73,6 +82,9 @@ export default function App() {
                     onGoToLogin={goToLogin}
                 />;
 
+            case VIEWS.WELCOME:
+                return <Welcome />;
+
             default:
                 return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;
         }
@@ -84,7 +96,7 @@ export default function App() {
 
 
             {renderView()}
-           
+
 
 
 

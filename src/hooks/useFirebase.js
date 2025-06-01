@@ -2,7 +2,8 @@ import {
     useAuthState,
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    loginAnonymousUser
 } from '../lib/firebase/auth';
 
 import {
@@ -32,7 +33,8 @@ export const useFirebase = () => {
                 await updateLastLogin(loggedInUser.uid);
                 return loggedInUser;
             },
-            logout: logoutUser
+            logout: logoutUser,
+            loginAnonymous: loginAnonymousUser
         },
 
         firestore: {

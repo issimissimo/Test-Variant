@@ -10,7 +10,9 @@ import {
     serverTimestamp
 } from "firebase/firestore";
 
-import { auth, firestore } from "./init";
+import { auth, firestore, anonymousLogin } from "./init";
+import { createSignal, onCleanup } from "solid-js";
+
 
 export const registerUser = async (credentials) => {
     try {
@@ -50,7 +52,14 @@ export const logoutUser = async () => {
     }
 };
 
-import { createSignal, onCleanup } from "solid-js";
+export const loginAnonymousUser = async () => {
+    try {
+        console.log("auth.js - loginAnonymousUser")
+        return await anonymousLogin();
+    } catch (error) {
+        throw new Error(`Anonymous login failed: ${error.message}`);
+    }
+};
 
 export const useAuthState = () => {
     const [user, setUser] = createSignal(null);
