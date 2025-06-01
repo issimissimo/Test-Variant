@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 import EditMarker from './editMarker';
@@ -83,6 +83,7 @@ const markerItemStyle = css`
   margin-bottom: 0.5rem;
   cursor: pointer;
   transition: background-color 0.2s;
+  color: black;
   
   &:hover {
     background-color: #f3f4f6;
@@ -166,7 +167,15 @@ export default function Home(props) {
   // Gestione markers
   const handleAddMarker = async (name) => {
     try {
-      await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+      const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+
+      // Dopo la creazione, vai direttamente a FinalComponentA
+      setFinalComponentA({
+        userId: firebase.auth.user().uid,
+        elementId: newMarkerId
+      });
+
+      // Ricarica la lista markers
       loadMarkers();
     } catch (error) {
       console.error("Errore aggiunta marker:", error);
@@ -214,7 +223,6 @@ export default function Home(props) {
           onCreate={handleAddMarker}
           onUpdate={handleUpdateMarker}
           onDelete={handleDeleteMarker}
-          onSuccess={() => setEditingMarker(null)}
           onCancel={() => setEditingMarker(null)}
           onOpenFinalComponentA={(markerId) => {
             setFinalComponentA({

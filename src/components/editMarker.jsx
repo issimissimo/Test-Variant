@@ -1,4 +1,5 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
+import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
 const containerStyle = css`
@@ -72,9 +73,42 @@ const infoButton = css`
   }
 `;
 
+const createButton = css`
+  ${buttonStyle}
+  background-color: #10b981;
+  color: white;
+  &:hover {
+    background-color: #059669;
+  }
+`;
+
+const editButton = css`
+  ${buttonStyle}
+  background-color: #3b82f6;
+  color: white;
+  &:hover {
+    background-color: #2563eb;
+  }
+`;
+
 export default function EditMarker(props) {
+    const firebase = useFirebase();
     const [name, setName] = createSignal(props.marker?.name || '');
     const [loading, setLoading] = createSignal(false);
+    const [jsonExists, setJsonExists] = createSignal(false);
+
+    // Verifica se esiste il JSON per questo marker
+    onMount(async () => {
+        if (props.marker?.id) {
+            try {
+                const path = `${firebase.auth.user().uid}/${props.marker.id}/data`;
+                const jsonData = await firebase.realtimeDb.loadData(path);
+                setJsonExists(!!jsonData);
+            } catch (error) {
+                console.error("Errore nel controllo JSON:", error);
+            }
+        }
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -84,9 +118,13 @@ export default function EditMarker(props) {
             if (props.marker?.id) {
                 await props.onUpdate(props.marker.id, name());
             } else {
-                await props.onCreate(name());
+                const newMarkerId = await props.onCreate(name());
+                props.onSuccess(newMarkerId);
+                return;
             }
-            props.onSuccess();
+
+            // Dopo il salvataggio, vai direttamente a FinalComponentA
+            props.onOpenFinalComponentA(props.marker.id);
         } catch (error) {
             console.error("Errore:", error);
         } finally {
@@ -128,8 +166,16 @@ export default function EditMarker(props) {
                 />
 
                 <div>
-                    <button type="submit" class={primaryButton} disabled={loading()}>
-                        {loading() ? 'Salvataggio...' : 'Salva'}
+                    <button
+                        type="submit"
+                        class={props.marker?.id ? editButton : createButton}
+                        disabled={loading()}
+                    >
+                        {loading()
+                            ? 'Salvataggio...'
+                            : props.marker?.id
+                                ? (jsonExists() ? 'Modifica' : 'Crea')
+                                : 'Crea'}
                     </button>
 
                     <button
@@ -149,17 +195,6 @@ export default function EditMarker(props) {
                             disabled={loading()}
                         >
                             Elimina
-                        </button>
-                    )}
-
-                    {props.marker?.id && (
-                        <button
-                            type="button"
-                            class={infoButton}
-                            onClick={() => props.onOpenFinalComponentA(props.marker.id)}
-                            disabled={loading()}
-                        >
-                            Apri Final Component A
                         </button>
                     )}
                 </div>

@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
@@ -57,7 +57,9 @@ const secondaryButton = css`
 export default function FinalComponentA(props) {
     const firebase = useFirebase();
     const [saving, setSaving] = createSignal(false);
+    const [loading, setLoading] = createSignal(true);
     const [message, setMessage] = createSignal({ type: '', text: '' });
+    const [jsonData, setJsonData] = createSignal(null);
 
     // Esempio di dati JSON
     const exampleData = {
@@ -65,6 +67,23 @@ export default function FinalComponentA(props) {
         value: 42,
         timestamp: new Date().toISOString()
     };
+
+    // Carica i dati esistenti al mount
+    onMount(async () => {
+        try {
+            const path = `${props.userId}/${props.elementId}/data`;
+            const data = await firebase.realtimeDb.loadData(path);
+
+            if (data) {
+                console.log("JSON esistente:", data);
+                setJsonData(data);
+            }
+        } catch (error) {
+            console.error("Errore caricamento JSON:", error);
+        } finally {
+            setLoading(false);
+        }
+    });
 
     const handleSaveData = async () => {
         setSaving(true);
@@ -74,6 +93,9 @@ export default function FinalComponentA(props) {
             // Salva nel Real Time Database
             const path = `${props.userId}/${props.elementId}/data`;
             await firebase.realtimeDb.saveData(path, exampleData);
+
+            // Aggiorna lo stato locale
+            setJsonData(exampleData);
             setMessage({ type: 'success', text: 'Dati salvati con successo!' });
         } catch (error) {
             setMessage({ type: 'error', text: `Errore: ${error.message}` });
@@ -90,6 +112,17 @@ export default function FinalComponentA(props) {
                 <p><strong>User ID:</strong> {props.userId}</p>
                 <p><strong>Element ID:</strong> {props.elementId}</p>
             </div>
+
+            {loading() ? (
+                <div>Caricamento dati...</div>
+            ) : jsonData() ? (
+                <div style={{ margin: '1rem 0' }}>
+                    <h3>Dati JSON esistenti:</h3>
+                    <pre>{JSON.stringify(jsonData(), null, 2)}</pre>
+                </div>
+            ) : (
+                <div>Nessun JSON presente</div>
+            )}
 
             {message().text && (
                 <div style={{ color: message().type === 'error' ? 'red' : 'green' }}>
