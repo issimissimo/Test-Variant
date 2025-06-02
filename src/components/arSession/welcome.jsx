@@ -3,7 +3,7 @@
 // *******************
 
 import { createSignal, createEffect } from 'solid-js';
-import { useFirebase } from '../hooks/useFirebase';
+// import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
 
@@ -92,11 +92,11 @@ export default function Welcome(props) {
     // }
 
     return (
-        <div class={containerStyle}>
+        <div>
             <h2>Benvenuto</h2>
-            <button  onClick={handleStart}>
+            {/* <button  onClick={handleStart}>
                 ENTRARE
-            </button>
+            </button> */}
         </div>
     );
 }

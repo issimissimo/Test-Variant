@@ -1,7 +1,7 @@
 import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
-import EditMarker from './editMarker';
+// import EditMarker from './arSession/editMarker';
 
 
 // Stili con Goober

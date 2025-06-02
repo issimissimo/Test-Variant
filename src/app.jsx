@@ -5,7 +5,6 @@ import { useFirebase } from './hooks/useFirebase';
 import Register from './components/register';
 import LoginForm from './components/login';
 import Home from './components/home';
-import Welcome from './components/welcome';
 import ArSession from './components/arSession';
 import ArNotSupported from './components/arNotSupported';
 
@@ -18,7 +17,6 @@ const VIEWS = {
     REGISTER: 'register',
     LOGIN: 'login',
     HOME: 'home',
-    WELCOME: 'welcome',
     AR_SESSION: 'arSession',
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
@@ -51,9 +49,11 @@ export default function App() {
                     const urlParams = new URLSearchParams(window.location.search);
                     const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
 
+                    // Access as anonymous
                     if (hasQueryParams) {
                         accessAnonymous(urlParams);
-
+                    
+                    // Login or register
                     } else {
                         if (!firebase.auth.authLoading()) {
                             checkAuthStatus();
@@ -102,27 +102,27 @@ export default function App() {
         setUserId(() => params.get('userId'));
         setMarkerId(() => params.get('elementId'));
 
-        // Load JSON
-        try {
-            const path = `${userId()}/${markerId()}/data`;
-            const data = await firebase.realtimeDb.loadData(path);
+        // // Load JSON
+        // try {
+        //     const path = `${userId()}/${markerId()}/data`;
+        //     const data = await firebase.realtimeDb.loadData(path);
 
-            if (data) {
-                console.log("JSON esistente:", data);
-                setJsonData(() => data);
-            }
-        } catch (error) {
-            console.error("Errore caricamento JSON:", error);
-        }
+        //     if (data) {
+        //         console.log("JSON esistente:", data);
+        //         setJsonData(() => data);
+        //     }
+        // } catch (error) {
+        //     console.error("Errore caricamento JSON:", error);
+        // }
 
-        // Go to Welcome screen
+        // Go to Welcome screen in AR Session
         setLoading(false);
-        goToWelcome();
+        goToArSession();
     }
 
     const checkAuthStatus = () => {
         if (firebase.auth.user()) {
-            setCurrentView(VIEWS.HOME);
+            goToHome();
         }
         setLoading(false);
     };
@@ -131,7 +131,7 @@ export default function App() {
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
     const goToHome = () => setCurrentView(VIEWS.HOME);
-    const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
+    // const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
@@ -162,22 +162,19 @@ export default function App() {
                     onEditMarker={(_markerId, _jsonData = null) => {
                         setUserId(() => firebase.auth.user().uid);
                         setMarkerId(() => _markerId);
-                        setJsonData(() => _jsonData);
+                        // setJsonData(() => _jsonData);
                         setCurrentMode(() => AppMode.SAVE);
                         goToArSession();
                     }}
                 />;
 
-            case VIEWS.WELCOME:
-                return <Welcome
-                    onStart={goToArSession}
-                />;
-
             case VIEWS.AR_SESSION:
                 return <ArSession
                     currentMode={currentMode()}
-                    jsonData={jsonData()}
-                    setJsonData={(json) => setJsonData(() => json)}
+                    userId={userId()}
+                    markerId={markerId()}
+                    // jsonData={jsonData()}
+                    // setJsonData={(json) => setJsonData(() => json)}
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:

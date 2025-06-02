@@ -1,5 +1,5 @@
 import { createSignal, createEffect } from 'solid-js';
-import { useFirebase } from '../hooks/useFirebase';
+import { useFirebase } from '../../hooks/useFirebase';
 import { css } from 'goober';
 
 const containerStyle = css`
