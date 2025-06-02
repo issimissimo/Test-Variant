@@ -6,6 +6,10 @@ import Home from './components/home';
 import Welcome from './components/welcome';
 import ArSession from './components/arSession';
 
+export const AppMode = {
+    SAVE: "save",
+    LOAD: "load"
+}
 
 const VIEWS = {
     REGISTER: 'register',
@@ -17,30 +21,27 @@ const VIEWS = {
 
 export default function App() {
     const firebase = useFirebase();
+    const [currentMode, setCurrentMode] = createSignal(AppMode.LOAD);
     const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [markerId, setMarkerId] = createSignal(null);
+    const [jsonData, setJsonData] = createSignal(null);
 
 
     onMount(() => {
 
+        // Hide preloader
         document.getElementById("loading").style.display = "none";
 
-
+        // Search for query string
         const urlParams = new URLSearchParams(window.location.search);
         const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
 
         if (hasQueryParams) {
-
-            // Accesso anonimo
-            setUserId(() => urlParams.get('userId'));
-            setMarkerId(() => urlParams.get('elementId'));
-            setCurrentView(VIEWS.WELCOME);
-            setLoading(false);
+            accessAnonymous(urlParams);
 
         } else {
-
             if (!firebase.auth.authLoading()) {
                 checkAuthStatus();
             } else {
@@ -54,6 +55,32 @@ export default function App() {
         }
     });
 
+
+    //
+    // Anonimous access
+    //
+    const accessAnonymous = async (params) => {
+        setUserId(() => params.get('userId'));
+        setMarkerId(() => params.get('elementId'));
+
+        // Load JSON
+        try {
+            const path = `${userId()}/${markerId()}/data`;
+            const data = await firebase.realtimeDb.loadData(path);
+
+            if (data) {
+                console.log("JSON esistente:", data);
+                setJsonData(() => data);
+            }
+        } catch (error) {
+            console.error("Errore caricamento JSON:", error);
+        }
+
+        // Go to Welcome screen
+        setLoading(false);
+        goToWelcome();
+    }
+
     const checkAuthStatus = () => {
         if (firebase.auth.user()) {
             setCurrentView(VIEWS.HOME);
@@ -65,6 +92,7 @@ export default function App() {
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
     const goToHome = () => setCurrentView(VIEWS.HOME);
+    const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
 
     // Renderizza la vista corrente
@@ -91,10 +119,12 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
-                    onEditMarker={(_markerId) => {
-                        setUserId(() => firebase.auth.user().uid)
-                        setMarkerId(() => _markerId)
-                        goToArSession()
+                    onEditMarker={(_markerId, _jsonData = null) => {
+                        setUserId(() => firebase.auth.user().uid);
+                        setMarkerId(() => _markerId);
+                        setJsonData(() => _jsonData);
+                        setCurrentMode(() => AppMode.SAVE);
+                        goToArSession();
                     }}
                 />;
 
@@ -105,8 +135,9 @@ export default function App() {
 
             case VIEWS.AR_SESSION:
                 return <ArSession
-                    userId={userId()}
-                    markerId={markerId()}
+                    currentMode={currentMode()}
+                    jsonData={jsonData()}
+                    setJsonData={setJsonData()}
                 />;
 
             default:

@@ -1,4 +1,4 @@
-import { createSignal, onMount, createEffect } from 'solid-js';
+import { createSignal, createEffect } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
@@ -92,128 +92,118 @@ const editButton = css`
 `;
 
 export default function EditMarker(props) {
-    const firebase = useFirebase();
-    const [name, setName] = createSignal(props.marker?.name || '');
-    const [loading, setLoading] = createSignal(false);
-    const [jsonExists, setJsonExists] = createSignal(false);
+  const firebase = useFirebase();
+  const [name, setName] = createSignal(props.marker?.name || '');
+  const [loading, setLoading] = createSignal(false);
+  const [jsonExists, setJsonExists] = createSignal(false);
+  const [jsonData, setJsonData] = createSignal(null);
 
-    // Verifica se esiste il JSON per questo marker
-    createEffect(async () => {
-        const user = firebase.auth.user();
-        if (user && props.marker?.id) {
-            try {
-                const path = `${user.uid}/${props.marker.id}/data`;
-                const jsonData = await firebase.realtimeDb.loadData(path);
-                setJsonExists(!!jsonData);
-            } catch (error) {
-                console.error("Errore nel controllo JSON:", error);
-            }
-        }
-    });
+  // Verifica se esiste il JSON per questo marker
+  createEffect(async () => {
+    const user = firebase.auth.user();
+    if (user && props.marker?.id) {
+      try {
+        const path = `${user.uid}/${props.marker.id}/data`;
+        const data = await firebase.realtimeDb.loadData(path);
+        setJsonExists(!!data);
+        setJsonData(() => data);
+      } catch (error) {
+        console.error("Errore nel controllo JSON:", error);
+      }
+    }
+  });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-        try {
-            if (props.marker?.id) {
-                // Caso modifica marker esistente
-                await props.onUpdate(props.marker.id, name());
+    try {
+      if (props.marker?.id) {
+        // Caso modifica marker esistente
+        await props.onUpdate(props.marker.id, name());
 
-                // // Vai direttamente a FinalComponentA
-                // props.onOpenFinalComponentA(props.marker.id);
+        console.log("marker id esistente:", props.marker.id)
+        props.onEditMarker(props.marker.id, jsonData());
+      } else {
+        // Caso creazione nuovo marker
+        const newMarkerId = await props.onCreate(name());
 
+        console.log("marker id nuovo:", newMarkerId)
+        props.onEditMarker(newMarkerId);
+      }
+    } catch (error) {
+      console.error("Errore:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                console.log("marker id esistente:", props.marker.id)
-                props.onEditMarker(props.marker.id);
+  const handleDelete = async () => {
+    if (!props.marker?.id) return;
 
+    setLoading(true);
+    try {
+      console.log(`Inizio eliminazione marker: ${props.marker.id}`);
+      await props.onDelete(props.marker.id);
+      console.log(`Marker eliminato con successo: ${props.marker.id}`);
+      props.onCancel();
+    } catch (error) {
+      console.error("Errore durante la cancellazione:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  return (
+    <div class={containerStyle}>
+      <h2 class={headingStyle}>
+        {props.marker?.id ? 'Modifica Elemento' : 'Nuovo Elemento'}
+      </h2>
 
-            } else {
-                // Caso creazione nuovo marker
-                const newMarkerId = await props.onCreate(name());
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          class={inputStyle}
+          value={name()}
+          onInput={(e) => setName(e.target.value)}
+          placeholder="Nome elemento"
+          required
+        />
 
-                // // Vai direttamente a FinalComponentA con il nuovo ID
-                // props.onOpenFinalComponentA(newMarkerId);
+        <div>
+          <button
+            type="submit"
+            class={props.marker?.id ? editButton : createButton}
+            disabled={loading()}
+          >
+            {loading()
+              ? 'Salvataggio...'
+              : props.marker?.id
+                ? (jsonExists() ? 'Modifica' : 'Crea')
+                : 'Crea'}
+          </button>
 
-                console.log("marker id nuovo:", newMarkerId)
-                props.onEditMarker(newMarkerId);
+          <button
+            type="button"
+            class={secondaryButton}
+            onClick={props.onCancel}
+            disabled={loading()}
+          >
+            Annulla
+          </button>
 
-
-            }
-        } catch (error) {
-            console.error("Errore:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!props.marker?.id) return;
-
-        setLoading(true);
-        try {
-            console.log(`Inizio eliminazione marker: ${props.marker.id}`);
-            await props.onDelete(props.marker.id);
-            console.log(`Marker eliminato con successo: ${props.marker.id}`);
-            props.onCancel();
-        } catch (error) {
-            console.error("Errore durante la cancellazione:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div class={containerStyle}>
-            <h2 class={headingStyle}>
-                {props.marker?.id ? 'Modifica Elemento' : 'Nuovo Elemento'}
-            </h2>
-
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    class={inputStyle}
-                    value={name()}
-                    onInput={(e) => setName(e.target.value)}
-                    placeholder="Nome elemento"
-                    required
-                />
-
-                <div>
-                    <button
-                        type="submit"
-                        class={props.marker?.id ? editButton : createButton}
-                        disabled={loading()}
-                    >
-                        {loading()
-                            ? 'Salvataggio...'
-                            : props.marker?.id
-                                ? (jsonExists() ? 'Modifica' : 'Crea')
-                                : 'Crea'}
-                    </button>
-
-                    <button
-                        type="button"
-                        class={secondaryButton}
-                        onClick={props.onCancel}
-                        disabled={loading()}
-                    >
-                        Annulla
-                    </button>
-
-                    {props.marker?.id && (
-                        <button
-                            type="button"
-                            class={dangerButton}
-                            onClick={handleDelete}
-                            disabled={loading()}
-                        >
-                            Elimina
-                        </button>
-                    )}
-                </div>
-            </form>
+          {props.marker?.id && (
+            <button
+              type="button"
+              class={dangerButton}
+              onClick={handleDelete}
+              disabled={loading()}
+            >
+              Elimina
+            </button>
+          )}
         </div>
-    );
+      </form>
+    </div>
+  );
 }

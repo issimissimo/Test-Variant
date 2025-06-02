@@ -1,8 +1,8 @@
-import { createEffect, createSignal, onMount } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 import EditMarker from './editMarker';
-import FinalComponentA from './finalComponentA';
+
 
 // Stili con Goober
 const containerStyle = css`
@@ -107,7 +107,7 @@ export default function Home(props) {
   const [markers, setMarkers] = createSignal([]);
   const [markersLoading, setMarkersLoading] = createSignal(true);
   const [editingMarker, setEditingMarker] = createSignal(null);
-  const [finalComponentA, setFinalComponentA] = createSignal(null); // { userId: string, elementId: string } | null
+  
 
   // Effetto per caricare i dati utente quando lo stato di autenticazione cambia
   createEffect(() => {
@@ -205,25 +205,13 @@ export default function Home(props) {
 
   return (
     <div class={containerStyle}>
-      {finalComponentA() ? (
-        <FinalComponentA
-          userId={finalComponentA().userId}
-          elementId={finalComponentA().elementId}
-          onBack={() => setFinalComponentA(null)}
-        />
-      ) : editingMarker() !== null ? (
+      {editingMarker() !== null ? (
         <EditMarker
           marker={editingMarker()}
           onCreate={handleAddMarker}
           onUpdate={handleUpdateMarker}
           onDelete={handleDeleteMarker}
           onCancel={() => setEditingMarker(null)}
-          // onOpenFinalComponentA={(markerId) => {
-          //   setFinalComponentA({
-          //     userId: firebase.auth.user().uid,
-          //     elementId: markerId
-          //   });
-          // }}
           onEditMarker={props.onEditMarker}
         />
       ) : (
