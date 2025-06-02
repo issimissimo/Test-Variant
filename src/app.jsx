@@ -23,13 +23,7 @@ export default function App() {
     const [markerId, setMarkerId] = createSignal(null);
 
 
-    const startAnonymous = () => {
-        // Accesso anonimo
-        setUserId(() => urlParams.get('userId'));
-        setMarkerId(() => urlParams.get('elementId'));
-        setCurrentView(VIEWS.WELCOME);
-        setLoading(false);
-    }
+   
 
 
     onMount(() => {
@@ -42,12 +36,11 @@ export default function App() {
 
         if (hasQueryParams) {
 
-            // // Accesso anonimo
-            // setUserId(() => urlParams.get('userId'));
-            // setMarkerId(() => urlParams.get('elementId'));
-            // setCurrentView(VIEWS.WELCOME);
-            // setLoading(false);
-            startAnonymous();
+            // Accesso anonimo
+            setUserId(() => urlParams.get('userId'));
+            setMarkerId(() => urlParams.get('elementId'));
+            setCurrentView(VIEWS.WELCOME);
+            setLoading(false);
 
         } else {
 
