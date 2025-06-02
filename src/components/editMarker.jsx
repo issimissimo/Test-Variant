@@ -120,14 +120,26 @@ export default function EditMarker(props) {
                 // Caso modifica marker esistente
                 await props.onUpdate(props.marker.id, name());
 
-                // Vai direttamente a FinalComponentA
-                props.onOpenFinalComponentA(props.marker.id);
+                // // Vai direttamente a FinalComponentA
+                // props.onOpenFinalComponentA(props.marker.id);
+
+
+                console.log("marker id esistente:", props.marker.id)
+                props.onEditMarker(props.marker.id);
+
+
+
             } else {
                 // Caso creazione nuovo marker
                 const newMarkerId = await props.onCreate(name());
 
-                // Vai direttamente a FinalComponentA con il nuovo ID
-                props.onOpenFinalComponentA(newMarkerId);
+                // // Vai direttamente a FinalComponentA con il nuovo ID
+                // props.onOpenFinalComponentA(newMarkerId);
+
+                console.log("marker id nuovo:", newMarkerId)
+                props.onEditMarker(newMarkerId);
+
+
             }
         } catch (error) {
             console.error("Errore:", error);

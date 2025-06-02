@@ -4,7 +4,7 @@ import Register from './components/register';
 import LoginForm from './components/login';
 import Home from './components/home';
 import Welcome from './components/welcome';
-import Game from './components/game';
+import ArSession from './components/arSession';
 
 
 const VIEWS = {
@@ -12,7 +12,7 @@ const VIEWS = {
     LOGIN: 'login',
     HOME: 'home',
     WELCOME: 'welcome',
-    GAME: 'game'
+    AR_SESSION: 'arSession'
 };
 
 export default function App() {
@@ -21,9 +21,6 @@ export default function App() {
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [markerId, setMarkerId] = createSignal(null);
-
-
-   
 
 
     onMount(() => {
@@ -68,7 +65,7 @@ export default function App() {
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
     const goToHome = () => setCurrentView(VIEWS.HOME);
-    const goToGame = () => setCurrentView(VIEWS.GAME);
+    const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
 
     // Renderizza la vista corrente
     const renderView = () => {
@@ -94,16 +91,20 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
-                    onStart={goToGame}
+                    onEditMarker={(_markerId) => {
+                        setUserId(() => firebase.auth.user().uid)
+                        setMarkerId(() => _markerId)
+                        goToArSession()
+                    }}
                 />;
 
             case VIEWS.WELCOME:
                 return <Welcome
-                    onStart={goToGame}
+                    onStart={goToArSession}
                 />;
 
-            case VIEWS.GAME:
-                return <Game
+            case VIEWS.AR_SESSION:
+                return <ArSession
                     userId={userId()}
                     markerId={markerId()}
                 />;

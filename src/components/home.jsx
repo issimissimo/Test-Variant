@@ -218,13 +218,13 @@ export default function Home(props) {
           onUpdate={handleUpdateMarker}
           onDelete={handleDeleteMarker}
           onCancel={() => setEditingMarker(null)}
-          onOpenFinalComponentA={(markerId) => {
-            setFinalComponentA({
-              userId: firebase.auth.user().uid,
-              elementId: markerId
-            });
-          }}
-          onEditMarker={props.onStart}
+          // onOpenFinalComponentA={(markerId) => {
+          //   setFinalComponentA({
+          //     userId: firebase.auth.user().uid,
+          //     elementId: markerId
+          //   });
+          // }}
+          onEditMarker={props.onEditMarker}
         />
       ) : (
         <>

@@ -2,8 +2,9 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
-function Game(props) {
+function ArSession(props) {
     const firebase = useFirebase();
+    const [data, setData] = createSignal(null);
 
     // Carica i dati esistenti al mount
     onMount(async () => {
@@ -16,6 +17,7 @@ function Game(props) {
 
             if (data) {
                 console.log("JSON esistente:", data);
+                setData(data);
             }
         } catch (error) {
             console.error("Errore caricamento JSON:", error);
@@ -25,7 +27,10 @@ function Game(props) {
     return (
         <div class="full-screen-div">
             AR
+            <p>
+                {JSON.stringify(data())}
+            </p>
         </div>
     )
 }
-export default Game
+export default ArSession
