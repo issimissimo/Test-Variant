@@ -1,5 +1,5 @@
 import { onMount } from 'solid-js'
-import { init } from "../../utils/qr.js";
+import { init } from '../hooks/useQRCode';
 
 function ArNotSupported() {
 

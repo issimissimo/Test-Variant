@@ -6,9 +6,9 @@ import { Dynamic } from "solid-js/web"
 import { HopeProvider } from '@hope-ui/solid'
 
 // UI
-import ArNotSupported from './components/ui/arNotSupported';
+import ArNotSupported from './components/arSession/arNotSupported';
 import Welcome from './components/ui/welcome';
-import Calibration from './components/ui/calibration';
+import Calibration from './components/arSession/calibration';
 import Game from './components/ui/game';
 
 

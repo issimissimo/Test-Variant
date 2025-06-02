@@ -1,7 +1,7 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
 import { Motion } from 'solid-motionone'
 import { css } from 'goober'
-import GradientBox from './gradientBox/GradientBox';
+import GradientBox from '../ui/gradientBox/GradientBox';
 
 
 const containerStyle = css`

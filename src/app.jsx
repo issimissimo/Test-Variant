@@ -1,10 +1,13 @@
 import { createSignal, onMount } from 'solid-js';
 import { useFirebase } from './hooks/useFirebase';
+
+
 import Register from './components/register';
 import LoginForm from './components/login';
 import Home from './components/home';
 import Welcome from './components/welcome';
 import ArSession from './components/arSession';
+import ArNotSupported from './components/arNotSupported';
 
 export const AppMode = {
     SAVE: "save",
@@ -16,7 +19,8 @@ const VIEWS = {
     LOGIN: 'login',
     HOME: 'home',
     WELCOME: 'welcome',
-    AR_SESSION: 'arSession'
+    AR_SESSION: 'arSession',
+    AR_NOT_SUPPORTED: 'arNotSupported',
 };
 
 export default function App() {
@@ -34,25 +38,60 @@ export default function App() {
         // Hide preloader
         document.getElementById("loading").style.display = "none";
 
-        // Search for query string
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
+        const checkSupported = false; //# use this flag for debug on desktop
+        if ("xr" in navigator) {
+            navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
-        if (hasQueryParams) {
-            accessAnonymous(urlParams);
+                if (!supported && checkSupported) {
+                    setLoading(false);
+                    goToArNotSupported();
+                }
+                else {
+                    // Search for query string
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
 
-        } else {
-            if (!firebase.auth.authLoading()) {
-                checkAuthStatus();
-            } else {
-                const timer = setInterval(() => {
-                    if (!firebase.auth.authLoading()) {
-                        clearInterval(timer);
-                        checkAuthStatus();
+                    if (hasQueryParams) {
+                        accessAnonymous(urlParams);
+
+                    } else {
+                        if (!firebase.auth.authLoading()) {
+                            checkAuthStatus();
+                        } else {
+                            const timer = setInterval(() => {
+                                if (!firebase.auth.authLoading()) {
+                                    clearInterval(timer);
+                                    checkAuthStatus();
+                                }
+                            }, 100);
+                        }
                     }
-                }, 100);
-            }
+                }
+            });
         }
+        else {
+            goToArNotSupported();
+        }
+
+        // // Search for query string
+        // const urlParams = new URLSearchParams(window.location.search);
+        // const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
+
+        // if (hasQueryParams) {
+        //     accessAnonymous(urlParams);
+
+        // } else {
+        //     if (!firebase.auth.authLoading()) {
+        //         checkAuthStatus();
+        //     } else {
+        //         const timer = setInterval(() => {
+        //             if (!firebase.auth.authLoading()) {
+        //                 clearInterval(timer);
+        //                 checkAuthStatus();
+        //             }
+        //         }, 100);
+        //     }
+        // }
     });
 
 
@@ -94,6 +133,7 @@ export default function App() {
     const goToHome = () => setCurrentView(VIEWS.HOME);
     const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
+    const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
     // Renderizza la vista corrente
     const renderView = () => {
@@ -137,7 +177,12 @@ export default function App() {
                 return <ArSession
                     currentMode={currentMode()}
                     jsonData={jsonData()}
-                    setJsonData={setJsonData()}
+                    setJsonData={(json) => setJsonData(() => json)}
+                />;
+
+            case VIEWS.AR_NOT_SUPPORTED:
+                return <ArNotSupported
+
                 />;
 
             default:
