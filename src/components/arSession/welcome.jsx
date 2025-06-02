@@ -1,9 +1,9 @@
-// *******************
+// **************************************
 // ** Schermata di benvenuto per utente anonimo
-// *******************
+// **
+// **************************************
 
 import { createSignal, createEffect } from 'solid-js';
-// import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 
 
@@ -66,10 +66,10 @@ export default function Welcome(props) {
     //     }
     // });
 
-    const handleStart = () => {
-        // props.onEnter(params().userId, params().elementId);
-        props.onStart();
-    };
+    // const handleStart = () => {
+    //     // props.onEnter(params().userId, params().elementId);
+    //     props.onStart();
+    // };
 
     // if (loading()) {
     //     return (
@@ -93,10 +93,7 @@ export default function Welcome(props) {
 
     return (
         <div>
-            <h2>Benvenuto</h2>
-            {/* <button  onClick={handleStart}>
-                ENTRARE
-            </button> */}
+            <h2>Benvenuto anonimo!</h2>
         </div>
     );
 }

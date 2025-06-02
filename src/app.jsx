@@ -1,4 +1,4 @@
-import { createSignal, onMount } from 'solid-js';
+import { createEffect, createSignal, onMount } from 'solid-js';
 import { useFirebase } from './hooks/useFirebase';
 
 
@@ -28,15 +28,17 @@ export default function App() {
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [markerId, setMarkerId] = createSignal(null);
-    const [jsonData, setJsonData] = createSignal(null);
+
+
+    createEffect(() => {
+        // Hide preloader
+        if (!loading()) document.getElementById("loading").style.display = "none";
+    })
 
 
     onMount(() => {
-
-        // Hide preloader
-        document.getElementById("loading").style.display = "none";
-
         const checkSupported = false; //# use this flag for debug on desktop
+
         if ("xr" in navigator) {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
@@ -52,7 +54,7 @@ export default function App() {
                     // Access as anonymous
                     if (hasQueryParams) {
                         accessAnonymous(urlParams);
-                    
+
                     // Login or register
                     } else {
                         if (!firebase.auth.authLoading()) {
@@ -70,6 +72,7 @@ export default function App() {
             });
         }
         else {
+            setLoading(false);
             goToArNotSupported();
         }
 
@@ -131,7 +134,6 @@ export default function App() {
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
     const goToHome = () => setCurrentView(VIEWS.HOME);
-    // const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
@@ -159,10 +161,9 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
-                    onEditMarker={(_markerId, _jsonData = null) => {
+                    onEditMarker={(_markerId) => {
                         setUserId(() => firebase.auth.user().uid);
                         setMarkerId(() => _markerId);
-                        // setJsonData(() => _jsonData);
                         setCurrentMode(() => AppMode.SAVE);
                         goToArSession();
                     }}
@@ -173,8 +174,6 @@ export default function App() {
                     currentMode={currentMode()}
                     userId={userId()}
                     markerId={markerId()}
-                    // jsonData={jsonData()}
-                    // setJsonData={(json) => setJsonData(() => json)}
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:

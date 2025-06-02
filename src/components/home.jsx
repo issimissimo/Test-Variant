@@ -107,7 +107,7 @@ export default function Home(props) {
   const [markers, setMarkers] = createSignal([]);
   const [markersLoading, setMarkersLoading] = createSignal(true);
   const [editingMarker, setEditingMarker] = createSignal(null);
-  
+
 
   // Effetto per caricare i dati utente quando lo stato di autenticazione cambia
   createEffect(() => {
@@ -205,7 +205,7 @@ export default function Home(props) {
 
   return (
     <div class={containerStyle}>
-      {editingMarker() !== null ? (
+      {/* {editingMarker() !== null ? (
         <EditMarker
           marker={editingMarker()}
           onCreate={handleAddMarker}
@@ -215,102 +215,102 @@ export default function Home(props) {
           onEditMarker={props.onEditMarker}
         />
       ) : (
-        <>
-          <h2 class={headingStyle}>Benvenuto</h2>
+        <> */}
+      <h2 class={headingStyle}>Home</h2>
 
-          {firebase.auth.authLoading() ? (
-            <div class={loadingStyle}>
-              <p>Verifica autenticazione in corso...</p>
+      {firebase.auth.authLoading() ? (
+        <div class={loadingStyle}>
+          <p>Verifica autenticazione in corso...</p>
+        </div>
+      ) : !firebase.auth.user() ? (
+        <div>
+          <p>Non sei autenticato.</p>
+          <div>
+            <button
+              onClick={props.onGoToLogin}
+              class={primaryButton}
+            >
+              Accedi
+            </button>
+            <button
+              onClick={props.onGoToRegister}
+              class={secondaryButton}
+            >
+              Registrati
+            </button>
+          </div>
+        </div>
+      ) : dataLoading() || markersLoading() ? (
+        <div class={loadingStyle}>
+          <p>Caricamento dati...</p>
+        </div>
+      ) : (
+        <div>
+          <div class={userInfoStyle}>
+            <p><strong>Email:</strong> {firebase.auth.user().email}</p>
+            {userData() && userData().lastLogin && (
+              <p>
+                <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
+              </p>
+            )}
+            {userData() && userData().created && (
+              <p>
+                <strong>Account creato:</strong> {userData().created.toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <button
+              onClick={() => setEditingMarker({})}
+              class={addButtonStyle}
+            >
+              + Crea nuovo elemento
+            </button>
+
+            <div class={markersListStyle}>
+              <h3>I tuoi elementi</h3>
+              {markers().length === 0 ? (
+                <p>Nessun elemento presente</p>
+              ) : (
+                markers().map(marker => (
+                  <div
+                    class={markerItemStyle}
+                    onClick={() => setEditingMarker(marker)}
+                  >
+                    {marker.name}
+                  </div>
+                ))
+              )}
             </div>
-          ) : !firebase.auth.user() ? (
-            <div>
-              <p>Non sei autenticato.</p>
-              <div>
-                <button
-                  onClick={props.onGoToLogin}
-                  class={primaryButton}
-                >
-                  Accedi
-                </button>
-                <button
-                  onClick={props.onGoToRegister}
-                  class={secondaryButton}
-                >
-                  Registrati
-                </button>
-              </div>
-            </div>
-          ) : dataLoading() || markersLoading() ? (
-            <div class={loadingStyle}>
-              <p>Caricamento dati...</p>
-            </div>
-          ) : (
-            <div>
-              <div class={userInfoStyle}>
-                <p><strong>Email:</strong> {firebase.auth.user().email}</p>
-                {userData() && userData().lastLogin && (
-                  <p>
-                    <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
-                  </p>
-                )}
-                {userData() && userData().created && (
-                  <p>
-                    <strong>Account creato:</strong> {userData().created.toLocaleString()}
-                  </p>
-                )}
-              </div>
+          </div>
 
-              <div>
-                <button
-                  onClick={() => setEditingMarker({})}
-                  class={addButtonStyle}
-                >
-                  + Crea nuovo elemento
-                </button>
+          <div>
+            <button
+              onClick={handleLogout}
+              class={primaryButton}
+            >
+              Logout
+            </button>
 
-                <div class={markersListStyle}>
-                  <h3>I tuoi elementi</h3>
-                  {markers().length === 0 ? (
-                    <p>Nessun elemento presente</p>
-                  ) : (
-                    markers().map(marker => (
-                      <div
-                        class={markerItemStyle}
-                        onClick={() => setEditingMarker(marker)}
-                      >
-                        {marker.name}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+            <button
+              onClick={props.onGoToRegister}
+              class={secondaryButton}
+            >
+              Vai alla registrazione
+            </button>
 
-              <div>
-                <button
-                  onClick={handleLogout}
-                  class={primaryButton}
-                >
-                  Logout
-                </button>
-
-                <button
-                  onClick={props.onGoToRegister}
-                  class={secondaryButton}
-                >
-                  Vai alla registrazione
-                </button>
-
-                <button
-                  onClick={props.onGoToLogin}
-                  class={secondaryButton}
-                >
-                  Vai al login
-                </button>
-              </div>
-            </div>
-          )}
-        </>
+            <button
+              onClick={props.onGoToLogin}
+              class={secondaryButton}
+            >
+              Vai al login
+            </button>
+          </div>
+        </div>
       )}
+      {/* </>
+      )} */}
     </div>
   );
 }
