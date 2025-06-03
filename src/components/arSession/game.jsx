@@ -1,8 +1,8 @@
-function Game() {
+function Game(props) {
 
     return (
         <div>
-
+            {props.marker.name}
         </div>
     )
 }

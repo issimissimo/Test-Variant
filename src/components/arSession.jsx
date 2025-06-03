@@ -41,8 +41,8 @@ export default function ArSession(props) {
             }
         }
 
-        if (props.currentMode === AppMode.SAVE) setCurrentView(() => VIEWS.EDIT_MARKER);
-        else if (props.currentMode === AppMode.LOAD && jsonData() !== null) setCurrentView(() => VIEWS.WELCOME);
+        if (props.currentMode === AppMode.SAVE) goEditMarker();
+        else if (props.currentMode === AppMode.LOAD && jsonData() !== null) goToWelcome();
         else {
             console.error("NON C'E' JSON!!!")
         }
@@ -62,7 +62,8 @@ export default function ArSession(props) {
     const handleCreateMarker = async (name) => {
         try {
             const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-            props.onSaveMarker(newMarkerId, name)
+            props.onSaveMarker(newMarkerId, name);
+            goToGame();
         } catch (error) {
             console.error("Errore aggiunta marker:", error);
             throw error;
@@ -73,9 +74,14 @@ export default function ArSession(props) {
     const handleModifyMarker = () => {
         console.log("DEVO MODIFICARE IL MARKER...")
         console.log(props.marker.id, props.marker.name)
+        goToGame();
     }
 
 
+    //
+    // Delete a marker
+    // both from firebase, and its JSON from RealTime DB
+    //
     const handleDeleteMarker = async () => {
         try {
             await firebase.firestore.deleteMarker(props.userId, props.marker.id);
@@ -86,6 +92,15 @@ export default function ArSession(props) {
             console.error("Errore completo cancellazione marker:", error);
         }
     };
+
+
+    //
+    // Navigation
+    //
+    const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
+    const goEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
+    const goToCalibration = () => setCurrentView(VIEWS.CALIBRATION);
+    const goToGame = () => setCurrentView(VIEWS.GAME);
 
 
     // Renderizza la vista corrente
@@ -115,7 +130,7 @@ export default function ArSession(props) {
 
             case VIEWS.GAME:
                 return <Game
-
+                    marker={props.marker}
                 />;
         }
     };
@@ -123,7 +138,7 @@ export default function ArSession(props) {
     return (
         <div class="full-screen-div">
             {renderView()}
-            {!loading() && JSON.stringify(jsonData())}
+            {/* {!loading() && JSON.stringify(jsonData())} */}
         </div>
     );
 

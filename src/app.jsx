@@ -114,7 +114,7 @@ export default function App() {
 
 
     //
-    // Gestori di navigazione
+    // Navigation
     //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
@@ -122,6 +122,7 @@ export default function App() {
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
+    
     //
     // Renderizza la vista corrente
     //
