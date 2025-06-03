@@ -27,7 +27,6 @@ export default function App() {
     const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
-    // const [markerId, setMarkerId] = createSignal(null);
     const [currentMarker, setCurrentMarker] = createSignal(null);
 
 
@@ -46,18 +45,19 @@ export default function App() {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
                 if (!supported && checkSupported) {
-                    setLoading(false);
                     goToArNotSupported();
+                    setLoading(false);
                 }
                 else {
                     // Search for query string
                     const urlParams = new URLSearchParams(window.location.search);
-                    const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
+                    const hasQueryParams = urlParams.has('userId') && urlParams.has('markerId');
 
                     // Access as anonymous
                     if (hasQueryParams) {
                         setCurrentMode(() => AppMode.LOAD);
                         accessAnonymous(urlParams);
+                        setLoading(false);
 
                     // Login or register
                     } else {
@@ -77,8 +77,8 @@ export default function App() {
             });
         }
         else {
-            setLoading(false);
             goToArNotSupported();
+            setLoading(false);
         }
     });
 
@@ -93,9 +93,9 @@ export default function App() {
         setUserId(() => params.get('userId'));
         // setMarkerId(() => params.get('elementId'));
 
-        setLoading(false);
+        
 
-        addMarker(params.get('elementId'));
+        addMarker(params.get('markerId'));
 
         // const marker = {
         //     id: params.get('elementId'),

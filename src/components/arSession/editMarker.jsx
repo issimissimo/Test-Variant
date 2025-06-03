@@ -104,20 +104,20 @@ export default function EditMarker(props) {
   })
 
 
-  // Verifica se esiste il JSON per questo marker
-  createEffect(async () => {
-    const user = firebase.auth.user();
-    if (user && props.marker?.id) {
-      try {
-        const path = `${user.uid}/${props.marker.id}/data`;
-        const data = await firebase.realtimeDb.loadData(path);
-        setJsonExists(!!data);
-        setJsonData(() => data);
-      } catch (error) {
-        console.error("Errore nel controllo JSON:", error);
-      }
-    }
-  });
+  // // Verifica se esiste il JSON per questo marker
+  // createEffect(async () => {
+  //   const user = firebase.auth.user();
+  //   if (user && props.marker?.id) {
+  //     try {
+  //       const path = `${user.uid}/${props.marker.id}/data`;
+  //       const data = await firebase.realtimeDb.loadData(path);
+  //       setJsonExists(!!data);
+  //       setJsonData(() => data);
+  //     } catch (error) {
+  //       console.error("Errore nel controllo JSON:", error);
+  //     }
+  //   }
+  // });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -144,16 +144,16 @@ export default function EditMarker(props) {
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      console.log(`Inizio eliminazione marker: ${props.marker.id}`);
-      await props.onDelete(props.marker.id);
-      console.log(`Marker eliminato con successo: ${props.marker.id}`);
-      // props.onCancel();
-    } catch (error) {
-      console.error("Errore durante la cancellazione:", error);
-    }
-  };
+  // const handleDelete = async () => {
+  //   try {
+  //     console.log(`Inizio eliminazione marker: ${props.marker.id}`);
+  //     await props.onDelete(props.marker.id);
+  //     console.log(`Marker eliminato con successo: ${props.marker.id}`);
+  //     // props.onCancel();
+  //   } catch (error) {
+  //     console.error("Errore durante la cancellazione:", error);
+  //   }
+  // };
 
   return (
     <div class={containerStyle}>
@@ -167,12 +167,12 @@ export default function EditMarker(props) {
           class={inputStyle}
           value={name()}
           onInput={(e) => setName(e.target.value)}
-          placeholder="Nome elemento"
+          placeholder="Nome"
           required
         />
 
         <div>
-          <button
+          {/* <button
             type="submit"
             class={props.marker?.id ? editButton : createButton}
             disabled={loading()}
@@ -180,9 +180,19 @@ export default function EditMarker(props) {
             {loading()
               ? 'Salvataggio...'
               : props.marker?.id
-                ? (jsonExists() ? 'Modifica' : 'Crea')
+                ? (props.jsonData? 'Modifica' : 'Crea')
                 : 'Crea'}
+          </button> */}
+
+          <button
+            type="button"
+            // class={secondaryButton}
+            onClick={() => { props.onCreate(name()) }}
+            disabled={loading()}
+          >
+            {props.jsonData? 'Modifica' : 'Crea'}
           </button>
+
 
           <button
             type="button"

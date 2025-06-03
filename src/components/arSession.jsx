@@ -76,8 +76,7 @@ export default function ArSession(props) {
 
             const path = `${props.userId}/${props.marker.id}`;
             await firebase.realtimeDb.deleteData(path);
-
-            props.backToHome;
+            handleBackToHome();
         } catch (error) {
             console.error("Errore completo cancellazione marker:", error);
         }
