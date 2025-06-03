@@ -2,7 +2,12 @@ function Game(props) {
 
     return (
         <div>
-            {props.marker.name}
+            <h2>
+                {props.marker.name}
+            </h2>
+            <p>
+                {JSON.stringify(props.jsonData)}
+            </p>
         </div>
     )
 }

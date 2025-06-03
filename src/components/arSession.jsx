@@ -24,36 +24,16 @@ export default function ArSession(props) {
     const [jsonData, setJsonData] = createSignal(null);
     const [loading, setLoading] = createSignal(false);
 
-    // onMount(async () => {
-    //     setLoading(() => true)
-
-    //     if (props.userId && props.marker.id) {
-    //         try {
-    //             // Load JSON from Realtime DB
-    //             const path = `${props.userId}/${props.marker.id}/data`;
-    //             const data = await firebase.realtimeDb.loadData(path);
-
-    //             setJsonData(() => data);
-    //             setLoading(() => false)
-
-    //         } catch (error) {
-    //             console.error("Errore nel controllo JSON:", error);
-    //         }
-    //     }
-
-    //     if (props.currentMode === AppMode.SAVE) goEditMarker();
-    //     else if (props.currentMode === AppMode.LOAD && jsonData() !== null) goToWelcome();
-    //     else {
-    //         console.error("NON C'E' JSON!!!")
-    //     }
-    // })
-
-    onMount(() => {
+    //
+    // On mount switch from Welcome / EditMarker
+    //
+    onMount(async () => {
         if (props.currentMode === AppMode.SAVE) {
             goEditMarker();
         }
         else if (props.currentMode === AppMode.LOAD) {
             if (props.marker.withData) {
+                await loadJsonData();
                 goToWelcome();
             }
             else {
@@ -62,6 +42,24 @@ export default function ArSession(props) {
         }
         else console.error("AppMode not specified")
     })
+
+
+
+    const loadJsonData = async () => {
+        setLoading(() => true)
+        try {
+            // Load JSON from Realtime DB
+            const path = `${props.userId}/${props.marker.id}/data`;
+            const data = await firebase.realtimeDb.loadData(path);
+
+            setJsonData(() => data);
+            setLoading(() => false)
+
+        } catch (error) {
+            console.error("Errore nel caricamento JSON:", error);
+        }
+    }
+
 
     //
     // Start AR
@@ -74,6 +72,10 @@ export default function ArSession(props) {
         props.backToHome();
     }
 
+    //
+    // Create a new marker,
+    // only in firebase (JSON should be created later on)
+    //
     const handleCreateMarker = async (name) => {
         try {
             const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
@@ -86,16 +88,20 @@ export default function ArSession(props) {
     };
 
 
-    const handleModifyMarker = () => {
-        console.log("DEVO MODIFICARE IL MARKER...")
-        console.log(props.marker.id, props.marker.name)
+    //
+    // Modify an existing marker that have a JSON associated,
+    // loading its JSON
+    //
+    const handleModifyMarker = async () => {
+        await loadJsonData();
         goToGame();
     }
 
 
     //
-    // Delete a marker
-    // both from firebase, and its JSON from RealTime DB
+    // Delete a marker,
+    // both from firebase and its JSON from RealTime DB,
+    // and go back to Home
     //
     const handleDeleteMarker = async () => {
         try {
@@ -118,14 +124,16 @@ export default function ArSession(props) {
     const goToGame = () => setCurrentView(VIEWS.GAME);
 
 
-    // Renderizza la vista corrente
+    //
+    // Render
+    //
     const renderView = () => {
 
         switch (currentView()) {
 
             case VIEWS.WELCOME:
                 return <Welcome
-
+                    jsonData={jsonData()}
                 />;
 
             case VIEWS.EDIT_MARKER:
@@ -135,7 +143,6 @@ export default function ArSession(props) {
                     onModify={handleModifyMarker}
                     onDelete={handleDeleteMarker}
                     onCancel={handleBackToHome}
-                // jsonData={jsonData()}
                 />;
 
             case VIEWS.CALIBRATION:
@@ -146,14 +153,15 @@ export default function ArSession(props) {
             case VIEWS.GAME:
                 return <Game
                     marker={props.marker}
+                    jsonData={jsonData()}
                 />;
         }
     };
 
+
     return (
-        <div class="full-screen-div">
+        <div class="full-screen">
             {renderView()}
-            {!loading() && JSON.stringify(jsonData())}
         </div>
     );
 

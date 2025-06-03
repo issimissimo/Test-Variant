@@ -122,7 +122,7 @@ export default function Home(props) {
     loadMarkers();
 
     // 3. Se c'è un utente autenticato, carica i dati
-    console.log("Utente autenticato:", firebase.auth.user().email);
+    // console.log("Utente autenticato:", firebase.auth.user().email);
   });
 
 
@@ -145,7 +145,7 @@ export default function Home(props) {
     try {
       const data = await firebase.firestore.fetchUserData(firebase.auth.user().uid);
       setUserData(data);
-      console.log("Dati utente:", data);
+      // console.log("Dati utente:", data);
     } catch (error) {
       console.error("Errore caricamento dati utente:", error);
     } finally {

@@ -1,7 +1,7 @@
 import { createEffect, createSignal, onMount } from 'solid-js';
 import { useFirebase } from './hooks/useFirebase';
 
-
+// UI
 import Register from './components/register';
 import LoginForm from './components/login';
 import Home from './components/home';
@@ -57,7 +57,6 @@ export default function App() {
                     if (hasQueryParams) {
                         setCurrentMode(() => AppMode.LOAD);
                         accessAnonymous(urlParams);
-                        setLoading(false);
 
                         // Login or register
                     } else {
@@ -86,12 +85,23 @@ export default function App() {
     //
     // Anonimous access
     //
-    const accessAnonymous = (params) => {
+    const accessAnonymous = async (params) => {
+        if (!firebase.auth.user()) {
+            await firebase.auth.loginAnonymous();
+        }
         setUserId(() => params.get('userId'));
-        addMarker(params.get('markerId'));
+        const markerId = params.get('markerId');
+        const markerName = null;
+        const withData = true;
+        addMarker(markerId, markerName, withData);
         goToArSession();
+        setLoading(false);
     }
 
+
+    //
+    // Check auth status
+    //
     const checkAuthStatus = () => {
         if (firebase.auth.user()) {
             goToHome();
@@ -102,15 +112,14 @@ export default function App() {
 
     //
     // Add a new marker on the fly to the App 
-    // (with ID and name, or not, but without a JSON associated)
     // and set it as currentMarker
     // Just used for App purpose, NOT for database
     //
-    const addMarker = (markerId = null, markerName = null) => {
+    const addMarker = (markerId = null, markerName = null, withData = false) => {
         const marker = {
             id: markerId ? markerId : null,
             name: markerName ? markerName : null,
-            withData: false
+            withData: withData
         }
         setCurrentMarker(() => marker);
     }
@@ -175,7 +184,7 @@ export default function App() {
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:
-                return <ArNotSupported/>;
+                return <ArNotSupported />;
 
             default:
                 return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;
