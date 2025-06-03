@@ -110,7 +110,7 @@ export default function EditMarker(props) {
         />
 
         <div>
-          {/* <button
+          {/* <button 
             type="submit"
             class={props.marker?.id ? editButton : createButton}
             disabled={loading()}
@@ -122,14 +122,32 @@ export default function EditMarker(props) {
                 : 'Crea'}
           </button> */}
 
-          <button
+          {
+            props.jsonData ?
+              <button
+                type="button"
+                onClick={() => { props.onModify() }}
+              // disabled={loading()}
+              >
+                MODIFICA
+              </button>
+              :
+              <button
+                type="button"
+                onClick={() => { props.onCreate(name()) }}
+              disabled={!name()}
+              >
+                CREA
+              </button>
+          }
+          {/* <button
             type="button"
             // class={secondaryButton}
             onClick={() => { props.onCreate(name()) }}
-            // disabled={loading()}
+          // disabled={loading()}
           >
-            {props.jsonData? 'Modifica' : 'Crea'}
-          </button>
+            {props.jsonData ? 'Modifica' : 'Crea'}
+          </button> */}
 
 
           <button
@@ -138,7 +156,7 @@ export default function EditMarker(props) {
             onClick={() => {
               props.onCancel()
             }}
-            // disabled={loading()}
+          // disabled={loading()}
           >
             Annulla
           </button>
@@ -148,7 +166,7 @@ export default function EditMarker(props) {
               type="button"
               class={dangerButton}
               onClick={props.onDelete}
-              // disabled={loading()}
+            // disabled={loading()}
             >
               Elimina
             </button>

@@ -34,7 +34,7 @@ export default function App() {
         // Hide preloader
         if (!loading()) document.getElementById("loading").style.display = "none";
 
-
+        console.log('---> current marker:', currentMarker())
     })
 
 
@@ -165,6 +165,9 @@ export default function App() {
                     userId={userId()}
                     marker={currentMarker()}
                     backToHome={() => goToHome()}
+                    onSaveMarker={(id, name) => {
+                        addMarker(id, name);
+                    }}
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:
