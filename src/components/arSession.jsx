@@ -24,28 +24,43 @@ export default function ArSession(props) {
     const [jsonData, setJsonData] = createSignal(null);
     const [loading, setLoading] = createSignal(false);
 
-    onMount(async () => {
-        setLoading(() => true)
+    // onMount(async () => {
+    //     setLoading(() => true)
 
-        if (props.userId && props.marker.id) {
-            try {
-                // Load JSON from Realtime DB
-                const path = `${props.userId}/${props.marker.id}/data`;
-                const data = await firebase.realtimeDb.loadData(path);
+    //     if (props.userId && props.marker.id) {
+    //         try {
+    //             // Load JSON from Realtime DB
+    //             const path = `${props.userId}/${props.marker.id}/data`;
+    //             const data = await firebase.realtimeDb.loadData(path);
 
-                setJsonData(() => data);
-                setLoading(() => false)
+    //             setJsonData(() => data);
+    //             setLoading(() => false)
 
-            } catch (error) {
-                console.error("Errore nel controllo JSON:", error);
+    //         } catch (error) {
+    //             console.error("Errore nel controllo JSON:", error);
+    //         }
+    //     }
+
+    //     if (props.currentMode === AppMode.SAVE) goEditMarker();
+    //     else if (props.currentMode === AppMode.LOAD && jsonData() !== null) goToWelcome();
+    //     else {
+    //         console.error("NON C'E' JSON!!!")
+    //     }
+    // })
+
+    onMount(() => {
+        if (props.currentMode === AppMode.SAVE) {
+            goEditMarker();
+        }
+        else if (props.currentMode === AppMode.LOAD) {
+            if (props.marker.withData) {
+                goToWelcome();
+            }
+            else {
+                console.error("You are loading a marker as anonymous, but marker has no data!")
             }
         }
-
-        if (props.currentMode === AppMode.SAVE) goEditMarker();
-        else if (props.currentMode === AppMode.LOAD && jsonData() !== null) goToWelcome();
-        else {
-            console.error("NON C'E' JSON!!!")
-        }
+        else console.error("AppMode not specified")
     })
 
     //
@@ -120,7 +135,7 @@ export default function ArSession(props) {
                     onModify={handleModifyMarker}
                     onDelete={handleDeleteMarker}
                     onCancel={handleBackToHome}
-                    jsonData={jsonData()}
+                // jsonData={jsonData()}
                 />;
 
             case VIEWS.CALIBRATION:
@@ -138,7 +153,7 @@ export default function ArSession(props) {
     return (
         <div class="full-screen-div">
             {renderView()}
-            {/* {!loading() && JSON.stringify(jsonData())} */}
+            {!loading() && JSON.stringify(jsonData())}
         </div>
     );
 

@@ -123,7 +123,7 @@ export default function EditMarker(props) {
           </button> */}
 
           {
-            props.jsonData ?
+            props.marker.withData ?
               <button
                 type="button"
                 onClick={() => { props.onModify() }}
@@ -135,7 +135,7 @@ export default function EditMarker(props) {
               <button
                 type="button"
                 onClick={() => { props.onCreate(name()) }}
-              disabled={!name()}
+                disabled={!name()}
               >
                 CREA
               </button>
@@ -153,9 +153,7 @@ export default function EditMarker(props) {
           <button
             type="button"
             class={secondaryButton}
-            onClick={() => {
-              props.onCancel()
-            }}
+            onClick={() => { props.onCancel() }}
           // disabled={loading()}
           >
             Annulla

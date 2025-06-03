@@ -88,7 +88,12 @@ export const fetchMarkers = async (userId) => {
 export const addMarker = async (userId, name) => {
     try {
         const markersRef = collection(firestore, `users/${userId}/markers`);
-        const newMarkerRef = await addDoc(markersRef, { name });
+        const newMarkerRef = await addDoc(markersRef,
+            {
+                name,
+                created: serverTimestamp(),
+                withData: false
+            });
         return newMarkerRef.id;
     } catch (error) {
         console.error("Errore nell'aggiunta marker:", error);
@@ -96,10 +101,15 @@ export const addMarker = async (userId, name) => {
     }
 };
 
-export const updateMarker = async (userId, markerId, name) => {
+export const updateMarker = async (userId, markerId, name, withData = false) => {
     try {
         const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
-        await setDoc(markerRef, { name }, { merge: true });
+        await setDoc(markerRef,
+            {
+                name,
+                withData: withData
+            },
+            { merge: true });
     } catch (error) {
         console.error("Errore nell'aggiornamento marker:", error);
         throw error;

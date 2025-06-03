@@ -101,13 +101,16 @@ export default function App() {
 
 
     //
-    // Add a new marker (empty or not)
+    // Add a new marker on the fly to the App 
+    // (with ID and name, or not, but without a JSON associated)
     // and set it as currentMarker
+    // Just used for App purpose, NOT for database
     //
     const addMarker = (markerId = null, markerName = null) => {
         const marker = {
             id: markerId ? markerId : null,
-            name: markerName ? markerName : null
+            name: markerName ? markerName : null,
+            withData: false
         }
         setCurrentMarker(() => marker);
     }
@@ -122,7 +125,7 @@ export default function App() {
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
-    
+
     //
     // Renderizza la vista corrente
     //
