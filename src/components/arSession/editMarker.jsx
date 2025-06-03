@@ -1,5 +1,4 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
-import { useFirebase } from '../../hooks/useFirebase';
 import { css } from 'goober';
 
 const containerStyle = css`
@@ -92,68 +91,7 @@ const editButton = css`
 `;
 
 export default function EditMarker(props) {
-  const firebase = useFirebase();
   const [name, setName] = createSignal(props.marker?.name || '');
-  const [loading, setLoading] = createSignal(false);
-  const [jsonExists, setJsonExists] = createSignal(false);
-  const [jsonData, setJsonData] = createSignal(null);
-
-  onMount(() => {
-    console.log('----------------')
-    console.log('markerData:', props.jsonData)
-  })
-
-
-  // // Verifica se esiste il JSON per questo marker
-  // createEffect(async () => {
-  //   const user = firebase.auth.user();
-  //   if (user && props.marker?.id) {
-  //     try {
-  //       const path = `${user.uid}/${props.marker.id}/data`;
-  //       const data = await firebase.realtimeDb.loadData(path);
-  //       setJsonExists(!!data);
-  //       setJsonData(() => data);
-  //     } catch (error) {
-  //       console.error("Errore nel controllo JSON:", error);
-  //     }
-  //   }
-  // });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (props.marker?.id) {
-        // Caso modifica marker esistente
-        await props.onUpdate(props.marker.id, name());
-
-        console.log("marker id esistente:", props.marker.id)
-        props.onEditMarker(props.marker.id, jsonData());
-      } else {
-        // Caso creazione nuovo marker
-        const newMarkerId = await props.onCreate(name());
-
-        console.log("marker id nuovo:", newMarkerId)
-        props.onEditMarker(newMarkerId);
-      }
-    } catch (error) {
-      console.error("Errore:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // const handleDelete = async () => {
-  //   try {
-  //     console.log(`Inizio eliminazione marker: ${props.marker.id}`);
-  //     await props.onDelete(props.marker.id);
-  //     console.log(`Marker eliminato con successo: ${props.marker.id}`);
-  //     // props.onCancel();
-  //   } catch (error) {
-  //     console.error("Errore durante la cancellazione:", error);
-  //   }
-  // };
 
   return (
     <div class={containerStyle}>
@@ -161,7 +99,7 @@ export default function EditMarker(props) {
         {props.marker?.id ? 'Modifica Elemento' : 'Nuovo Elemento'}
       </h2>
 
-      <form onSubmit={handleSubmit}>
+      <form>
         <input
           type="text"
           class={inputStyle}
@@ -188,7 +126,7 @@ export default function EditMarker(props) {
             type="button"
             // class={secondaryButton}
             onClick={() => { props.onCreate(name()) }}
-            disabled={loading()}
+            // disabled={loading()}
           >
             {props.jsonData? 'Modifica' : 'Crea'}
           </button>
@@ -200,7 +138,7 @@ export default function EditMarker(props) {
             onClick={() => {
               props.onCancel()
             }}
-            disabled={loading()}
+            // disabled={loading()}
           >
             Annulla
           </button>
@@ -210,7 +148,7 @@ export default function EditMarker(props) {
               type="button"
               class={dangerButton}
               onClick={props.onDelete}
-              disabled={loading()}
+              // disabled={loading()}
             >
               Elimina
             </button>

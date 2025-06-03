@@ -49,7 +49,7 @@ export default function App() {
                     setLoading(false);
                 }
                 else {
-                    // Search for query string
+                    // Search for URL query string
                     const urlParams = new URLSearchParams(window.location.search);
                     const hasQueryParams = urlParams.has('userId') && urlParams.has('markerId');
 
@@ -59,7 +59,7 @@ export default function App() {
                         accessAnonymous(urlParams);
                         setLoading(false);
 
-                    // Login or register
+                        // Login or register
                     } else {
                         setCurrentMode(() => AppMode.SAVE);
                         if (!firebase.auth.authLoading()) {
@@ -86,27 +86,10 @@ export default function App() {
     //
     // Anonimous access
     //
-    const accessAnonymous = async (params) => {
-
-
-
+    const accessAnonymous = (params) => {
         setUserId(() => params.get('userId'));
-        // setMarkerId(() => params.get('elementId'));
-
-        
-
         addMarker(params.get('markerId'));
-
-        // const marker = {
-        //     id: params.get('elementId'),
-        //     name: 'undefined'
-        // }
-        // setCurrentMarker(() => marker);
-
-
-
-        // goToArSession();
-
+        goToArSession();
     }
 
     const checkAuthStatus = () => {
@@ -117,19 +100,16 @@ export default function App() {
     };
 
 
-
-    const addMarker = (markerId) => {
-        
-
+    //
+    // Add a new marker (empty or not)
+    // and set it as currentMarker
+    //
+    const addMarker = (markerId = null, markerName = null) => {
         const marker = {
             id: markerId ? markerId : null,
-            name: null
+            name: markerName ? markerName : null
         }
-
         setCurrentMarker(() => marker);
-
-        
-        goToArSession();
     }
 
 
@@ -168,11 +148,13 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
-                    onCreateMarker={() => addMarker()}
+                    onCreateMarker={() => {
+                        addMarker();
+                        goToArSession();
+                    }}
                     onMarkerClicked={(marker) => {
                         setUserId(() => firebase.auth.user().uid);
                         setCurrentMarker(() => marker);
-                        // setCurrentMode(() => AppMode.SAVE);
                         goToArSession();
                     }}
                 />;
@@ -186,9 +168,7 @@ export default function App() {
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:
-                return <ArNotSupported
-
-                />;
+                return <ArNotSupported/>;
 
             default:
                 return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;

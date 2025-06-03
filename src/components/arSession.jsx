@@ -1,8 +1,9 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
-
 import { AppMode } from '../app';
+
+// UI
 import Welcome from './arSession/welcome';
 import EditMarker from './arSession/editMarker';
 import Calibration from './arSession/calibration';
@@ -27,7 +28,6 @@ export default function ArSession(props) {
         setLoading(() => true)
 
         if (props.userId && props.marker.id) {
-            console.log("ci provo....")
             try {
                 // Load JSON from Realtime DB
                 const path = `${props.userId}/${props.marker.id}/data`;
