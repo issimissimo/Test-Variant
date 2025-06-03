@@ -36,6 +36,9 @@ export default function ArSession(props) {
         else if (props.currentMode === AppMode.LOAD) {
             await loadJsonData();
             if (jsonData()) {
+
+                // All good, we've loaded the JSON data and we can
+                // go to Welcome screen
                 goToWelcome();
             }
             else {

@@ -58,8 +58,9 @@ export default function App() {
                         setCurrentMode(() => AppMode.LOAD);
                         accessAnonymous(urlParams);
 
-                        // Login or register
                     } else {
+
+                        // Login or register
                         setCurrentMode(() => AppMode.SAVE);
                         if (!firebase.auth.authLoading()) {
                             checkAuthStatus();
@@ -104,7 +105,13 @@ export default function App() {
     //
     const checkAuthStatus = () => {
         if (firebase.auth.user()) {
-            goToHome();
+            if (firebase.auth.user().isAnonymous) {
+                console.log("You are logged as anonymous, so you need to login")
+                goToLogin();
+            }
+            else {
+                goToHome();
+            }
         }
         setLoading(false);
     };
