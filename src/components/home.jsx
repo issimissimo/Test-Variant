@@ -276,7 +276,9 @@ export default function Home(props) {
                 markers().map(marker => (
                   <div
                     class={markerItemStyle}
-                    onClick={() => setEditingMarker(marker)}
+                    onClick={() => {
+                      props.onMarkerClicked(marker)
+                      }}
                   >
                     {marker.name}
                   </div>

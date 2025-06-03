@@ -7,3 +7,8 @@ export const firebaseConfig = {
   messagingSenderId: "675206870565",
   appId: "1:675206870565:web:49edeb6a73dc1f5fd431cc"
 }
+
+export const variantLaunchConfig = {
+  apiKey: "VGzctezQqpavQxnTXtegZVxXGkjMRfRt",
+  redirectEnabled: true
+}

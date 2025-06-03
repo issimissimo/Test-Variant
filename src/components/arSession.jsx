@@ -24,21 +24,18 @@ export default function ArSession(props) {
     const [loading, setLoading] = createSignal(false);
 
     onMount(async () => {
-
         setLoading(() => true)
 
         // If we are in "SAVE" mode (so, we are coming from HOME)
         // go to EditMarker screen
         if (props.currentMode === AppMode.SAVE) setCurrentView(() => VIEWS.EDIT_MARKER);
 
-        console.log('userId: ', props.userId)
-        console.log('markerId: ', props.markerId)
 
-        if (props.userId && props.markerId) {
+        if (props.userId && props.marker.id) {
             try {
-                const path = `${props.userId}/${props.markerId}/data`;
+                const path = `${props.userId}/${props.marker.id}/data`;
                 const data = await firebase.realtimeDb.loadData(path);
-                // setJsonExists(!!data);
+
                 setJsonData(() => data);
                 console.log(data)
 
@@ -57,6 +54,23 @@ export default function ArSession(props) {
 
     }
 
+    const handleBackToHome = () => {
+        props.backToHome;
+    }
+
+    const handleDeleteMarker = async () => {
+        try {
+            await firebase.firestore.deleteMarker(props.userId, props.marker.id);
+
+            const path = `${props.userId}/${props.marker.id}`;
+            await firebase.realtimeDb.deleteData(path);
+
+            props.backToHome;
+        } catch (error) {
+            console.error("Errore completo cancellazione marker:", error);
+        }
+    };
+
 
     // Renderizza la vista corrente
     const renderView = () => {
@@ -70,7 +84,9 @@ export default function ArSession(props) {
 
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
-
+                    marker={props.marker}
+                    onDelete={handleDeleteMarker}
+                    onCancel={props.backToHome}
                 />;
 
             case VIEWS.CALIBRATION:

@@ -139,19 +139,14 @@ export default function EditMarker(props) {
   };
 
   const handleDelete = async () => {
-    if (!props.marker?.id) return;
-
-    setLoading(true);
     try {
       console.log(`Inizio eliminazione marker: ${props.marker.id}`);
       await props.onDelete(props.marker.id);
       console.log(`Marker eliminato con successo: ${props.marker.id}`);
-      props.onCancel();
+      // props.onCancel();
     } catch (error) {
       console.error("Errore durante la cancellazione:", error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   return (
@@ -186,7 +181,9 @@ export default function EditMarker(props) {
           <button
             type="button"
             class={secondaryButton}
-            onClick={props.onCancel}
+            onClick={() => {
+              props.onCancel()
+            }}
             disabled={loading()}
           >
             Annulla
@@ -196,7 +193,7 @@ export default function EditMarker(props) {
             <button
               type="button"
               class={dangerButton}
-              onClick={handleDelete}
+              onClick={props.onDelete}
               disabled={loading()}
             >
               Elimina

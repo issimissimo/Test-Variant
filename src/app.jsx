@@ -27,12 +27,15 @@ export default function App() {
     const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
-    const [markerId, setMarkerId] = createSignal(null);
+    // const [markerId, setMarkerId] = createSignal(null);
+    const [currentMarker, setCurrentMarker] = createSignal(null);
 
 
     createEffect(() => {
         // Hide preloader
         if (!loading()) document.getElementById("loading").style.display = "none";
+
+
     })
 
 
@@ -55,7 +58,7 @@ export default function App() {
                     if (hasQueryParams) {
                         accessAnonymous(urlParams);
 
-                    // Login or register
+                        // Login or register
                     } else {
                         if (!firebase.auth.authLoading()) {
                             checkAuthStatus();
@@ -75,26 +78,6 @@ export default function App() {
             setLoading(false);
             goToArNotSupported();
         }
-
-        // // Search for query string
-        // const urlParams = new URLSearchParams(window.location.search);
-        // const hasQueryParams = urlParams.has('userId') && urlParams.has('elementId');
-
-        // if (hasQueryParams) {
-        //     accessAnonymous(urlParams);
-
-        // } else {
-        //     if (!firebase.auth.authLoading()) {
-        //         checkAuthStatus();
-        //     } else {
-        //         const timer = setInterval(() => {
-        //             if (!firebase.auth.authLoading()) {
-        //                 clearInterval(timer);
-        //                 checkAuthStatus();
-        //             }
-        //         }, 100);
-        //     }
-        // }
     });
 
 
@@ -103,20 +86,13 @@ export default function App() {
     //
     const accessAnonymous = async (params) => {
         setUserId(() => params.get('userId'));
-        setMarkerId(() => params.get('elementId'));
+        // setMarkerId(() => params.get('elementId'));
 
-        // // Load JSON
-        // try {
-        //     const path = `${userId()}/${markerId()}/data`;
-        //     const data = await firebase.realtimeDb.loadData(path);
-
-        //     if (data) {
-        //         console.log("JSON esistente:", data);
-        //         setJsonData(() => data);
-        //     }
-        // } catch (error) {
-        //     console.error("Errore caricamento JSON:", error);
-        // }
+        const marker = {
+            id: params.get('elementId'),
+            name: 'undefined'
+        }
+        setCurrentMarker(() => marker);
 
         // Go to Welcome screen in AR Session
         setLoading(false);
@@ -130,14 +106,18 @@ export default function App() {
         setLoading(false);
     };
 
+    //
     // Gestori di navigazione
+    //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => setCurrentView(VIEWS.LOGIN);
     const goToHome = () => setCurrentView(VIEWS.HOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
+    //
     // Renderizza la vista corrente
+    //
     const renderView = () => {
         if (loading()) {
             return <div>Caricamento...</div>;
@@ -161,11 +141,12 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
-                    onEditMarker={(_markerId) => {
+                    onMarkerClicked={(marker) => {
                         setUserId(() => firebase.auth.user().uid);
-                        setMarkerId(() => _markerId);
+                        setCurrentMarker(() => marker);
                         setCurrentMode(() => AppMode.SAVE);
                         goToArSession();
+                        console.log(currentMarker())
                     }}
                 />;
 
@@ -173,7 +154,9 @@ export default function App() {
                 return <ArSession
                     currentMode={currentMode()}
                     userId={userId()}
-                    markerId={markerId()}
+                    // markerId={markerId()}
+                    marker={currentMarker()}
+                    backToHome={() => goToHome()}
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:
