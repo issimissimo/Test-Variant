@@ -60,20 +60,9 @@ export default function ArSession(props) {
     }
 
     const handleCreateMarker = async (name) => {
-
-        // props.onSaveMarker("iuadgiuyiudyi", name)
-
         try {
             const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-            console.log('marker creato:', newMarkerId)
-
-
-
-            // return newMarkerId; // Restituisci l'ID per EditMarker
-
-            /// QUI DOBBIAMO AGGIUNGERE IL MARKER IN APP
             props.onSaveMarker(newMarkerId, name)
-
         } catch (error) {
             console.error("Errore aggiunta marker:", error);
             throw error;
@@ -90,7 +79,6 @@ export default function ArSession(props) {
     const handleDeleteMarker = async () => {
         try {
             await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-
             const path = `${props.userId}/${props.marker.id}`;
             await firebase.realtimeDb.deleteData(path);
             handleBackToHome();
