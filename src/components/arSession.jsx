@@ -8,13 +8,15 @@ import Welcome from './arSession/welcome';
 import EditMarker from './arSession/editMarker';
 import Calibration from './arSession/calibration';
 import Game from './arSession/game';
+import MarkerNotExist from './arSession/markerNotExist';
 
 
 const VIEWS = {
     WELCOME: 'welcome',
     EDIT_MARKER: 'editMarker',
     CALIBRATION: 'calibration',
-    GAME: 'game'
+    GAME: 'game',
+    MARKER_NOT_EXIST: 'markerNotExist'
 };
 
 
@@ -32,12 +34,13 @@ export default function ArSession(props) {
             goEditMarker();
         }
         else if (props.currentMode === AppMode.LOAD) {
-            if (props.marker.withData) {
-                await loadJsonData();
+            await loadJsonData();
+            if (jsonData()) {
                 goToWelcome();
             }
             else {
-                console.error("You are loading a marker as anonymous, but marker has no data!")
+                console.error("You are loading a marker as anonymous, but marker has no data or does not exist!")
+                goToMarkerNotExist();
             }
         }
         else console.error("AppMode not specified")
@@ -122,6 +125,7 @@ export default function ArSession(props) {
     const goEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
     const goToCalibration = () => setCurrentView(VIEWS.CALIBRATION);
     const goToGame = () => setCurrentView(VIEWS.GAME);
+    const goToMarkerNotExist = () => setCurrentView(VIEWS.MARKER_NOT_EXIST);
 
 
     //
@@ -155,6 +159,9 @@ export default function ArSession(props) {
                     marker={props.marker}
                     jsonData={jsonData()}
                 />;
+
+            case VIEWS.MARKER_NOT_EXIST:
+                return <MarkerNotExist/>;
         }
     };
 
