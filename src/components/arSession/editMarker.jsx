@@ -1,4 +1,4 @@
-import { createSignal, createEffect } from 'solid-js';
+import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../../hooks/useFirebase';
 import { css } from 'goober';
 
@@ -98,6 +98,12 @@ export default function EditMarker(props) {
   const [jsonExists, setJsonExists] = createSignal(false);
   const [jsonData, setJsonData] = createSignal(null);
 
+  onMount(() => {
+    console.log('----------------')
+    console.log('markerData:', props.jsonData)
+  })
+
+
   // Verifica se esiste il JSON per questo marker
   createEffect(async () => {
     const user = firebase.auth.user();
@@ -146,7 +152,7 @@ export default function EditMarker(props) {
       // props.onCancel();
     } catch (error) {
       console.error("Errore durante la cancellazione:", error);
-    } 
+    }
   };
 
   return (

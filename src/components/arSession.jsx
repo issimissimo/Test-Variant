@@ -19,31 +19,32 @@ const VIEWS = {
 
 export default function ArSession(props) {
     const firebase = useFirebase();
-    const [currentView, setCurrentView] = createSignal(VIEWS.WELCOME);
+    const [currentView, setCurrentView] = createSignal(null);
     const [jsonData, setJsonData] = createSignal(null);
     const [loading, setLoading] = createSignal(false);
 
     onMount(async () => {
         setLoading(() => true)
 
-        // If we are in "SAVE" mode (so, we are coming from HOME)
-        // go to EditMarker screen
-        if (props.currentMode === AppMode.SAVE) setCurrentView(() => VIEWS.EDIT_MARKER);
-
-
         if (props.userId && props.marker.id) {
+            console.log("ci provo....")
             try {
+                // Load JSON from Realtime DB
                 const path = `${props.userId}/${props.marker.id}/data`;
                 const data = await firebase.realtimeDb.loadData(path);
 
                 setJsonData(() => data);
-                console.log(data)
-
                 setLoading(() => false)
 
             } catch (error) {
                 console.error("Errore nel controllo JSON:", error);
             }
+        }
+
+        if (props.currentMode === AppMode.SAVE) setCurrentView(() => VIEWS.EDIT_MARKER);
+        else if (props.currentMode === AppMode.LOAD && jsonData() !== null) setCurrentView(() => VIEWS.WELCOME);
+        else {
+            console.error("NON C'E' JSON!!!")
         }
     })
 
@@ -55,8 +56,19 @@ export default function ArSession(props) {
     }
 
     const handleBackToHome = () => {
-        props.backToHome;
+        props.backToHome();
     }
+
+    const handleCreateMarker = async (name) => {
+        try {
+            const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+            console.log('marker creato:', newMarkerId)
+            return newMarkerId; // Restituisci l'ID per EditMarker
+        } catch (error) {
+            console.error("Errore aggiunta marker:", error);
+            throw error;
+        }
+    };
 
     const handleDeleteMarker = async () => {
         try {
@@ -85,8 +97,10 @@ export default function ArSession(props) {
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
                     marker={props.marker}
+                    onCreate={handleCreateMarker}
                     onDelete={handleDeleteMarker}
-                    onCancel={props.backToHome}
+                    onCancel={handleBackToHome}
+                    jsonData={jsonData()}
                 />;
 
             case VIEWS.CALIBRATION:
