@@ -87,16 +87,21 @@ export default function App() {
     const accessAnonymous = async (params) => {
         setUserId(() => params.get('userId'));
         // setMarkerId(() => params.get('elementId'));
-
-        const marker = {
-            id: params.get('elementId'),
-            name: 'undefined'
-        }
-        setCurrentMarker(() => marker);
-
-        // Go to Welcome screen in AR Session
+        
         setLoading(false);
-        goToArSession();
+
+        addMarker(params.get('elementId'));
+
+        // const marker = {
+        //     id: params.get('elementId'),
+        //     name: 'undefined'
+        // }
+        // setCurrentMarker(() => marker);
+
+        
+        
+        // goToArSession();
+
     }
 
     const checkAuthStatus = () => {
@@ -105,6 +110,19 @@ export default function App() {
         }
         setLoading(false);
     };
+
+
+
+    const addMarker = (markerId) => {
+        const marker = {
+            id: markerId ? markerId : null,
+            name: null
+        }
+        
+        setCurrentMarker(() => marker);
+        goToArSession();
+    }
+
 
     //
     // Gestori di navigazione
@@ -141,12 +159,12 @@ export default function App() {
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
+                    onCreateMarker={()=> addMarker()}
                     onMarkerClicked={(marker) => {
                         setUserId(() => firebase.auth.user().uid);
                         setCurrentMarker(() => marker);
                         setCurrentMode(() => AppMode.SAVE);
                         goToArSession();
-                        console.log(currentMarker())
                     }}
                 />;
 
@@ -154,7 +172,6 @@ export default function App() {
                 return <ArSession
                     currentMode={currentMode()}
                     userId={userId()}
-                    // markerId={markerId()}
                     marker={currentMarker()}
                     backToHome={() => goToHome()}
                 />;

@@ -176,32 +176,32 @@ export default function Home(props) {
     }
   };
 
-  const handleUpdateMarker = async (markerId, name) => {
-    try {
-      await firebase.firestore.updateMarker(firebase.auth.user().uid, markerId, name);
-      loadMarkers();
-    } catch (error) {
-      console.error("Errore aggiornamento marker:", error);
-    }
-  };
+  // const handleUpdateMarker = async (markerId, name) => {
+  //   try {
+  //     await firebase.firestore.updateMarker(firebase.auth.user().uid, markerId, name);
+  //     loadMarkers();
+  //   } catch (error) {
+  //     console.error("Errore aggiornamento marker:", error);
+  //   }
+  // };
 
-  const handleDeleteMarker = async (markerId) => {
-    try {
-      const userId = firebase.auth.user().uid;
-      console.log(`Eliminazione marker Firestore: ${userId}/${markerId}`);
-      await firebase.firestore.deleteMarker(userId, markerId);
+  // const handleDeleteMarker = async (markerId) => {
+  //   try {
+  //     const userId = firebase.auth.user().uid;
+  //     console.log(`Eliminazione marker Firestore: ${userId}/${markerId}`);
+  //     await firebase.firestore.deleteMarker(userId, markerId);
 
-      const path = `${userId}/${markerId}`;
-      console.log(`Tentativo di eliminazione Real Time DB: ${path}`);
+  //     const path = `${userId}/${markerId}`;
+  //     console.log(`Tentativo di eliminazione Real Time DB: ${path}`);
 
-      await firebase.realtimeDb.deleteData(path);
-      console.log(`Dati Real Time DB eliminati per: ${path}`);
+  //     await firebase.realtimeDb.deleteData(path);
+  //     console.log(`Dati Real Time DB eliminati per: ${path}`);
 
-      loadMarkers();
-    } catch (error) {
-      console.error("Errore completo cancellazione marker:", error);
-    }
-  };
+  //     loadMarkers();
+  //   } catch (error) {
+  //     console.error("Errore completo cancellazione marker:", error);
+  //   }
+  // };
 
   return (
     <div class={containerStyle}>
@@ -262,7 +262,8 @@ export default function Home(props) {
 
           <div>
             <button
-              onClick={() => setEditingMarker({})}
+              // onClick={() => setEditingMarker({})}
+              onClick={() => props.onCreateMarker()}
               class={addButtonStyle}
             >
               + Crea nuovo elemento

@@ -3,7 +3,7 @@
 // **
 // **************************************
 
-import { createSignal, createEffect } from 'solid-js';
+import { createSignal, createEffect, onMount } from 'solid-js';
 import { css } from 'goober';
 
 
@@ -33,6 +33,10 @@ export default function Welcome(props) {
     // const [loading, setLoading] = createSignal(true);
     // const [error, setError] = createSignal('');
     // const [params, setParams] = createSignal(null);
+
+    onMount(()=>{
+      // console.log('user', firebase.auth.user().uid)
+    })
 
     // // Effetto per gestire il login anonimo e la reattività
     // createEffect(() => {
