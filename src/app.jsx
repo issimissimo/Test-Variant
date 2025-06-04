@@ -84,7 +84,7 @@ export default function App() {
 
 
     //
-    // Anonimous access
+    // Anonymous access
     //
     const accessAnonymous = async (params) => {
         if (!firebase.auth.user()) {
@@ -96,7 +96,6 @@ export default function App() {
         const withData = true;
         addMarker(markerId, markerName, withData);
         goToArSession();
-        // setLoading(false);
     }
 
 
@@ -113,7 +112,6 @@ export default function App() {
                 goToHome();
             }
         }
-        setLoading(false);
     };
 
 
@@ -165,6 +163,7 @@ export default function App() {
 
             case VIEWS.HOME:
                 return <Home
+                    loading={(value) => setLoading(() => value)}
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
@@ -186,9 +185,7 @@ export default function App() {
                     userId={userId()}
                     marker={currentMarker()}
                     backToHome={() => goToHome()}
-                    onSaveMarker={(id, name) => {
-                        addMarker(id, name);
-                    }}
+                    onSaveMarker={(id, name) => addMarker(id, name)}
                 />;
 
             case VIEWS.AR_NOT_SUPPORTED:
