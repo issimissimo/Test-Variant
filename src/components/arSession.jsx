@@ -10,6 +10,12 @@ import Calibration from './arSession/calibration';
 import Game from './arSession/game';
 import MarkerNotExist from './arSession/markerNotExist';
 
+// XR
+import SceneManager from '../xr/sceneManager';
+import Reticle from '../xr/reticle';
+import Persistence from '../xr/persistence';
+import { Scene } from 'three';
+
 
 const VIEWS = {
     WELCOME: 'welcome',
@@ -24,12 +30,19 @@ export default function ArSession(props) {
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
     const [jsonData, setJsonData] = createSignal(null);
-    const [loading, setLoading] = createSignal(false);
+    // const [loading, setLoading] = createSignal(false);
+
+    console.log("****ArSession****")
 
     //
-    // On mount switch from Welcome / EditMarker
+    // switch from Welcome / EditMarker
     //
     onMount(async () => {
+        if (!SceneManager.initialized) {
+            SceneManager.init();
+        }
+
+
         if (props.currentMode === AppMode.SAVE) {
             goEditMarker();
         }
@@ -55,14 +68,14 @@ export default function ArSession(props) {
 
 
     const loadJsonData = async () => {
-        setLoading(() => true)
+        // setLoading(() => true)
         try {
             // Load JSON from Realtime DB
             const path = `${props.userId}/${props.marker.id}/data`;
             const data = await firebase.realtimeDb.loadData(path);
 
             setJsonData(() => data);
-            setLoading(() => false)
+            // setLoading(() => false)
 
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
@@ -167,13 +180,13 @@ export default function ArSession(props) {
                 />;
 
             case VIEWS.MARKER_NOT_EXIST:
-                return <MarkerNotExist/>;
+                return <MarkerNotExist />;
         }
     };
 
 
     return (
-        <div class="full-screen">
+        <div id="overlay" class="full-screen">
             {renderView()}
         </div>
     );

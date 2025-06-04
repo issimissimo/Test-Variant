@@ -2,14 +2,16 @@ import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 
-let _initialized = false;
 
 const SceneManager = {
+    initialized: false,
+
     init() {
-        if (_initialized) {
+        if (this.initialized) {
             console.warn("Scene already initialized");
             return;
         }
+        console.log("Initializing SceneManager")
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
         this.light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
@@ -40,12 +42,12 @@ const SceneManager = {
             })
         );
 
-        _initialized = true;
+        this.initialized = true;
     },
 
 
     update() {
-        if (!_initialized) {
+        if (!this.initialized) {
             console.error("SceneManager not initialized");
             return;
         }

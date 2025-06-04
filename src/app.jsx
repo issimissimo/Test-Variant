@@ -107,6 +107,7 @@ export default function App() {
             if (firebase.auth.user().isAnonymous) {
                 console.log("You previously logged as anonymous, so you need to login again")
                 goToLogin();
+                setLoading(false);
             }
             else {
                 goToHome();

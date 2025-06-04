@@ -1,7 +1,6 @@
 import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
-// import EditMarker from './arSession/editMarker';
 
 
 // Stili con Goober
@@ -103,9 +102,7 @@ const addButtonStyle = css`
 export default function Home(props) {
   const firebase = useFirebase();
   const [userData, setUserData] = createSignal(null);
-  // const [dataLoading, setDataLoading] = createSignal(true);
   const [markers, setMarkers] = createSignal([]);
-  // const [markersLoading, setMarkersLoading] = createSignal(true);
 
 
   // Effetto per caricare i dati utente quando lo stato di autenticazione cambia
@@ -163,44 +160,6 @@ export default function Home(props) {
   };
 
 
-  // // Gestione markers
-  // const handleAddMarker = async (name) => {
-  //   try {
-  //     const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-  //     loadMarkers(); // Ricarica la lista markers
-  //     return newMarkerId; // Restituisci l'ID per EditMarker
-  //   } catch (error) {
-  //     console.error("Errore aggiunta marker:", error);
-  //     throw error;
-  //   }
-  // };
-
-  // const handleUpdateMarker = async (markerId, name) => {
-  //   try {
-  //     await firebase.firestore.updateMarker(firebase.auth.user().uid, markerId, name);
-  //     loadMarkers();
-  //   } catch (error) {
-  //     console.error("Errore aggiornamento marker:", error);
-  //   }
-  // };
-
-  // const handleDeleteMarker = async (markerId) => {
-  //   try {
-  //     const userId = firebase.auth.user().uid;
-  //     console.log(`Eliminazione marker Firestore: ${userId}/${markerId}`);
-  //     await firebase.firestore.deleteMarker(userId, markerId);
-
-  //     const path = `${userId}/${markerId}`;
-  //     console.log(`Tentativo di eliminazione Real Time DB: ${path}`);
-
-  //     await firebase.realtimeDb.deleteData(path);
-  //     console.log(`Dati Real Time DB eliminati per: ${path}`);
-
-  //     loadMarkers();
-  //   } catch (error) {
-  //     console.error("Errore completo cancellazione marker:", error);
-  //   }
-  // };
 
   // return (
   //   <div class={containerStyle}>
