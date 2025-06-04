@@ -29,22 +29,19 @@ const VIEWS = {
 export default function ArSession(props) {
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
+    const [newMarkerName, setNewMarkerName] = createSignal('');
     const [jsonData, setJsonData] = createSignal(null);
-    // const [loading, setLoading] = createSignal(false);
+    const [planeFound, setPlaneFound] = createSignal(false);
 
-    console.log("****ArSession****")
 
     //
     // switch from Welcome / EditMarker
     //
     onMount(async () => {
-        if (!SceneManager.initialized) {
-            SceneManager.init();
-        }
-
 
         if (props.currentMode === AppMode.SAVE) {
-            goEditMarker();
+            goToEditMarker();
+            initialize();
         }
         else if (props.currentMode === AppMode.LOAD) {
             await loadJsonData();
@@ -53,6 +50,7 @@ export default function ArSession(props) {
                 // All good, we've loaded the JSON data and we can
                 // go to Welcome screen
                 goToWelcome();
+                initialize();
             }
             else {
                 console.error("You are loading a marker as anonymous, but marker has no data or does not exist!")
@@ -75,6 +73,7 @@ export default function ArSession(props) {
             const data = await firebase.realtimeDb.loadData(path);
 
             setJsonData(() => data);
+            console.log(data);
             // setLoading(() => false)
 
         } catch (error) {
@@ -84,15 +83,62 @@ export default function ArSession(props) {
 
 
     //
-    // Start AR
+    // Initialize
     //
-    const startAr = () => {
+    const initialize = () => {
+        if (!SceneManager.initialized) {
 
+            SceneManager.init();
+            SceneManager.renderer.setAnimationLoop(render);
+            SceneManager.renderer.xr.addEventListener("sessionstart", onSessionStarted);
+
+            // Init Reticle
+            Reticle.set({
+                renderer: SceneManager.renderer,
+                scene: SceneManager.scene,
+                color: 0x00ff00,
+                radius: 0.06,
+                innerRadius: 0.05,
+                segments: 4,
+            });
+        }
     }
+
+
+    //
+    // Events after the AR button is clicked
+    //
+    const onSessionStarted = () => {
+
+        if (props.currentMode === AppMode.SAVE) {
+            // Check if is a new marker
+            console.log('current marker:', props.marker)
+
+            if (props.marker.id) {
+                console.log('current marker is saved, with id:', props.marker.id)
+
+                if (props.marker.withData) {
+                    console.log('...and it seem to have a JSON saved too...')
+                    loadJsonData();
+                }
+            }
+
+            else {
+                console.log('current marker is not saved, we need to save it on Firestore...')
+                handleCreateMarker(newMarkerName());
+            }
+        }
+
+        goToCalibration();
+    }
+
+
+
 
     const handleBackToHome = () => {
         props.backToHome();
     }
+
 
     //
     // Create a new marker,
@@ -102,9 +148,9 @@ export default function ArSession(props) {
         try {
             const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
             props.onSaveMarker(newMarkerId, name);
-            goToGame();
+            console.log('Creato in Firestore il marker con ID:', newMarkerId)
         } catch (error) {
-            console.error("Errore aggiunta marker:", error);
+            console.error('Errore aggiunta marker:', error);
             throw error;
         }
     };
@@ -116,7 +162,7 @@ export default function ArSession(props) {
     //
     const handleModifyMarker = async () => {
         await loadJsonData();
-        goToGame();
+        // goToGame();
     }
 
 
@@ -137,18 +183,35 @@ export default function ArSession(props) {
     };
 
 
+    /**
+     * Handles the rendering loop for the AR scene.
+     * 
+     * If an XR frame is available, updates the Reticle based on the current frame and surface type.
+     * Always updates the SceneManager for each animation frame.
+     */
+    function render(timestamp, frame) {
+
+        if (frame) {
+            Reticle.update(frame, (surfType) => {
+            });
+            setPlaneFound(Reticle.isHitting())
+        }
+        SceneManager.update();
+    };
+
+
     //
     // Navigation
     //
     const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
-    const goEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
+    const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
     const goToCalibration = () => setCurrentView(VIEWS.CALIBRATION);
     const goToGame = () => setCurrentView(VIEWS.GAME);
     const goToMarkerNotExist = () => setCurrentView(VIEWS.MARKER_NOT_EXIST);
 
 
     //
-    // Render
+    // RenderView
     //
     const renderView = () => {
 
@@ -162,6 +225,8 @@ export default function ArSession(props) {
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
                     marker={props.marker}
+                    markerName={newMarkerName()}
+                    setMarkerName={(name) => setNewMarkerName(() => name)}
                     onCreate={handleCreateMarker}
                     onModify={handleModifyMarker}
                     onDelete={handleDeleteMarker}
@@ -170,7 +235,7 @@ export default function ArSession(props) {
 
             case VIEWS.CALIBRATION:
                 return <Calibration
-
+                    planeFound={planeFound()}
                 />;
 
             case VIEWS.GAME:

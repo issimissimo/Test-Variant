@@ -103,8 +103,8 @@ export default function EditMarker(props) {
         <input
           type="text"
           class={inputStyle}
-          value={name()}
-          onInput={(e) => setName(e.target.value)}
+          value={props.markerName}
+          onInput={(e) => props.setMarkerName(e.target.value)}
           placeholder="Nome"
           required
         />
@@ -134,8 +134,8 @@ export default function EditMarker(props) {
               :
               <button
                 type="button"
-                onClick={() => { props.onCreate(name()) }}
-                disabled={!name()}
+                // onClick={() => { props.onCreate(name()) }}
+                disabled={!props.markerName}
               >
                 CREA
               </button>

@@ -1,6 +1,7 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
+import { Motion } from 'solid-motionone'
 import { css } from 'goober'
-
+import GradientBox from '../ui/gradientBox/GradientBox';
 
 
 const containerStyle = css`
@@ -185,54 +186,13 @@ function Targeting(props) {
 }
 
 
-const targetStyle = css`
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 300px;
-    height: 200px;
-    border-radius: 20px;
-    box-shadow: 0 0 0 50vw rgba(0, 0, 0, 0.8);
-    pointer-events: none;
-    z-index: 10;
-`
-
-
-
-export default function Calibration(props) {
-    const [difficult, setDifficult] = createSignal(false)
-    const [planeLost, setPlaneLost] = createSignal(false)
-
-    let timeout = null;
-
-    createEffect(() => {
-        
-    })
-
-    onMount(() => {
-        timeout = setTimeout(() => {
-            setDifficult(() => true);
-        }, 15000);
-    })
-
-    onCleanup(() => {
-        if (timeout) {
-            clearInterval(timeout)
-        }
-    })
-
+function Calibration(props) {
     return (
         <div>
-            {props.planeFound ?
-                <div class={containerStyle}>
-                    FOUND!
-                </div>
-                :
-                <div class={containerStyle}>
-                    LOOK...
-                </div>
-            }
+            <GradientBox planeFound={props.planeFound} />
+            <Scanning planeFound={props.planeFound} />
+            <Targeting planeFound={props.planeFound} startGame={props.startGame} />
         </div>
     );
 }
+export default Calibration
