@@ -96,7 +96,7 @@ export default function App() {
         const withData = true;
         addMarker(markerId, markerName, withData);
         goToArSession();
-        setLoading(false);
+        // setLoading(false);
     }
 
 
@@ -106,7 +106,7 @@ export default function App() {
     const checkAuthStatus = () => {
         if (firebase.auth.user()) {
             if (firebase.auth.user().isAnonymous) {
-                console.log("You are logged as anonymous, so you need to login")
+                console.log("You previously logged as anonymous, so you need to login again")
                 goToLogin();
             }
             else {
@@ -146,9 +146,9 @@ export default function App() {
     // Renderizza la vista corrente
     //
     const renderView = () => {
-        if (loading()) {
-            return <div>Caricamento...</div>;
-        }
+        // if (loading()) {
+        //     return <div>Caricamento...</div>;
+        // }
 
         switch (currentView()) {
             case VIEWS.REGISTER:
@@ -181,6 +181,7 @@ export default function App() {
 
             case VIEWS.AR_SESSION:
                 return <ArSession
+                    loading={(value) => setLoading(() => value)}
                     currentMode={currentMode()}
                     userId={userId()}
                     marker={currentMarker()}

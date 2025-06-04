@@ -45,6 +45,8 @@ export default function ArSession(props) {
                 console.error("You are loading a marker as anonymous, but marker has no data or does not exist!")
                 goToMarkerNotExist();
             }
+            
+            props.loading(false);
         }
         else console.error("AppMode not specified")
     })
