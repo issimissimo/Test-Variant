@@ -3,7 +3,7 @@ import { useFirebase } from './hooks/useFirebase';
 
 // UI
 import Register from './components/register';
-import LoginForm from './components/login';
+import Login from './components/login';
 import Home from './components/home';
 import ArSession from './components/arSession';
 import ArNotSupported from './components/arNotSupported';
@@ -24,7 +24,7 @@ const VIEWS = {
 export default function App() {
     const firebase = useFirebase();
     const [currentMode, setCurrentMode] = createSignal(null);
-    const [currentView, setCurrentView] = createSignal(VIEWS.LOGIN);
+    const [currentView, setCurrentView] = createSignal(null);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [currentMarker, setCurrentMarker] = createSignal(null);
@@ -34,6 +34,7 @@ export default function App() {
         // Hide preloader
         if (!loading()) document.getElementById("loading").style.display = "none";
 
+        console.log('---> loading:', loading())
         console.log('---> current marker:', currentMarker())
     })
 
@@ -90,6 +91,7 @@ export default function App() {
         if (!firebase.auth.user()) {
             await firebase.auth.loginAnonymous();
         }
+        console.log('---> logged as anonymous')
         setUserId(() => params.get('userId'));
         const markerId = params.get('markerId');
         const markerName = null;
@@ -138,10 +140,14 @@ export default function App() {
     //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => {
+        console.log("goToLogin")
         setLoading(() => false);
         setCurrentView(VIEWS.LOGIN);
     }
-    const goToHome = () => setCurrentView(VIEWS.HOME);
+    const goToHome = () => {
+        console.log("goToHome")
+        setCurrentView(VIEWS.HOME);
+    }
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
@@ -162,7 +168,7 @@ export default function App() {
                 />;
 
             case VIEWS.LOGIN:
-                return <LoginForm
+                return <Login
                     onSuccess={goToHome}
                     onGoToRegister={goToRegister}
                 />;
@@ -197,8 +203,11 @@ export default function App() {
             case VIEWS.AR_NOT_SUPPORTED:
                 return <ArNotSupported />;
 
-            default:
-                return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;
+            // default:
+            //     return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;
+             default:
+                return <div/>;
+
         }
     };
 
