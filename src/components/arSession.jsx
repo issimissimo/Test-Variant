@@ -29,10 +29,9 @@ const VIEWS = {
 export default function ArSession(props) {
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
-    const [newMarkerName, setNewMarkerName] = createSignal('');
+    const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
-
 
     //
     // switch from Welcome / EditMarker
@@ -125,7 +124,7 @@ export default function ArSession(props) {
 
             else {
                 console.log('current marker is not saved, we need to save it on Firestore...')
-                handleCreateMarker(newMarkerName());
+                handleCreateMarker(markerName());
             }
         }
 
@@ -225,8 +224,8 @@ export default function ArSession(props) {
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
                     marker={props.marker}
-                    markerName={newMarkerName()}
-                    setMarkerName={(name) => setNewMarkerName(() => name)}
+                    markerName={markerName()}
+                    setMarkerName={(name) => setMarkerName(() => name)}
                     onCreate={handleCreateMarker}
                     onModify={handleModifyMarker}
                     onDelete={handleDeleteMarker}

@@ -107,11 +107,13 @@ export default function App() {
             if (firebase.auth.user().isAnonymous) {
                 console.log("You previously logged as anonymous, so you need to login again")
                 goToLogin();
-                setLoading(false);
             }
             else {
                 goToHome();
             }
+        }
+        else {
+            goToLogin();
         }
     };
 
@@ -135,7 +137,10 @@ export default function App() {
     // Navigation
     //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
-    const goToLogin = () => setCurrentView(VIEWS.LOGIN);
+    const goToLogin = () => {
+        setLoading(() => false);
+        setCurrentView(VIEWS.LOGIN);
+    }
     const goToHome = () => setCurrentView(VIEWS.HOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
@@ -164,7 +169,7 @@ export default function App() {
 
             case VIEWS.HOME:
                 return <Home
-                    loading={(value) => setLoading(() => value)}
+                    setLoading={(value) => setLoading(() => value)}
                     onLogout={goToLogin}
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}

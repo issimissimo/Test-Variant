@@ -40,149 +40,7 @@ const startButtonStyle = css`
 `
 
 
-function Scanning(props) {
-    const [difficult, setDifficult] = createSignal(false)
-    const [planeLost, setPlaneLost] = createSignal(false)
 
-    let timeout;
-
-    onMount(() => {
-        timeout = setTimeout(() => {
-            setDifficult(() => true);
-        }, 15000);
-    })
-
-    onCleanup(() => {
-        if (timeout) {
-            clearInterval(timeout)
-        }
-    })
-
-    createEffect(() => {
-        // impostiamo la UI in modo che se !props.planeFound
-        // è già pronta
-        if (props.planeFound) {
-            setTimeout(() => {
-                setPlaneLost(() => true);
-            }, 1000)
-        }
-    })
-
-
-    return (
-        <div class={containerStyle}>
-            <div class={containerTextBottomStyle}>
-                <Motion.div
-                    animate={{ opacity: props.planeFound ? 0 : 1 }}
-                    transition={{ duration: 1, easing: "ease-in-out" }}
-                    style={{ "opacity": 1 }}
-                >
-                    {/* TEXT */}
-                    <p>
-                        {!difficult() ? (
-                            <>
-                                Inquadra con il telefono il QR Code
-                                <br />
-                                e mettiti a 2 metri di distanza
-                            </>
-                        ) : (
-                            <>
-                                Ok, segui queste indicazioni:
-                                <br />
-                                <br />
-                                Muovi lentamente il telefono descrivendo un arco,
-                                <br />
-                                sempre rivolgendolo verso il QR Code
-                                <br />
-                                <br />
-                                Assicurati di essere a circa 2 metri
-                                <br />
-                                di distanza dal QR Code
-                            </>
-                        )}
-                    </p>
-
-                    {/* IMAGE    */}
-                    <div class={containerStyle}>
-                        <Motion.img
-                            animate={{ opacity: props.planeFound ? 0 : 1 }}
-                            transition={{ duration: 0.7, easing: "ease-in-out" }}
-                            style={{ "opacity": 1, "width": "110px" }}
-                            src={difficult() ? "images/mobile-arrows.png" : "images/mobile-no-arrows.png"}
-                        />
-                    </div>
-
-                </Motion.div>
-            </div>
-
-            <div class={containerStyle}>
-                <Motion.div
-                    animate={{ opacity: props.planeFound ? 0 : 1 }}
-                    transition={{ duration: 1, easing: "ease-in-out" }}
-                    style={{ "opacity": 0 }}
-                >
-                    <p style={"padding-bottom: 220px"}>
-                        {planeLost() && (
-                            <>
-                                Oops... non trovo più la superficie
-                                <br />
-                                con il QR Code
-                            </>
-                        )}
-                    </p>
-                </Motion.div>
-            </div>
-
-        </div>
-    );
-}
-
-
-
-
-
-function Targeting(props) {
-    return (
-        <div class={containerStyle}>
-
-            {/* IMAGE */}
-            <div class={containerStyle}>
-                <Motion.img
-                    animate={{ opacity: props.planeFound ? 1 : 0, scale: props.planeFound ? 0.2 : 1 }}
-                    transition={{ duration: 1, easing: "ease-in-out" }}
-                    style={{ "opacity": 0 }}
-                    src="images/target.svg"
-                />
-            </div>
-
-            {/* TEXT */}
-            <div class={containerTextBottomStyle}>
-                <Motion.div
-                    animate={{ opacity: props.planeFound ? 1 : 0 }}
-                    transition={{ duration: 1, easing: "ease-in-out" }}
-                    style={{ "opacity": 0 }}
-                >
-                    <p>
-                        Ottimo!
-                        <br />
-                        <br />
-                        Adesso centra il QR Code nel mirino,
-                        <br></br>
-                        poi clicca sul tasto qui sotto
-                        {/* <br></br>
-                        per completare la calibrazione */}
-                    </p>
-                    <button class={startButtonStyle} onClick={props.startGame}>
-                        <img src="images/checkmark.png"
-                        // width={32}
-                        // height={32}
-                        />
-                    </button>
-                </Motion.div>
-            </div>
-        </div>
-    );
-}
 
 
 const targetStyle = css`
@@ -207,7 +65,7 @@ export default function Calibration(props) {
     let timeout = null;
 
     createEffect(() => {
-        
+
     })
 
     onMount(() => {

@@ -4,11 +4,27 @@ body {
   padding: 0;
   /* height: 100%; */
   background-color: black;
-  -webkit-text-size-adjust: 100%;     /* Browser WebKit (iOS/Safari) */
-  text-size-adjust: 100%;             /* Standard moderno */
+  -webkit-text-size-adjust: 100%;
+  /* Browser WebKit (iOS/Safari) */
+  text-size-adjust: 100%;
+  /* Standard moderno */
 }
 
+/* .full-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.5rem;
+} */
+
 .full-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -67,7 +83,7 @@ h1 {
   min-height: 80vh;
   justify-content: center;
   align-items: center;
-  
+
   /* importante per avere interazione */
   z-index: 999;
   position: relative;

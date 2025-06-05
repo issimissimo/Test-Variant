@@ -116,10 +116,7 @@ export default function Home(props) {
 
     loadUserData();
     loadMarkers();
-    console.log("--- RELOAD")
 
-    // 3. Se c'è un utente autenticato, carica i dati
-    // console.log("Utente autenticato:", firebase.auth.user().email);
   });
 
 
@@ -133,7 +130,7 @@ export default function Home(props) {
     }
 
     // Hide the preloader
-    props.loading(false);
+    props.setLoading(false);
   };
 
   // Funzione per caricare i dati utente da Firestore
@@ -160,120 +157,6 @@ export default function Home(props) {
   };
 
 
-
-  // return (
-  //   <div class={containerStyle}>
-  //     {/* {editingMarker() !== null ? (
-  //       <EditMarker
-  //         marker={editingMarker()}
-  //         onCreate={handleAddMarker}
-  //         onUpdate={handleUpdateMarker}
-  //         onDelete={handleDeleteMarker}
-  //         onCancel={() => setEditingMarker(null)}
-  //         onEditMarker={props.onEditMarker}
-  //       />
-  //     ) : (
-  //       <> */}
-  //     <h2 class={headingStyle}>Home</h2>
-
-  //     {firebase.auth.authLoading() ? (
-  //       <div class={loadingStyle}>
-  //         <p>Verifica autenticazione in corso...</p>
-  //       </div>
-  //     ) : !firebase.auth.user() ? (
-  //       <div>
-  //         <p>Non sei autenticato.</p>
-  //         <div>
-  //           <button
-  //             onClick={props.onGoToLogin}
-  //             class={primaryButton}
-  //           >
-  //             Accedi
-  //           </button>
-  //           <button
-  //             onClick={props.onGoToRegister}
-  //             class={secondaryButton}
-  //           >
-  //             Registrati
-  //           </button>
-  //         </div>
-  //       </div>
-  //     ) : dataLoading() || markersLoading() ? (
-  //       <div class={loadingStyle}>
-  //         <p>Caricamento dati...</p>
-  //       </div>
-  //     ) : (
-  //       <div>
-  //         <div class={userInfoStyle}>
-  //           <p><strong>Email:</strong> {firebase.auth.user().email}</p>
-  //           {userData() && userData().lastLogin && (
-  //             <p>
-  //               <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
-  //             </p>
-  //           )}
-  //           {userData() && userData().created && (
-  //             <p>
-  //               <strong>Account creato:</strong> {userData().created.toLocaleString()}
-  //             </p>
-  //           )}
-  //         </div>
-
-  //         <div>
-  //           <button
-  //             // onClick={() => setEditingMarker({})}
-  //             onClick={() => props.onCreateMarker()}
-  //             class={addButtonStyle}
-  //           >
-  //             + Crea nuovo elemento
-  //           </button>
-
-  //           <div class={markersListStyle}>
-  //             <h3>I tuoi elementi</h3>
-  //             {markers().length === 0 ? (
-  //               <p>Nessun elemento presente</p>
-  //             ) : (
-  //               markers().map(marker => (
-  //                 <div
-  //                   class={markerItemStyle}
-  //                   onClick={() => {
-  //                     props.onMarkerClicked(marker)
-  //                     }}
-  //                 >
-  //                   {marker.name}
-  //                 </div>
-  //               ))
-  //             )}
-  //           </div>
-  //         </div>
-
-  //         <div>
-  //           <button
-  //             onClick={handleLogout}
-  //             class={primaryButton}
-  //           >
-  //             Logout
-  //           </button>
-
-  //           <button
-  //             onClick={props.onGoToRegister}
-  //             class={secondaryButton}
-  //           >
-  //             Vai alla registrazione
-  //           </button>
-
-  //           <button
-  //             onClick={props.onGoToLogin}
-  //             class={secondaryButton}
-  //           >
-  //             Vai al login
-  //           </button>
-  //         </div>
-  //       </div>
-  //     )}
-  //     {/* </>
-  //     )} */}
-  //   </div>
-  // );
 
   return (
     <div class={containerStyle}>
