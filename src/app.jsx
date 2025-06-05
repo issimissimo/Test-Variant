@@ -21,6 +21,8 @@ const VIEWS = {
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
 
+const checkSupported = false; //# use this flag 'false' for debug on desktop
+
 export default function App() {
     const firebase = useFirebase();
     const [currentMode, setCurrentMode] = createSignal(null);
@@ -40,8 +42,6 @@ export default function App() {
 
 
     onMount(() => {
-        const checkSupported = false; //# use this flag for debug on desktop
-
         if ("xr" in navigator) {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
@@ -156,9 +156,6 @@ export default function App() {
     // Renderizza la vista corrente
     //
     const renderView = () => {
-        // if (loading()) {
-        //     return <div>Caricamento...</div>;
-        // }
 
         switch (currentView()) {
             case VIEWS.REGISTER:
@@ -203,16 +200,14 @@ export default function App() {
             case VIEWS.AR_NOT_SUPPORTED:
                 return <ArNotSupported />;
 
-            // default:
-            //     return <Login onSuccess={goToHome} onGoToRegister={goToRegister} />;
-             default:
-                return <div/>;
+            default:
+                return <div />;
 
         }
     };
 
     return (
-        <div>
+        <div id="overlay">
             {renderView()}
         </div>
     );

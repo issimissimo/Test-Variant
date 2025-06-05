@@ -85,6 +85,7 @@ export default function Calibration(props) {
             {props.planeFound ?
                 <div class={containerStyle}>
                     FOUND!
+                    <button onClick={console.log('clicked!')}>CLICK ME!</button>
                 </div>
                 :
                 <div class={containerStyle}>

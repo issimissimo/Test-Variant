@@ -127,7 +127,7 @@ export default function ArSession(props) {
                 handleCreateMarker(markerName());
             }
         }
-
+        console.log("NOW GO TO CALIBRATION!")
         goToCalibration();
     }
 
@@ -250,7 +250,7 @@ export default function ArSession(props) {
 
 
     return (
-        <div id="overlay" class="full-screen">
+        <div  class="full-screen">
             {renderView()}
         </div>
     );
