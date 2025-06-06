@@ -140,14 +140,10 @@ export default function App() {
     //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => {
-        console.log("goToLogin")
         setLoading(() => false);
         setCurrentView(VIEWS.LOGIN);
     }
-    const goToHome = () => {
-        console.log("goToHome")
-        setCurrentView(VIEWS.HOME);
-    }
+    const goToHome = () => setCurrentView(VIEWS.HOME);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 

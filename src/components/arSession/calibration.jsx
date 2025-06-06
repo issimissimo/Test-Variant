@@ -43,7 +43,7 @@ const startButtonStyle = css`
 
 
 
-const targetStyle = css`
+const targetBackgroundStyle = css`
     position: fixed;
     top: 50%;
     left: 50%;
@@ -53,7 +53,6 @@ const targetStyle = css`
     border-radius: 20px;
     box-shadow: 0 0 0 50vw rgba(0, 0, 0, 0.8);
     pointer-events: none;
-    z-index: 10;
 `
 
 
@@ -65,14 +64,26 @@ export default function Calibration(props) {
     let timeout = null;
 
     createEffect(() => {
-
+        if (!props.planeFound) {
+            console.log('start timeout')
+            timeout = setTimeout(() => {
+                setDifficult(() => true);
+            }, 10000);
+        }
+        else {
+            if (timeout) {
+                console.log('stop timeout')
+                clearInterval(timeout)
+                timeout = null;
+            }
+        }
     })
 
-    onMount(() => {
-        timeout = setTimeout(() => {
-            setDifficult(() => true);
-        }, 15000);
-    })
+    // onMount(() => {
+    //     timeout = setTimeout(() => {
+    //         setDifficult(() => true);
+    //     }, 15000);
+    // })
 
     onCleanup(() => {
         if (timeout) {

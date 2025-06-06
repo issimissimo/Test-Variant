@@ -14,7 +14,7 @@ import MarkerNotExist from './arSession/markerNotExist';
 import SceneManager from '../xr/sceneManager';
 import Reticle from '../xr/reticle';
 import Persistence from '../xr/persistence';
-import { Scene } from 'three';
+
 
 
 const VIEWS = {
@@ -43,7 +43,7 @@ export default function ArSession(props) {
             initialize();
         }
         else if (props.currentMode === AppMode.LOAD) {
-            await loadJsonData();
+            await loadMarkerJsonData();
             if (jsonData()) {
 
                 // All good, we've loaded the JSON data and we can
@@ -64,34 +64,33 @@ export default function ArSession(props) {
 
 
 
-    const loadJsonData = async () => {
-        // setLoading(() => true)
+    const loadMarkerJsonData = async () => {
         try {
             // Load JSON from Realtime DB
             const path = `${props.userId}/${props.marker.id}/data`;
             const data = await firebase.realtimeDb.loadData(path);
-
             setJsonData(() => data);
             console.log(data);
-            // setLoading(() => false)
-
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
         }
     }
 
 
-    //
-    // Initialize
-    //
+    /**
+     * Initialize the XR scene just when a marker is loaded,
+     * both as admin (SAVE mode) or user (LOAD mode)
+     * (with Three.js, xr, Reticle)
+     */
     const initialize = () => {
         if (!SceneManager.initialized) {
 
             SceneManager.init();
             SceneManager.renderer.setAnimationLoop(render);
-            SceneManager.renderer.xr.addEventListener("sessionstart", onSessionStarted);
-
-            // Init Reticle
+            SceneManager.renderer.xr.addEventListener("sessionstart", onARSessionStarted);
+            SceneManager.controller.addEventListener("select", onTapOnScreen);
+            // SceneManager.loadGizmo();
+            // // Init Reticle
             Reticle.set({
                 renderer: SceneManager.renderer,
                 scene: SceneManager.scene,
@@ -100,16 +99,24 @@ export default function ArSession(props) {
                 innerRadius: 0.05,
                 segments: 4,
             });
+
+            // // Init Reticle
+            // Reticle.set({
+            //     renderer: SceneManager.renderer,
+            //     scene: SceneManager.scene,
+            //     fileName: 'gridPlane.glb'
+            // });
         }
     }
 
 
-    //
-    // Events after the AR button is clicked
-    //
-    const onSessionStarted = () => {
-
+    /**
+     * We do some stuff, when the user click "Enter AR" button
+     * and consequently 'onSessionStarted' is called
+     */
+    const onARSessionStarted = () => {
         if (props.currentMode === AppMode.SAVE) {
+
             // Check if is a new marker
             console.log('current marker:', props.marker)
 
@@ -118,7 +125,7 @@ export default function ArSession(props) {
 
                 if (props.marker.withData) {
                     console.log('...and it seem to have a JSON saved too...')
-                    loadJsonData();
+                    loadMarkerJsonData();
                 }
             }
 
@@ -129,6 +136,30 @@ export default function ArSession(props) {
         }
         console.log("NOW GO TO CALIBRATION!")
         goToCalibration();
+    }
+
+
+
+    /**
+     * After the user click the button (calibration.jsx)
+     * to complete calibration
+     */
+    const onTapOnScreen = () => {
+        if (!Reticle.isHitting()) return;
+        const hitMatrix = Reticle.getHitMatrix();
+
+        if (!Persistence.isInitialized) {
+            Persistence.init(hitMatrix);
+
+            if (!SceneManager.isInitialized) {
+                console.error('SceneManager not yet initialized!');
+                return;
+            }
+            console.log(SceneManager.gizmo)
+            SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "reference");
+
+            goToGame();
+        }
     }
 
 
@@ -155,14 +186,15 @@ export default function ArSession(props) {
     };
 
 
-    //
-    // Modify an existing marker that have a JSON associated,
-    // loading its JSON
-    //
-    const handleModifyMarker = async () => {
-        await loadJsonData();
-        // goToGame();
-    }
+    /// NON LO USIAMO!!! PERCHE' CARICHIAMO I DATI (SE ESISTONO) QUANDO SI ENTRA IN AR (CLICCANDO SUL TASTO START AR)
+    // //
+    // // Modify an existing marker that have a JSON associated,
+    // // loading its JSON
+    // //
+    // const handleModifyMarker = async () => {
+    //     await loadMarkerJsonData();
+    //     // goToGame();
+    // }
 
 
     //
@@ -189,7 +221,6 @@ export default function ArSession(props) {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-
         if (frame) {
             Reticle.update(frame, (surfType) => {
             });
@@ -199,9 +230,9 @@ export default function ArSession(props) {
     };
 
 
-    //
-    // Navigation
-    //
+    /**
+     * Navigation helpers
+     */
     const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
     const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
     const goToCalibration = () => setCurrentView(VIEWS.CALIBRATION);
@@ -209,9 +240,9 @@ export default function ArSession(props) {
     const goToMarkerNotExist = () => setCurrentView(VIEWS.MARKER_NOT_EXIST);
 
 
-    //
-    // RenderView
-    //
+    /**
+     * The view that will be showed
+     */
     const renderView = () => {
 
         switch (currentView()) {
@@ -227,7 +258,7 @@ export default function ArSession(props) {
                     markerName={markerName()}
                     setMarkerName={(name) => setMarkerName(() => name)}
                     onCreate={handleCreateMarker}
-                    onModify={handleModifyMarker}
+                    // onModify={handleModifyMarker}
                     onDelete={handleDeleteMarker}
                     onCancel={handleBackToHome}
                 />;
@@ -249,19 +280,12 @@ export default function ArSession(props) {
     };
 
 
+    /**
+     * Return
+     */
     return (
-        <div  class="full-screen">
+        <div class="full-screen">
             {renderView()}
         </div>
     );
-
-
-    // return (
-    //     <div class="full-screen-div">
-    //         AR Session
-    //         <p>
-    //             {JSON.stringify(jsonData())}
-    //         </p>
-    //     </div>
-    // )
 }

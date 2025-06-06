@@ -63,6 +63,15 @@ function _alignZAxisWithUp() {
 }
 
 
+function _setReticlePropertiers() {
+    _mesh.matrixAutoUpdate = false;
+    _mesh.visible = false;
+    _scene.add(_mesh);
+    _addPlaneForReticleSurface();
+    _initialized = true;
+}
+
+
 const _options = {
     radius: 0.2,
     innerRadius: 0.1,
@@ -102,9 +111,24 @@ const Reticle = {
 
         if (options.fileName) {
             const loader = new GLTFLoader();
-            loader.load(_options.fileName, (gltf) => {
-                _mesh = gltf.scene;
-            });
+            loader.load(
+                options.fileName,
+                (gltf) => {
+                    const r = gltf.scene;
+                    const ref = r.children[0];
+                    _mesh = ref.clone();
+                    _setReticlePropertiers();
+                },
+                (xhr) => {
+                    // console.log((xhr.loaded / xhr.total * 100) + '% loaded of reticle');
+                },
+                (error) => {
+                    console.error('An error happened', error);
+                }
+            );
+
+
+
         }
         else {
             const ringGeometry = new THREE.RingGeometry(_options.innerRadius, _options.radius, _options.segments).rotateX(-Math.PI / 2);
@@ -113,14 +137,15 @@ const Reticle = {
                 opacity: 0.8, side: THREE.DoubleSide
             });
             _mesh = new THREE.Mesh(ringGeometry, material);
+            _setReticlePropertiers();
         }
 
-        _mesh.matrixAutoUpdate = false;
-        _mesh.visible = false;
-        _scene.add(_mesh);
-        _addPlaneForReticleSurface();
+        // _mesh.matrixAutoUpdate = false;
+        // _mesh.visible = false;
+        // _scene.add(_mesh);
+        // _addPlaneForReticleSurface();
 
-        _initialized = true;
+        // _initialized = true;
     },
 
     /**

@@ -126,7 +126,7 @@ export default function EditMarker(props) {
             props.marker.withData ?
               <button
                 type="button"
-                onClick={() => { props.onModify() }}
+                // onClick={() => { props.onModify() }}
               // disabled={loading()}
               >
                 MODIFICA
