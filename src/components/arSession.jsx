@@ -89,23 +89,23 @@ export default function ArSession(props) {
             SceneManager.renderer.setAnimationLoop(render);
             SceneManager.renderer.xr.addEventListener("sessionstart", onARSessionStarted);
             SceneManager.controller.addEventListener("select", onTapOnScreen);
-            // SceneManager.loadGizmo();
-            // // Init Reticle
-            Reticle.set({
-                renderer: SceneManager.renderer,
-                scene: SceneManager.scene,
-                color: 0x00ff00,
-                radius: 0.06,
-                innerRadius: 0.05,
-                segments: 4,
-            });
-
+            SceneManager.loadGizmo();
             // // Init Reticle
             // Reticle.set({
             //     renderer: SceneManager.renderer,
             //     scene: SceneManager.scene,
-            //     fileName: 'gridPlane.glb'
+            //     color: 0x00ff00,
+            //     radius: 0.06,
+            //     innerRadius: 0.05,
+            //     segments: 4,
             // });
+
+            // Init Reticle
+            Reticle.set({
+                renderer: SceneManager.renderer,
+                scene: SceneManager.scene,
+                fileName: 'gridPlane.glb'
+            });
         }
     }
 
@@ -145,16 +145,18 @@ export default function ArSession(props) {
      * to complete calibration
      */
     const onTapOnScreen = () => {
+        console.log("--- TAP")
         if (!Reticle.isHitting()) return;
         const hitMatrix = Reticle.getHitMatrix();
-
-        if (!Persistence.isInitialized) {
+        console.log(hitMatrix)
+        
+        if (!Persistence.isInitialized()) {
             Persistence.init(hitMatrix);
-
-            if (!SceneManager.isInitialized) {
-                console.error('SceneManager not yet initialized!');
-                return;
-            }
+            console.log("persistence initialized")
+            // if (!SceneManager.isInitialized) {
+            //     console.error('SceneManager not yet initialized!');
+            //     return;
+            // }
             console.log(SceneManager.gizmo)
             SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "reference");
 
