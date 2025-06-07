@@ -85,7 +85,6 @@ const AssetManager = {
             asset.toJSON(_referenceMatrix));
         return {
             assets: assetsArray,
-            referenceMatrix: _referenceMatrix.elements,
             version: "1.0",
             timestamp: new Date().toISOString()
         };
@@ -94,11 +93,6 @@ const AssetManager = {
 
     importFromJSON(data) {
         _assets.clear();
-
-        // Aggiorna la reference matrix se presente
-        if (data.referenceMatrix) {
-            _referenceMatrix.fromArray(data.referenceMatrix);
-        }
 
         if (data.assets) {
             data.assets.forEach(assetData => {

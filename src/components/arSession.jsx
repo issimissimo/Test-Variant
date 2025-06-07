@@ -330,7 +330,7 @@ export default function ArSession(props) {
 
             case VIEWS.PLAYGROUND:
                 return <Playground
-                    marker={props.marker}
+                    jsonData={jsonData()}
                     setJsonData={(data) => setJsonData(() => data)}
                     save={saveMarkerJsonData}
                 />;

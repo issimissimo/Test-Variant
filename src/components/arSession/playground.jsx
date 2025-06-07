@@ -29,31 +29,35 @@ export default function Playground(props) {
     ///
     ///
 
-    let asset;
-    const referenceMatrix = new THREE.Matrix4().setPosition(0, 0, 0);
+    // let asset;
+    // const referenceMatrix = new THREE.Matrix4().setPosition(0, 0, 0);
+    // AssetManager.init(scene, referenceMatrix);
+    // asset = AssetManager.addAsset('Fiori', 'flowers.glb');
+    // asset.setPosition(0.5, 0, 0)
+    // asset.setRotation(0, -1, -0.5)
+    // asset = AssetManager.addAsset('Griglia', 'gridPlane.glb');
+    // asset.setPosition(0, 1, 3);
+    // asset.setRotation(1, 0.5, 1)
+    // asset = AssetManager.addAsset('Gizmo', 'temp.glb');
+    // asset.setRotation(0.5, -0.5, 1)
+
+    // const jsonData = AssetManager.exportToJSON();
+
+    // AssetManager.importFromJSON(jsonData)
+    //  AssetManager.loadAllAssets()
+
+
+    const referenceMatrix = new THREE.Matrix4().setPosition(-1, 0.5, 0);
     AssetManager.init(scene, referenceMatrix);
-    asset = AssetManager.addAsset('Fiori', 'flowers.glb');
-    asset.setPosition(0.5, 1, 2)
-    asset.setRotation(1, 1, 1)
-    asset = AssetManager.addAsset('Griglia', 'gridPlane.glb');
-    asset.setPosition(0, 1, 3);
-    asset.setRotation(1, 0.5, 1)
-    asset = AssetManager.addAsset('Gizmo', 'temp.glb');
-    asset.setRotation(0.5, -0.5, 1)
-
-    const jsonData = AssetManager.exportToJSON();
-
-    AssetManager.importFromJSON(jsonData)
-    AssetManager.loadAllAssets()
 
 
-
-    // Esempio di dati JSON
-    const exampleData = {
-        name: "Esempio",
-        value: 42,
-        timestamp: new Date().toISOString()
-    };
+    createEffect(() => {
+        if (props.jsonData) {
+            console.log(props.jsonData)
+            AssetManager.importFromJSON(props.jsonData)
+            AssetManager.loadAllAssets()
+        }
+    })
 
 
 
@@ -64,7 +68,7 @@ export default function Playground(props) {
             <div>
                 <button onClick={() => {
                     props.setJsonData(jsonData);
-                    
+
                     props.save()
                 }} >SAVE DB</button>
             </div>
