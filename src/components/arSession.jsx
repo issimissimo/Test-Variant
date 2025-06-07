@@ -11,12 +11,12 @@ import Welcome from './arSession/welcome';
 import EditMarker from './arSession/editMarker';
 import Calibration from './arSession/calibration';
 import Game from './arSession/game';
-import MarkerNotExist from './arSession/markerNotExist';
+import Unavailable from './arSession/unavailable';
 import Playground from './arSession/playground'; // for DEBUG!
 
 // XR
 import SceneManager from '../xr/sceneManager';
-import AssetManager from '../xr/assetManager';
+// import AssetManager from '../xr/assetManager';
 import Reticle from '../xr/reticle';
 
 
@@ -36,12 +36,14 @@ export default function ArSession(props) {
     const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
-    const [hitMatrix, setHitMatrix] = createSignal(new Matrix4())
+    const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
+    const [calibrationCompleted, setCalibrationCompleted] = createSignal(false);
 
 
-    //
-    // switch from Welcome / EditMarker
-    //
+    /**
+    * At the beginning we need to switch
+    * from SAVE or LOAD page (EditMarker / Welcome)
+     */
     onMount(async () => {
 
         if (props.currentMode === AppMode.SAVE) {
@@ -53,13 +55,13 @@ export default function ArSession(props) {
             }
             // debug mode
             else {
-                loadMarkerJsonData();
+                handleLoadMarkerData();
                 goToPlayGround();
             }
 
         }
         else if (props.currentMode === AppMode.LOAD) {
-            await loadMarkerJsonData();
+            await handleLoadMarkerData();
             if (jsonData()) {
 
                 // All good, we've loaded the JSON data and we can
@@ -121,7 +123,7 @@ export default function ArSession(props) {
      * Load JSON from Firebase Realtime DB
      * and set jsonData()
      */
-    const loadMarkerJsonData = async () => {
+    const handleLoadMarkerData = async () => {
         try {
             const path = `${props.userId}/${props.marker.id}/data`;
             const data = await firebase.realtimeDb.loadData(path);
@@ -138,7 +140,7 @@ export default function ArSession(props) {
      * and, if necessary, update Firestore marker data:
      * withData = true
      */
-    const saveMarkerJsonData = async (data) => {
+    const handleSaveMarkerData = async (data) => {
         try {
             const path = `${props.userId}/${props.marker.id}/data`;
             await firebase.realtimeDb.saveData(path, data);
@@ -174,13 +176,13 @@ export default function ArSession(props) {
      */
     const initialize = () => {
         if (!SceneManager.initialized) {
-            
+
             SceneManager.init();
             SceneManager.renderer.setAnimationLoop(render);
             SceneManager.renderer.xr.addEventListener("sessionstart", onARSessionStarted);
             SceneManager.controller.addEventListener("select", onTapOnScreen);
             SceneManager.loadGizmo();
-            
+
 
             // Init Reticle
             Reticle.set({
@@ -217,7 +219,7 @@ export default function ArSession(props) {
 
                 if (props.marker.withData) {
                     console.log('...and it seem to have a JSON saved too...')
-                    loadMarkerJsonData();
+                    handleLoadMarkerData();
                 }
             }
 
@@ -236,40 +238,46 @@ export default function ArSession(props) {
      * After the user click the button (calibration.jsx)
      * to complete calibration
      */
+    // const onTapOnScreen = () => {
+    //     if (!Reticle.isHitting()) return;
+
+    //     console.log("--- TAP")
+    //     setHitMatrix(() => Reticle.getHitMatrix());
+
+
+    //     if (!AssetManager.initialized()) {
+    //         AssetManager.init(SceneManager.scene, hitMatrix());
+    //         console.log("AssetManager initialized")
+
+
+    //         SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
+
+    //         //
+    //         // FINALLY GO TO GAME!!
+    //         //
+    //         goToGame();
+    //     }
+    // }
+
     const onTapOnScreen = () => {
+        if (Reticle.isHitting()) {
 
-        console.log("--- TAP")
-        if (!Reticle.isHitting()) return;
+            console.log("--- TAP")
+            setHitMatrix(() => Reticle.getHitMatrix());
 
+            if (!calibrationCompleted()) {
 
-        setHitMatrix(() => Reticle.getHitMatrix());
-        // const hitMatrix = Reticle.getHitMatrix();
-        // console.log(hitMatrix)
+                console.log("adesso devo mettere il gizmo, e lanciare GAME...")
 
-        // if (!Persistence.isInitialized()) {
-        //     Persistence.init(hitMatrix);
-        //     console.log("persistence initialized")
-        //     // if (!SceneManager.isInitialized) {
-        //     //     console.error('SceneManager not yet initialized!');
-        //     //     return;
-        //     // }
-        //     console.log(SceneManager.gizmo)
-        //     SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "reference");
+                SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
+                
+                //
+                // FINALLY GO TO GAME!!
+                //
+                goToGame();
 
-        //     goToGame();
-        // }
-
-        if (!AssetManager.initialized()) {
-            AssetManager.init(SceneManager.scene, hitMatrix());
-            console.log("AssetManager initialized")
-
-
-            SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
-
-            //
-            // FINALLY GO TO GAME!!
-            //
-            goToGame();
+                setCalibrationCompleted(() => true);
+            }
         }
     }
 
@@ -340,19 +348,21 @@ export default function ArSession(props) {
             case VIEWS.GAME:
                 return <Game
                     marker={props.marker}
-                    jsonData={jsonData()}
+                    saveData={handleSaveMarkerData}
+                    scene={SceneManager.scene}
+                    data={jsonData()}
                     hitMatrix={hitMatrix()}
                 />;
 
             case VIEWS.MARKER_NOT_EXIST:
-                return <MarkerNotExist
+                return <Unavailable
                 />;
 
             case VIEWS.PLAYGROUND:
                 return <Playground
                     jsonData={jsonData()}
                     setJsonData={(data) => setJsonData(() => data)}
-                    save={saveMarkerJsonData}
+                    save={handleSaveMarkerData}
                 />;
         }
     };

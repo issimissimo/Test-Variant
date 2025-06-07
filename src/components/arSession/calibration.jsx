@@ -70,13 +70,7 @@ export default function Calibration(props) {
                 setDifficult(() => true);
             }, 10000);
         }
-        else {
-            if (timeout) {
-                console.log('stop timeout')
-                clearInterval(timeout)
-                timeout = null;
-            }
-        }
+        return () => clearTimeout(timeout)
     })
 
     // onMount(() => {
@@ -86,9 +80,7 @@ export default function Calibration(props) {
     // })
 
     onCleanup(() => {
-        if (timeout) {
-            clearInterval(timeout)
-        }
+        if (timeout) clearTimeout(timeout)
     })
 
     return (
