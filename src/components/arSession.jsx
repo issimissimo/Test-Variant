@@ -4,6 +4,8 @@ import { css } from 'goober';
 import { AppMode } from '../app';
 import { config } from '../config';
 
+import { Matrix4 } from 'three';
+
 // UI
 import Welcome from './arSession/welcome';
 import EditMarker from './arSession/editMarker';
@@ -34,6 +36,7 @@ export default function ArSession(props) {
     const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
+    const [hitMatrix, setHitMatrix] = createSignal(new Matrix4())
 
 
     //
@@ -77,35 +80,89 @@ export default function ArSession(props) {
 
 
 
+    /**
+    * Create a new marker, only in firebase
+    * and with the property withData = false 
+    * (JSON should be created later on)
+     */
+    const handleCreateMarker = async (name) => {
+        try {
+            const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+            props.onSaveMarker(newMarkerId, name);
+            console.log('Creato in Firestore il marker con ID:', newMarkerId)
+        } catch (error) {
+            console.error('Errore aggiunta marker:', error);
+            throw error;
+        }
+    };
+
+
+
+
+    /**
+    * Delete a marker,
+    * both from firebase and its JSON from RealTime DB,
+    * and go back to Home
+     */
+    const handleDeleteMarker = async () => {
+        try {
+            await firebase.firestore.deleteMarker(props.userId, props.marker.id);
+            const path = `${props.userId}/${props.marker.id}`;
+            await firebase.realtimeDb.deleteData(path);
+            handleBackToHome();
+        } catch (error) {
+            console.error("Errore completo cancellazione marker:", error);
+        }
+    };
+
+
+
+    /**
+     * Load JSON from Firebase Realtime DB
+     * and set jsonData()
+     */
     const loadMarkerJsonData = async () => {
         try {
-            // Load JSON from Realtime DB
             const path = `${props.userId}/${props.marker.id}/data`;
             const data = await firebase.realtimeDb.loadData(path);
             setJsonData(() => data);
-            console.log(data);
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
         }
     }
 
 
-    const saveMarkerJsonData = async () => {
+
+    /**
+     * Save jsonData() to Firebase Realtime DB
+     * and, if necessary, update Firestore marker data:
+     * withData = true
+     */
+    const saveMarkerJsonData = async (data) => {
         try {
-            // Salva nel Real Time Database
             const path = `${props.userId}/${props.marker.id}/data`;
-            await firebase.realtimeDb.saveData(path, jsonData());
+            await firebase.realtimeDb.saveData(path, data);
+            setJsonData(() => data);
             console.log({ type: 'success', text: 'Dati salvati con successo!' });
 
             if (!props.marker.withData) {
-                // Aggiorna anche Firestore
-                await firebase.firestore.updateMarker(props.userId, props.marker.id,
+                firebase.firestore.updateMarker(props.userId, props.marker.id,
                     props.marker.name, true);
-                console.log("firebase aggiornato!")
             }
         } catch (error) {
             console.log({ type: 'error', text: `Errore: ${error.message}` });
         }
+    }
+
+
+
+
+    /**
+     * Go back to home screen
+     * TODO: better management
+     */
+    const handleBackToHome = () => {
+        props.backToHome();
     }
 
 
@@ -117,28 +174,30 @@ export default function ArSession(props) {
      */
     const initialize = () => {
         if (!SceneManager.initialized) {
-
+            
             SceneManager.init();
             SceneManager.renderer.setAnimationLoop(render);
             SceneManager.renderer.xr.addEventListener("sessionstart", onARSessionStarted);
             SceneManager.controller.addEventListener("select", onTapOnScreen);
             SceneManager.loadGizmo();
-            // // Init Reticle
-            // Reticle.set({
-            //     renderer: SceneManager.renderer,
-            //     scene: SceneManager.scene,
-            //     color: 0x00ff00,
-            //     radius: 0.06,
-            //     innerRadius: 0.05,
-            //     segments: 4,
-            // });
+            
 
             // Init Reticle
             Reticle.set({
                 renderer: SceneManager.renderer,
                 scene: SceneManager.scene,
-                fileName: 'gridPlane.glb'
+                color: 0x00ff00,
+                radius: 0.06,
+                innerRadius: 0.05,
+                segments: 4,
             });
+
+            // // Init Reticle
+            // Reticle.set({
+            //     renderer: SceneManager.renderer,
+            //     scene: SceneManager.scene,
+            //     fileName: 'models/gridPlane.glb'
+            // });
         }
     }
 
@@ -183,9 +242,9 @@ export default function ArSession(props) {
         if (!Reticle.isHitting()) return;
 
 
-
-        const hitMatrix = Reticle.getHitMatrix();
-        console.log(hitMatrix)
+        setHitMatrix(() => Reticle.getHitMatrix());
+        // const hitMatrix = Reticle.getHitMatrix();
+        // console.log(hitMatrix)
 
         // if (!Persistence.isInitialized()) {
         //     Persistence.init(hitMatrix);
@@ -200,13 +259,16 @@ export default function ArSession(props) {
         //     goToGame();
         // }
 
-        if (!AssetManager.isInitialized()) {
-            AssetManager.init(SceneManager.scene, hitMatrix);
+        if (!AssetManager.initialized()) {
+            AssetManager.init(SceneManager.scene, hitMatrix());
             console.log("AssetManager initialized")
 
 
-            SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "referenceGizmo");
+            SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
 
+            //
+            // FINALLY GO TO GAME!!
+            //
             goToGame();
         }
     }
@@ -214,53 +276,10 @@ export default function ArSession(props) {
 
 
 
-    const handleBackToHome = () => {
-        props.backToHome();
-    }
 
 
-    //
-    // Create a new marker,
-    // only in firebase (JSON should be created later on)
-    //
-    const handleCreateMarker = async (name) => {
-        try {
-            const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-            props.onSaveMarker(newMarkerId, name);
-            console.log('Creato in Firestore il marker con ID:', newMarkerId)
-        } catch (error) {
-            console.error('Errore aggiunta marker:', error);
-            throw error;
-        }
-    };
 
 
-    /// NON LO USIAMO!!! PERCHE' CARICHIAMO I DATI (SE ESISTONO) QUANDO SI ENTRA IN AR (CLICCANDO SUL TASTO START AR)
-    // //
-    // // Modify an existing marker that have a JSON associated,
-    // // loading its JSON
-    // //
-    // const handleModifyMarker = async () => {
-    //     await loadMarkerJsonData();
-    //     // goToGame();
-    // }
-
-
-    //
-    // Delete a marker,
-    // both from firebase and its JSON from RealTime DB,
-    // and go back to Home
-    //
-    const handleDeleteMarker = async () => {
-        try {
-            await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-            const path = `${props.userId}/${props.marker.id}`;
-            await firebase.realtimeDb.deleteData(path);
-            handleBackToHome();
-        } catch (error) {
-            console.error("Errore completo cancellazione marker:", error);
-        }
-    };
 
 
     /**
@@ -322,6 +341,7 @@ export default function ArSession(props) {
                 return <Game
                     marker={props.marker}
                     jsonData={jsonData()}
+                    hitMatrix={hitMatrix()}
                 />;
 
             case VIEWS.MARKER_NOT_EXIST:

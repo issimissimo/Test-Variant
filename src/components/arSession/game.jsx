@@ -1,4 +1,10 @@
+import { createSignal, createEffect, onMount } from 'solid-js';
+
 function Game(props) {
+
+    onMount(()=>{
+        console.log(props.marker)
+    })
 
     return (
         <div>

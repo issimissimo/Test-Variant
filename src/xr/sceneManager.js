@@ -48,7 +48,7 @@ const SceneManager = {
 
 
     async loadGizmo() {
-        this.gizmo = await this.loadGltf("temp.glb");
+        this.gizmo = await this.loadGltf("models/temp.glb");
     },
 
 
@@ -63,7 +63,6 @@ const SceneManager = {
     // Add a mesh to the scene
     // mesh: THREE.Mesh, matrix: THREE.Matrix4, name: string, matrixAutoUpdate: boolean, visible: boolean,  
     addGltfToScene(gltf, matrix, name = "", childrenNumber = 0, matrixAutoUpdate = true, visible = true) {
-        console.log(gltf)
         const ref = gltf.children[childrenNumber];
         const mesh = ref.clone();
         matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
