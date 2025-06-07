@@ -2,6 +2,7 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 import { AppMode } from '../app';
+import { config } from '../config';
 
 // UI
 import Welcome from './arSession/welcome';
@@ -9,12 +10,12 @@ import EditMarker from './arSession/editMarker';
 import Calibration from './arSession/calibration';
 import Game from './arSession/game';
 import MarkerNotExist from './arSession/markerNotExist';
+import Playground from './arSession/playground'; // for DEBUG!
 
 // XR
 import SceneManager from '../xr/sceneManager';
+import AssetManager from '../xr/assetManager';
 import Reticle from '../xr/reticle';
-import Persistence from '../xr/persistence';
-
 
 
 const VIEWS = {
@@ -22,7 +23,8 @@ const VIEWS = {
     EDIT_MARKER: 'editMarker',
     CALIBRATION: 'calibration',
     GAME: 'game',
-    MARKER_NOT_EXIST: 'markerNotExist'
+    MARKER_NOT_EXIST: 'markerNotExist',
+    PLAYGROUND: 'playground'
 };
 
 
@@ -33,14 +35,25 @@ export default function ArSession(props) {
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
 
+
     //
     // switch from Welcome / EditMarker
     //
     onMount(async () => {
 
         if (props.currentMode === AppMode.SAVE) {
-            goToEditMarker();
-            initialize();
+
+            // regular mode
+            if (!config.usePlayGround) {
+                goToEditMarker();
+                initialize();
+            }
+            // debug mode
+            else {
+                loadMarkerJsonData();
+                goToPlayGround();
+            }
+
         }
         else if (props.currentMode === AppMode.LOAD) {
             await loadMarkerJsonData();
@@ -75,6 +88,26 @@ export default function ArSession(props) {
             console.error("Errore nel caricamento JSON:", error);
         }
     }
+
+
+    const saveMarkerJsonData = async () => {
+        try {
+            // Salva nel Real Time Database
+            const path = `${props.userId}/${props.marker.id}/data`;
+            await firebase.realtimeDb.saveData(path, jsonData());
+            console.log({ type: 'success', text: 'Dati salvati con successo!' });
+
+            if (!props.marker.withData) {
+                // Aggiorna anche Firestore
+                await firebase.firestore.updateMarker(props.userId, props.marker.id,
+                    props.marker.name, true);
+                console.log("firebase aggiornato!")
+            }
+        } catch (error) {
+            console.log({ type: 'error', text: `Errore: ${error.message}` });
+        }
+    }
+
 
 
     /**
@@ -145,20 +178,34 @@ export default function ArSession(props) {
      * to complete calibration
      */
     const onTapOnScreen = () => {
+
         console.log("--- TAP")
         if (!Reticle.isHitting()) return;
+
+
+
         const hitMatrix = Reticle.getHitMatrix();
         console.log(hitMatrix)
-        
-        if (!Persistence.isInitialized()) {
-            Persistence.init(hitMatrix);
-            console.log("persistence initialized")
-            // if (!SceneManager.isInitialized) {
-            //     console.error('SceneManager not yet initialized!');
-            //     return;
-            // }
-            console.log(SceneManager.gizmo)
-            SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "reference");
+
+        // if (!Persistence.isInitialized()) {
+        //     Persistence.init(hitMatrix);
+        //     console.log("persistence initialized")
+        //     // if (!SceneManager.isInitialized) {
+        //     //     console.error('SceneManager not yet initialized!');
+        //     //     return;
+        //     // }
+        //     console.log(SceneManager.gizmo)
+        //     SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "reference");
+
+        //     goToGame();
+        // }
+
+        if (!AssetManager.isInitialized()) {
+            AssetManager.init(SceneManager.scene, hitMatrix);
+            console.log("AssetManager initialized")
+
+
+            SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix, "referenceGizmo");
 
             goToGame();
         }
@@ -240,6 +287,7 @@ export default function ArSession(props) {
     const goToCalibration = () => setCurrentView(VIEWS.CALIBRATION);
     const goToGame = () => setCurrentView(VIEWS.GAME);
     const goToMarkerNotExist = () => setCurrentView(VIEWS.MARKER_NOT_EXIST);
+    const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
 
 
     /**
@@ -277,7 +325,15 @@ export default function ArSession(props) {
                 />;
 
             case VIEWS.MARKER_NOT_EXIST:
-                return <MarkerNotExist />;
+                return <MarkerNotExist
+                />;
+
+            case VIEWS.PLAYGROUND:
+                return <Playground
+                    marker={props.marker}
+                    setJsonData={(data) => setJsonData(() => data)}
+                    save={saveMarkerJsonData}
+                />;
         }
     };
 

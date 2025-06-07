@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { LocalStorage } from "../utils/localStorage.js";
 import { getOffsetMatrix, getGlobalMatrixFromOffsetMatrix } from "../utils/three/maths.js";
-import { initializer } from "../utils/common/initializer.js";
+
 
 let _initMatrix = new THREE.Matrix4();
 let _initialized = false;

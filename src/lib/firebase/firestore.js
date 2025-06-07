@@ -101,7 +101,8 @@ export const addMarker = async (userId, name) => {
     }
 };
 
-export const updateMarker = async (userId, markerId, name, withData = false) => {
+export const updateMarker = async (userId, markerId, name, withData) => {
+    console.log('withData:', withData)
     try {
         const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
         await setDoc(markerRef,

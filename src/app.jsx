@@ -1,5 +1,6 @@
 import { createEffect, createSignal, onMount } from 'solid-js';
 import { useFirebase } from './hooks/useFirebase';
+import { config } from './config';
 
 // UI
 import Register from './components/register';
@@ -21,7 +22,6 @@ const VIEWS = {
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
 
-const checkSupported = false; //# use this flag 'false' for debug on desktop
 
 export default function App() {
     const firebase = useFirebase();
@@ -45,7 +45,7 @@ export default function App() {
         if ("xr" in navigator) {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
-                if (!supported && checkSupported) {
+                if (!supported && !config.debugOnDesktop) {
                     goToArNotSupported();
                     setLoading(false);
                 }
