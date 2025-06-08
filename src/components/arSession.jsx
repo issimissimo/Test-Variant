@@ -37,8 +37,13 @@ export default function ArSession(props) {
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
     const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
+    const [tapEnabled, setTapEnabled] = createSignal(true);
 
     let calibrationCompleted = false;
+
+    createEffect(()=>{
+        console.log('tap enabled:', tapEnabled())
+    })
 
 
     /**
@@ -260,6 +265,13 @@ export default function ArSession(props) {
     // }
 
     const onTapOnScreen = () => {
+
+        // Stop here if it's a DOM event
+        if (!tapEnabled()) {
+            setTapEnabled(() => true);
+            return;
+        }
+
         if (Reticle.isHitting()) {
 
             const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
@@ -268,7 +280,7 @@ export default function ArSession(props) {
             if (!calibrationCompleted) {
 
                 SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
-                
+
                 //
                 // FINALLY GO TO GAME!!
                 //
@@ -345,6 +357,8 @@ export default function ArSession(props) {
 
             case VIEWS.GAME:
                 return <Game
+                    currentMode={props.currentMode}
+                    disableTap={setTapEnabled(() => false)}
                     marker={props.marker}
                     saveData={(data) => handleSaveMarkerData(data)}
                     scene={SceneManager.scene}

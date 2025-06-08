@@ -249,12 +249,16 @@ const Reticle = {
         return _mesh.matrix;
     },
 
-    setVisible(visible) {
+    setVisible(value) {
         if (!_initialized) {
             console.error("Reticle is not set");
             return;
         }
-        _mesh.visible = visible;
+        _mesh.visible = value;
+    },
+
+    visible() {
+        return _mesh.visible;
     },
 
     surfType() {

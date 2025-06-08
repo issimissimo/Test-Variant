@@ -1,5 +1,6 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { css } from 'goober';
+import { AppMode } from '../../app';
 import AssetManager from '../../xr/assetManager';
 import Reticle from '../../xr/reticle';
 
@@ -14,6 +15,27 @@ const containerStyle = css`
 
 
 function Game(props) {
+
+    onMount(() => {
+        const interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
+        console.log('-----', interactiveElements)
+        interactiveElements.forEach(element => {
+            console.log('el:', element)
+            element.addEventListener('pointerdown', (e) => {
+                // Impedisce al tap di attivare l'evento WebXR
+                props.disableTap;
+
+                // Impedisce la propagazione per sicurezza
+                e.stopPropagation();
+            });
+
+            // Aggiungi anche per gli eventi touch per dispositivi mobili
+            element.addEventListener('touchstart', (e) => {
+                props.disableTap;
+                e.stopPropagation();
+            });
+        });
+    })
 
     createEffect(() => {
 
@@ -35,19 +57,28 @@ function Game(props) {
         // If AssetManager alreay initialized,
         // we create an asset
         else {
-            console.log('adesso dovrei creare un asset...')
-            const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
-            AssetManager.loadAsset(asset.id);
+            if (props.currentMode === AppMode.SAVE) {
+                console.log('adesso dovrei creare un asset...')
+                const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
+                AssetManager.loadAsset(asset.id);
+            }
         }
     })
+
+
+    const createAssetOnTap = () => {
+
+    }
+
 
     return (
         <div>
             <div class={containerStyle}>
-                <button onClick={() => {
-                    const data = AssetManager.exportToJSON();
-                    props.saveData(data)
-                }} >SAVE DATA</button>
+                {props.currentMode === AppMode.SAVE &&
+                    <button onClick={() => {
+                        const data = AssetManager.exportToJSON();
+                        props.saveData(data)
+                    }} >SAVE DATA</button>}
             </div>
 
             <p>
