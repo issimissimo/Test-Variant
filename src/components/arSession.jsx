@@ -143,13 +143,9 @@ export default function ArSession(props) {
      */
     const handleSaveMarkerData = async (data) => {
         try {
-            console.log('utente da auth:', firebase.auth.user().uid)
             const path = `${props.userId}/${props.marker.id}/data`;
-            console.log(path)
-
             await firebase.realtimeDb.saveData(path, data);
             setJsonData(() => data);
-            console.log('Dati salvati con successo!');
 
             if (!props.marker.withData) {
                 firebase.firestore.updateMarker(props.userId, props.marker.id,
