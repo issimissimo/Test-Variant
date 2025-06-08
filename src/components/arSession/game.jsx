@@ -25,11 +25,18 @@ function Game(props) {
         if (!AssetManager.initialized()) {
             AssetManager.init(props.scene, props.hitMatrix);
             console.log("AssetManager initialized! referenceMatrix:", props.hitMatrix)
+
+            if (props.data) {
+                console.log('adesso provo a caricare il JSON...')
+                AssetManager.importFromJSON(props.data);
+                AssetManager.loadAllAssets();
+            }
         }
         else {
             console.log('adesso dovrei creare un asset...')
             const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
-            AssetManager.loadAllAssets();
+            // AssetManager.loadAllAssets();
+            AssetManager.loadAsset(asset.id);
         }
     })
 
