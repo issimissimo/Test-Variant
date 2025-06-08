@@ -10,15 +10,15 @@ function Game(props) {
 
     createEffect(() => {
 
-        console.log(props.hitMatrix)
-        
-        if (!AssetManager.initialized()) {
-            AssetManager.init(props.scene, props.hitMatrix);
-            console.log("AssetManager initialized! referenceMatrix:", props.hitMatrix)
-        }
-        else {
-            console.log('adesso dovrei creare un asset...')
-        }
+        console.log('----> game, hitMatrix is changed:', props.hitMatrix)
+
+        // if (!AssetManager.initialized()) {
+        //     AssetManager.init(props.scene, props.hitMatrix);
+        //     console.log("AssetManager initialized! referenceMatrix:", props.hitMatrix)
+        // }
+        // else {
+        //     console.log('adesso dovrei creare un asset...')
+        // }
 
 
 

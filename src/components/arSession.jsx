@@ -37,8 +37,12 @@ export default function ArSession(props) {
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
     const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
-    const [calibrationCompleted, setCalibrationCompleted] = createSignal(false);
 
+    let calibrationCompleted = false;
+
+    createEffect(()=>{
+        console.log('--> arSession, hitMatrix is changed:', hitMatrix())
+    })
 
     /**
     * At the beginning we need to switch
@@ -262,21 +266,22 @@ export default function ArSession(props) {
     const onTapOnScreen = () => {
         if (Reticle.isHitting()) {
 
-            console.log("--- TAP")
-            setHitMatrix(() => Reticle.getHitMatrix());
+            const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
+            console.log("--- TAP:", reticleMatrix)
+            setHitMatrix(() => reticleMatrix);
 
-            if (!calibrationCompleted()) {
+            if (!calibrationCompleted) {
 
                 console.log("adesso devo mettere il gizmo, e lanciare GAME...")
 
                 SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
                 
-                //
-                // FINALLY GO TO GAME!!
-                //
+                // //
+                // // FINALLY GO TO GAME!!
+                // //
                 goToGame();
 
-                setCalibrationCompleted(() => true);
+                calibrationCompleted = true;
             }
         }
     }
