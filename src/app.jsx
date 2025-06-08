@@ -173,6 +173,7 @@ export default function App() {
                     onGoToRegister={goToRegister}
                     onGoToLogin={goToLogin}
                     onCreateMarker={() => {
+                        setUserId(() => firebase.auth.user().uid);
                         addMarker();
                         goToArSession();
                     }}

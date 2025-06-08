@@ -15,27 +15,28 @@ const containerStyle = css`
 
 function Game(props) {
 
-    // onMount(() => {
-    //     console.log(props.scene)
-    // })
-
     createEffect(() => {
 
-        // console.log('----> game, hitMatrix is changed:', props.hitMatrix)
+        // When we receive the hitMatrix from TAP,
+        // we must initialize AssetManager, if not yet initialized
         if (!AssetManager.initialized()) {
             AssetManager.init(props.scene, props.hitMatrix);
             console.log("AssetManager initialized! referenceMatrix:", props.hitMatrix)
 
+            // Next, if we have data,
+            // we use them to spawn saved assets
             if (props.data) {
-                console.log('adesso provo a caricare il JSON...')
+                console.log("Let's import JSON...")
                 AssetManager.importFromJSON(props.data);
                 AssetManager.loadAllAssets();
             }
         }
+
+        // If AssetManager alreay initialized,
+        // we create an asset
         else {
             console.log('adesso dovrei creare un asset...')
             const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
-            // AssetManager.loadAllAssets();
             AssetManager.loadAsset(asset.id);
         }
     })
