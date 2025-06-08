@@ -40,9 +40,6 @@ export default function ArSession(props) {
 
     let calibrationCompleted = false;
 
-    createEffect(()=>{
-        console.log('--> arSession, hitMatrix is changed:', hitMatrix())
-    })
 
     /**
     * At the beginning we need to switch
@@ -267,18 +264,15 @@ export default function ArSession(props) {
         if (Reticle.isHitting()) {
 
             const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
-            console.log("--- TAP:", reticleMatrix)
             setHitMatrix(() => reticleMatrix);
 
             if (!calibrationCompleted) {
 
-                console.log("adesso devo mettere il gizmo, e lanciare GAME...")
-
                 SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
                 
-                // //
-                // // FINALLY GO TO GAME!!
-                // //
+                //
+                // FINALLY GO TO GAME!!
+                //
                 goToGame();
 
                 calibrationCompleted = true;

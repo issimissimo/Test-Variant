@@ -48,7 +48,7 @@ const SceneManager = {
 
 
     async loadGizmo() {
-        this.gizmo = await this.loadGltf("models/temp.glb");
+        this.gizmo = await this.loadGltf("models/gizmo.glb");
     },
 
 
