@@ -146,7 +146,7 @@ export default function ArSession(props) {
             const path = `${props.userId}/${props.marker.id}/data`;
             await firebase.realtimeDb.saveData(path, data);
             setJsonData(() => data);
-            console.log({ type: 'success', text: 'Dati salvati con successo!' });
+            console.log('Dati salvati con successo!');
 
             if (!props.marker.withData) {
                 firebase.firestore.updateMarker(props.userId, props.marker.id,
@@ -347,7 +347,7 @@ export default function ArSession(props) {
             case VIEWS.GAME:
                 return <Game
                     marker={props.marker}
-                    saveData={handleSaveMarkerData}
+                    saveData={(data) => handleSaveMarkerData(data)}
                     scene={SceneManager.scene}
                     data={jsonData()}
                     hitMatrix={hitMatrix()}
