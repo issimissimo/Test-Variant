@@ -30,12 +30,43 @@ const AssetManager = {
     },
 
 
+    // removeAsset(id) {
+    //     const asset = _assets.get(id);
+    //     if (asset && asset.mesh && asset.mesh.parent) {
+    //         asset.mesh.parent.remove(asset.mesh);
+    //     }
+    //     _assets.delete(id);
+    // },
+
     removeAsset(id) {
         const asset = _assets.get(id);
-        if (asset && asset.mesh && asset.mesh.parent) {
-            asset.mesh.parent.remove(asset.mesh);
+        if (asset) {
+            // Rimuovi dalla scena Three.js se caricato
+            if (asset.mesh) {
+                if (_scene) {
+                    _scene.remove(asset.mesh);
+                } else if (asset.mesh.parent) {
+                    asset.mesh.parent.remove(asset.mesh);
+                }
+
+                // Cleanup delle risorse
+                asset.mesh.traverse(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(mat => mat.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                });
+            }
+
+            // Rimuovi dalla collezione
+            _assets.delete(id);
+            return true;
         }
-        _assets.delete(id);
+        return false;
     },
 
 
@@ -149,7 +180,7 @@ const AssetManager = {
         });
     },
 
-    initialized(){
+    initialized() {
         return _initialized;
     }
 }

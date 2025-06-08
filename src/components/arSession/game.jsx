@@ -16,6 +16,8 @@ const containerStyle = css`
 
 function Game(props) {
 
+    const newAssetsId = [];
+
     onMount(() => {
 
         // Disable TAP event
@@ -35,7 +37,7 @@ function Game(props) {
         });
 
         // Hide reticle if anonymous
-        if (props.currentMode === AppMode.LOAD){
+        if (props.currentMode === AppMode.LOAD) {
             Reticle.setVisible(false);
         }
     })
@@ -63,6 +65,7 @@ function Game(props) {
             if (props.currentMode === AppMode.SAVE) {
                 const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
                 AssetManager.loadAsset(asset.id);
+                newAssetsId.push(asset.id);
             }
         }
     })
@@ -72,15 +75,37 @@ function Game(props) {
 
     }
 
+    const undo = () => {
+        console.log('UNDO!')
+        if (newAssetsId.length) {
+            console.log('adesso cancello ultimo asset...')
+            const id = newAssetsId.pop();
+            AssetManager.removeAsset(id);
+        }
+    }
+
 
     return (
         <div>
             <div class={containerStyle}>
+
                 {props.currentMode === AppMode.SAVE &&
-                    <button onClick={() => {
-                        const data = AssetManager.exportToJSON();
-                        props.saveData(data)
-                    }} >SAVE DATA</button>}
+
+                    <div>
+
+                        <button onClick={() => {
+                            const data = AssetManager.exportToJSON();
+                            props.saveData(data)
+                        }} >SAVE DATA</button>
+
+                        <button onClick={undo}>UNDO</button>
+
+
+                    </div>
+                }
+
+                <button onClick={console.log('close')} >CLOSE</button>
+
             </div>
 
             <p>

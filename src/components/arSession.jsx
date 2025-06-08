@@ -240,30 +240,11 @@ export default function ArSession(props) {
 
 
     /**
-     * After the user click the button (calibration.jsx)
-     * to complete calibration
+     * When user TAP on screen,
+     * we need to finish calibration and go to Game,
+     * or send the hitMatrix to Game
+     * to create an asset on hitMatrix
      */
-    // const onTapOnScreen = () => {
-    //     if (!Reticle.isHitting()) return;
-
-    //     console.log("--- TAP")
-    //     setHitMatrix(() => Reticle.getHitMatrix());
-
-
-    //     if (!AssetManager.initialized()) {
-    //         AssetManager.init(SceneManager.scene, hitMatrix());
-    //         console.log("AssetManager initialized")
-
-
-    //         SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
-
-    //         //
-    //         // FINALLY GO TO GAME!!
-    //         //
-    //         goToGame();
-    //     }
-    // }
-
     const onTapOnScreen = () => {
 
         // Stop here if it's a DOM event
@@ -273,29 +254,23 @@ export default function ArSession(props) {
         }
 
         if (Reticle.isHitting()) {
-
             const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
             setHitMatrix(() => reticleMatrix);
 
             if (!calibrationCompleted) {
 
-                SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
+                if (config.isDebug) {
+                    SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
+                }
 
                 //
                 // FINALLY GO TO GAME!!
                 //
                 goToGame();
-
                 calibrationCompleted = true;
             }
         }
     }
-
-
-
-
-
-
 
 
 
@@ -307,13 +282,15 @@ export default function ArSession(props) {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-        if (frame && Reticle.visible()) {
+        if (frame) {
             Reticle.update(frame, (surfType) => {
             });
             setPlaneFound(Reticle.isHitting())
         }
         SceneManager.update();
     };
+
+
 
 
     /**
@@ -325,6 +302,8 @@ export default function ArSession(props) {
     const goToGame = () => setCurrentView(VIEWS.GAME);
     const goToMarkerNotExist = () => setCurrentView(VIEWS.MARKER_NOT_EXIST);
     const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
+
+
 
 
     /**
@@ -379,6 +358,8 @@ export default function ArSession(props) {
                 />;
         }
     };
+
+
 
 
     /**
