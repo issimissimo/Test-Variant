@@ -1,4 +1,5 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
+import { generateQRCodeForForMarker } from '../../hooks/useQRCode';
 import { css } from 'goober';
 
 const containerStyle = css`
@@ -93,6 +94,12 @@ const editButton = css`
 export default function EditMarker(props) {
   const [name, setName] = createSignal(props.marker?.name || '');
 
+  onMount(() => {
+    if (props.marker.withData){
+      generateQRCodeForForMarker(props.userId, props.marker.id);
+    }
+  })
+
   return (
     <div class={containerStyle}>
       <h2 class={headingStyle}>
@@ -126,7 +133,7 @@ export default function EditMarker(props) {
             props.marker.withData ?
               <button
                 type="button"
-                // onClick={() => { props.onModify() }}
+              // onClick={() => { props.onModify() }}
               // disabled={loading()}
               >
                 MODIFICA
@@ -140,14 +147,13 @@ export default function EditMarker(props) {
                 CREA
               </button>
           }
-          {/* <button
-            type="button"
-            // class={secondaryButton}
-            onClick={() => { props.onCreate(name()) }}
-          // disabled={loading()}
-          >
-            {props.jsonData ? 'Modifica' : 'Crea'}
-          </button> */}
+          {props.marker.withData ?
+            <img id="qr-code" />
+            :
+            <p>No data here!</p>
+
+
+          }
 
 
           <button

@@ -28,3 +28,8 @@ export function init() {
         generateQRCode(window.location.href); // generate regular QR code for this url
     }
 }
+
+export function generateQRCodeForForMarker(userId, markerId) {
+    const path = `${window.location.href}?userId=${userId}&markerId=${markerId}`;
+    generateQRCode(path);
+}

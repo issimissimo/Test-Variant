@@ -41,7 +41,7 @@ export default function ArSession(props) {
 
     let calibrationCompleted = false;
 
-    createEffect(()=>{
+    createEffect(() => {
         console.log('tap enabled:', tapEnabled())
     })
 
@@ -307,7 +307,7 @@ export default function ArSession(props) {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-        if (frame) {
+        if (frame && Reticle.visible()) {
             Reticle.update(frame, (surfType) => {
             });
             setPlaneFound(Reticle.isHitting())
@@ -341,6 +341,7 @@ export default function ArSession(props) {
 
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
+                    userId={props.userId}
                     marker={props.marker}
                     markerName={markerName()}
                     setMarkerName={(name) => setMarkerName(() => name)}

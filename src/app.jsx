@@ -35,9 +35,6 @@ export default function App() {
     createEffect(() => {
         // Hide preloader
         if (!loading()) document.getElementById("loading").style.display = "none";
-
-        console.log('---> loading:', loading())
-        console.log('---> current marker:', currentMarker())
     })
 
 

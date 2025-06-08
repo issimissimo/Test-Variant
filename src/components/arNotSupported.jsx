@@ -10,7 +10,7 @@ function ArNotSupported() {
 
     return (
         <>
-            {<div class="full-screen-div">
+            {<div class="full-screen">
                 <p>
                     We are sorry, but WebXR is not supported here.<br></br> Open this page on iOS or Android.
                 </p>

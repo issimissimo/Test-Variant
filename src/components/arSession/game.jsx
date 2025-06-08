@@ -17,25 +17,29 @@ const containerStyle = css`
 function Game(props) {
 
     onMount(() => {
-        const interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
-        console.log('-----', interactiveElements)
-        interactiveElements.forEach(element => {
-            console.log('el:', element)
-            element.addEventListener('pointerdown', (e) => {
-                // Impedisce al tap di attivare l'evento WebXR
-                props.disableTap;
 
-                // Impedisce la propagazione per sicurezza
+        // Disable TAP event
+        // when a DOM interactive element is selected
+        const interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
+        interactiveElements.forEach(element => {
+
+            element.addEventListener('pointerdown', (e) => {
+                props.disableTap;
                 e.stopPropagation();
             });
 
-            // Aggiungi anche per gli eventi touch per dispositivi mobili
             element.addEventListener('touchstart', (e) => {
                 props.disableTap;
                 e.stopPropagation();
             });
         });
+
+        // Hide reticle if anonymous
+        if (props.currentMode === AppMode.LOAD){
+            Reticle.setVisible(false);
+        }
     })
+
 
     createEffect(() => {
 
@@ -43,12 +47,11 @@ function Game(props) {
         // we must initialize AssetManager, if not yet initialized
         if (!AssetManager.initialized()) {
             AssetManager.init(props.scene, props.hitMatrix);
-            console.log("AssetManager initialized! referenceMatrix:", props.hitMatrix)
+            console.log("AssetManager initialized!")
 
             // Next, if we have data,
             // we use them to spawn saved assets
             if (props.data) {
-                console.log("Let's import JSON...")
                 AssetManager.importFromJSON(props.data);
                 AssetManager.loadAllAssets();
             }
@@ -58,7 +61,6 @@ function Game(props) {
         // we create an asset
         else {
             if (props.currentMode === AppMode.SAVE) {
-                console.log('adesso dovrei creare un asset...')
                 const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
                 AssetManager.loadAsset(asset.id);
             }
