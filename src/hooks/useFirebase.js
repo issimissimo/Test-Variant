@@ -34,7 +34,8 @@ export const useFirebase = () => {
                 return loggedInUser;
             },
             logout: logoutUser,
-            loginAnonymous: loginAnonymousUser
+            loginAnonymous: loginAnonymousUser,
+            updateLoginTimestamp: updateLastLogin
         },
 
         firestore: {

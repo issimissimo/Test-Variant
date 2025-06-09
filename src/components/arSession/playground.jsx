@@ -1,111 +1,39 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
-import * as THREE from 'three';
-import AssetManager from '../../xr/assetManager';
-import { useFirebase } from '../../hooks/useFirebase';
+
 
 export default function Playground(props) {
 
+    const [buttonActive, setButtonActive] = createSignal(true);
 
-
-    async function test1() {
-        const gizmo = await this.loadGltf("temp.glb");
+    const toggle = () => {
+        setButtonActive(!buttonActive());
     };
 
 
-    function loadGltf(fileName) {
-        return new Promise((resolve, reject) => {
-            const loader = new GLTFLoader();
-            loader.load(
-                fileName,
-                (gltf) => {
-                    resolve(gltf.scene);
-                },
-                (xhr) => {
-                    // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                },
-                (error) => {
-                    console.error('An error happened', error);
-                    reject(error);
-                }
-            );
-        });
-    }
-
-
-
-    function test() {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-        light.position.set(0.5, 1, 0.25);
-        scene.add(light);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        // scene.add(cube);
-        camera.position.z = 5;
-
-        function animate() {
-            renderer.render(scene, camera);
-        }
-        renderer.setAnimationLoop(animate);
-
-        /// END OF BOILERPLATE
-        ///
-        ///
-        ///
-
-        // let asset;
-        // const referenceMatrix = new THREE.Matrix4().setPosition(0, 0, 0);
-        // AssetManager.init(scene, referenceMatrix);
-        // asset = AssetManager.addAsset('Fiori', 'flowers.glb');
-        // asset.setPosition(0.5, 0, 0)
-        // asset.setRotation(0, -1, -0.5)
-        // asset = AssetManager.addAsset('Griglia', 'gridPlane.glb');
-        // asset.setPosition(0, 1, 3);
-        // asset.setRotation(1, 0.5, 1)
-        // asset = AssetManager.addAsset('Gizmo', 'temp.glb');
-        // asset.setRotation(0.5, -0.5, 1)
-
-        // const jsonData = AssetManager.exportToJSON();
-
-        // AssetManager.importFromJSON(jsonData)
-        //  AssetManager.loadAllAssets()
-
-
-        const referenceMatrix = new THREE.Matrix4().setPosition(-1, 0.5, 0);
-        AssetManager.init(scene, referenceMatrix);
-    }
-
-
-
-
-
-
-    createEffect(() => {
-        if (props.jsonData) {
-            console.log(props.jsonData)
-            AssetManager.importFromJSON(props.jsonData)
-            AssetManager.loadAllAssets()
-        }
-    })
-
-
+    // Stile dinamico per l'icona
+    const iconStyle = () => ({
+        opacity: buttonActive() ? 1 : 0.5,
+        // transition: 'opacity 0.2s ease-in-out'
+    });
 
 
     return (
-        <div>
-            PLAYGROUND MODE
-            <div>
-                <button onClick={() => {
-                    props.setJsonData(jsonData);
+        <button
+            onClick={toggle}
+            aria-pressed={buttonActive()}
+            aria-label="Toggle button"
+        >
+            <svg
+                style={iconStyle()}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="currentColor"
+            >
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+            </svg>
+        </button>
+    );
 
-                    props.save()
-                }} >SAVE DB</button>
-            </div>
-        </div>
-    )
 }

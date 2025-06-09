@@ -8,6 +8,8 @@ body {
   /* Browser WebKit (iOS/Safari) */
   text-size-adjust: 100%;
   /* Standard moderno */
+  background-image: linear-gradient(to bottom right, rgb(0, 132, 255), rgb(128, 214, 240));
+
 }
 
 /* .full-screen {
@@ -59,11 +61,6 @@ a:hover {
   color: #777777;
 }
 
-body {
-  margin: 0;
-  /* background-color: #242424; */
-}
-
 p {
   text-align: center;
   font-weight: 400;
@@ -80,7 +77,8 @@ h1 {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 80vh;
+  height: 100vh;
+  /* min-height: 80vh; */
   justify-content: center;
   align-items: center;
 

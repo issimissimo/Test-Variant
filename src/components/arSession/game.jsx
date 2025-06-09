@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onMount } from 'solid-js';
+import { createSignal, createEffect, onMount, onCleanup } from 'solid-js';
 import { css } from 'goober';
 import { AppMode } from '../../app';
 import AssetManager from '../../xr/assetManager';
@@ -16,34 +16,59 @@ const containerStyle = css`
 
 function Game(props) {
 
+    const [canModify, setCanModify] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
+
     const newAssetsId = [];
+    let interactiveElements = null;
+
+    const handleDisableTap = (e) => {
+        props.disableTap;
+        e.stopPropagation();
+    };
+
 
     onMount(() => {
-
         // Disable TAP event
         // when a DOM interactive element is selected
-        const interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
+        interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
         interactiveElements.forEach(element => {
-
-            element.addEventListener('pointerdown', (e) => {
-                props.disableTap;
-                e.stopPropagation();
-            });
-
-            element.addEventListener('touchstart', (e) => {
-                props.disableTap;
-                e.stopPropagation();
-            });
+            element.addEventListener('pointerdown', handleDisableTap);
+            element.addEventListener('touchstart', handleDisableTap);
         });
 
-        // Hide reticle if anonymous
-        if (props.currentMode === AppMode.LOAD) {
-            Reticle.setVisible(false);
+        // // Hide reticle if anonymous
+        // if (props.currentMode === AppMode.LOAD) {
+        //     Reticle.setVisible(false);
+        // }
+        // else {
+        if (canModify()) {
+            Reticle.set({
+                color: 0xcccccc,
+                radius: 0.15,
+                innerRadius: 0.1,
+                segments: 32,
+            });
         }
+
+        // }
+    })
+
+    // createEffect(() => {
+    //     Reticle.setVisible(canModify());
+    // })
+
+
+    onCleanup(() => {
+        interactiveElements.forEach(element => {
+            element.removeEventListener('pointerdown', handleDisableTap);
+            element.removeEventListener('touchstart', handleDisableTap);
+        });
     })
 
 
     createEffect(() => {
+
+        Reticle.setVisible(canModify());
 
         // When we receive the hitMatrix from TAP,
         // we must initialize AssetManager, if not yet initialized
@@ -62,10 +87,12 @@ function Game(props) {
         // If AssetManager alreay initialized,
         // we create an asset
         else {
-            if (props.currentMode === AppMode.SAVE) {
-                const asset = AssetManager.addAsset('Gizmo', 'gizmo.glb', { matrix: props.hitMatrix });
+            if (canModify()) {
+                console.log('adesso devo creare un asset...')
+                const asset = AssetManager.addAsset('baloon', 'baloons.glb', { matrix: props.hitMatrix });
                 AssetManager.loadAsset(asset.id);
                 newAssetsId.push(asset.id);
+                console.log(asset)
             }
         }
     })

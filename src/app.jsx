@@ -101,13 +101,17 @@ export default function App() {
     //
     // Check auth status
     //
-    const checkAuthStatus = () => {
+    const checkAuthStatus = async () => {
         if (firebase.auth.user()) {
             if (firebase.auth.user().isAnonymous) {
                 console.log("You previously logged as anonymous, so you need to login again")
                 goToLogin();
             }
             else {
+                if (!config.isDebug) {
+                    const userId = firebase.auth.user().uid;
+                    await firebase.auth.updateLoginTimestamp(userId)
+                }
                 goToHome();
             }
         }
