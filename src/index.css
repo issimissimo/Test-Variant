@@ -57,9 +57,9 @@ a {
   text-decoration: inherit;
 }
 
-a:hover {
+/* a:hover {
   color: #777777;
-}
+} */
 
 p {
   text-align: center;
@@ -87,18 +87,17 @@ h1 {
   position: relative;
 }
 
-#instructions {
+/* #instructions {
   margin: auto;
   flex-grow: 1;
   display: none;
   margin-top: 3rem;
-}
+} */
 
-#app {
+/* #app {
   max-width: 1280px;
   flex-grow: 1;
   min-height: 80vh;
-  /* min-width: 320px; */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -113,7 +112,7 @@ h1 {
   bottom: 0;
   z-index: 15;
 
-}
+} */
 
 @keyframes circle {
   from {

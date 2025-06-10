@@ -266,6 +266,7 @@ export default function ArSession(props) {
                 //
                 // FINALLY GO TO GAME!!
                 //
+                console.log("GO TO GAME!!!!!!!!!!!!!!")
                 goToGame();
                 calibrationCompleted = true;
             }
@@ -366,7 +367,7 @@ export default function ArSession(props) {
      * Return
      */
     return (
-        <div class="full-screen">
+        <div id="arSession">
             {renderView()}
         </div>
     );

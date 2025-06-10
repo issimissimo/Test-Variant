@@ -133,19 +133,11 @@ const Reticle = {
         else {
             const ringGeometry = new THREE.RingGeometry(_options.innerRadius, _options.radius, _options.segments).rotateX(-Math.PI / 2);
             const material = new THREE.MeshBasicMaterial({
-                color: _options.color || 0x00ff00, transparent: true,
-                opacity: 0.8, side: THREE.DoubleSide
+                color: _options.color || 0x00ff00, side: THREE.DoubleSide
             });
             _mesh = new THREE.Mesh(ringGeometry, material);
             _setReticlePropertiers();
         }
-
-        // _mesh.matrixAutoUpdate = false;
-        // _mesh.visible = false;
-        // _scene.add(_mesh);
-        // _addPlaneForReticleSurface();
-
-        // _initialized = true;
     },
 
     /**
@@ -254,7 +246,9 @@ const Reticle = {
             console.error("Reticle is not set");
             return;
         }
+        console.log('setVisible:', value)
         _mesh.visible = value;
+        console.log('mesh visible:', _mesh.visible)
     },
 
     visible() {
