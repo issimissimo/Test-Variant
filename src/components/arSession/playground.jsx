@@ -1,7 +1,13 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { styled } from 'solid-styled-components';
 
-
+import leftArrow from '../../assets/images/leftArrow.svg';
+import rightArrow from '../../assets/images/rightArrow.svg';
+import undoIcon from '../../assets/images/undo.svg';
+import uploadIcon from '../../assets/images/upload.svg';
+import planeIcon from '../../assets/images/plane.svg';
+import pointIcon from '../../assets/images/point.svg';
+import closeIcon from '../../assets/images/close.svg';
 
 
 
@@ -9,6 +15,8 @@ import { styled } from 'solid-styled-components';
 export default function Playground(props) {
 
     const [buttonActive, setButtonActive] = createSignal(true);
+
+    const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
 
     const handleDisableTap = () => {
         console.log("YEEEEEEEEEEEE")
@@ -31,6 +39,7 @@ export default function Playground(props) {
         // element.addEventListener('touchstart', handleDisableTap);
         console.log(element)
     });
+
 
 
 
@@ -62,24 +71,22 @@ export default function Playground(props) {
     `
 
     const Bttn = styled('button')`
-        width: 55px;
-        height: 55px;
+        width: 53px;
+        height: 53px;
         border-radius: 50%;
         border: none;
         outline: none;
-        background-color: rgba(0,0,0,0.7);
         margin: 20px;
         visibility: ${props => props.visible ? 'visible' : 'hidden'};
-    `
-
-
-    const ToggleBttn = styled(Bttn)`
         opacity: ${props => props.active ? 1 : 0.7};
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        user-select: none;
-        
+
+        background: rgba(68, 68, 68, 0.5);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(7.1px);
     `
+
+
 
 
     const handelButtonClick = () => {
@@ -90,35 +97,40 @@ export default function Playground(props) {
     return (
         <Container id="playground-container">
             <ContainerTopButtons>
-                <Bttn>
-                    <img src={'images/close.png'} />
+                <Bttn active={true}
+                    visible={true}>
+                    <img src={closeIcon} style="width: 10px" />
                 </Bttn>
             </ContainerTopButtons>
 
             <ContainerSideButtons>
 
-                <ToggleBttn data-interactive
+                <Bttn data-interactive
                     onClick={toggle}
-                    active={buttonActive()}
+                    active={true}
                     visible={true}
                 >
-                    <img src={'images/edit.png'} />
-                </ToggleBttn>
+                    <img src={buttonActive()? leftArrow : rightArrow} style="width: 25px"/>
+                </Bttn>
 
 
                 <Bttn data-interactive
-                    onClick={() => { console.log("yeeeeeeeeeee") }}
+                    onClick={() => { setUsePlaneDetection(() => !usePlaneDetection()) }}
+                    active={true}
                     visible={buttonActive()}>
-                    <img src={'images/point.png'} />
+                    <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 27px" />
                 </Bttn>
 
 
-                <Bttn data-interactive visible={buttonActive()}>
-                    <img src={'images/save.png'} />
+                <Bttn data-interactive visible={buttonActive()}
+                    active={true}>
+
+                    <img src={uploadIcon} style="width: 20px" />
                 </Bttn>
 
-                <Bttn data-interactive visible={buttonActive()}>
-                    <img src={'images/undo.png'} />
+                <Bttn data-interactive visible={buttonActive()}
+                    active={true}>
+                    <img src={undoIcon} style="width: 20px" />
                 </Bttn>
 
 

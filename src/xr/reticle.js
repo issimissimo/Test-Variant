@@ -133,7 +133,7 @@ const Reticle = {
         else {
             const ringGeometry = new THREE.RingGeometry(_options.innerRadius, _options.radius, _options.segments).rotateX(-Math.PI / 2);
             const material = new THREE.MeshBasicMaterial({
-                color: _options.color || 0x00ff00, side: THREE.DoubleSide
+                color: _options.color || 0xffffff, side: THREE.DoubleSide
             });
             _mesh = new THREE.Mesh(ringGeometry, material);
             _setReticlePropertiers();

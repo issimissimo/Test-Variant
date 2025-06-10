@@ -1,23 +1,24 @@
 import { createSignal, createEffect, onMount, onCleanup } from 'solid-js';
 import { styled } from 'solid-styled-components';
-// import { css } from 'goober';
 import { AppMode } from '../../app';
 import AssetManager from '../../xr/assetManager';
 import Reticle from '../../xr/reticle';
 
+// ICONS
+import leftArrow from '../../assets/images/leftArrow.svg';
+import rightArrow from '../../assets/images/rightArrow.svg';
+import undoIcon from '../../assets/images/undo.svg';
+import uploadIcon from '../../assets/images/upload.svg';
+import planeIcon from '../../assets/images/plane.svg';
+import pointIcon from '../../assets/images/point.svg';
+import closeIcon from '../../assets/images/close.svg';
 
-// const containerStyle = css`
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   width: 100vw;
-//   height: 100vh;
-// `
 
 
 function Game(props) {
-
     const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
+    const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
+    // const [newAssetsId, setNewAssetsId] = createSignal([])
 
     const newAssetsId = [];
     let interactiveElements = null;
@@ -47,10 +48,9 @@ function Game(props) {
         // else {
         if (canEdit()) {
             Reticle.set({
-                color: 0xcccccc,
                 radius: 0.15,
                 innerRadius: 0.12,
-                segments: 32,
+                segments: 48,
             });
         }
 
@@ -133,6 +133,11 @@ function Game(props) {
     };
 
 
+    const handleUsePlaneDetection = () => {
+        setUsePlaneDetection(() => !usePlaneDetection());
+    }
+
+
     ///
     // STYLES
     const Container = styled('div')`
@@ -162,14 +167,18 @@ function Game(props) {
     `
 
     const Bttn = styled('button')`
-        width: 55px;
-        height: 55px;
+        width: 53px;
+        height: 53px;
         border-radius: 50%;
         border: none;
         outline: none;
-        background-color: rgba(0,0,0,0.3);
         margin: 20px;
         visibility: ${props => props.visible ? 'visible' : 'hidden'};
+        opacity: ${props => props.active ? 1 : 0.7};
+        background: rgba(68, 68, 68, 0.5);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(7.1px);
     `
 
 
@@ -184,35 +193,47 @@ function Game(props) {
 
 
     return (
-        <Container id="playground-container">
+        <Container id="game-container">
 
             <ContainerTopButtons>
-                <Bttn data-interactive onClick={handleClose}>
-                    <img src={'images/close.png'} />
+                <Bttn data-interactive
+                    onClick={handleClose}>
+                    <img src={closeIcon} style="width: 10px" />
                 </Bttn>
             </ContainerTopButtons>
 
             {props.currentMode === AppMode.SAVE &&
 
-                <ContainerSideButtons>
-                    <ToggleBttn data-interactive visible={true} active={canEdit()}
+                <ContainerSideButtons data-interactive>
+
+                    <Bttn data-interactive
+                        active={true}
+                        visible={true}
                         onClick={handleToggleEdit}>
-                        <img src={'images/edit.png'} />
-                    </ToggleBttn>
-                    <Bttn data-interactive visible={canEdit()}
-                        onClick={console.log('')}>
-                        <img src={'images/point.png'} />
+                        <img src={canEdit() ? leftArrow : rightArrow} style="width: 25px" />
                     </Bttn>
 
-                    <Bttn data-interactive visible={canEdit()}
+                    <Bttn data-interactive
+                        active={true}
+                        visible={canEdit()}
+                        onClick={handleUsePlaneDetection}>
+                        <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 27px" />
+                    </Bttn>
+
+                    <Bttn data-interactive
+                        active={true}
+                        visible={canEdit()}
                         onClick={handleSaveData}>
-                        <img src={'images/save.png'} />
+                        <img src={uploadIcon} style="width: 20px" />
                     </Bttn>
 
-                    <Bttn data-interactive visible={canEdit()}
+                    <Bttn data-interactive
+                        active={true}
+                        visible={canEdit()}
                         onClick={handleUndo}>
-                        <img src={'images/undo.png'} />
+                        <img src={undoIcon} style="width: 20px" />
                     </Bttn>
+
                 </ContainerSideButtons>
             }
         </Container>
