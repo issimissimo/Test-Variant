@@ -8,6 +8,9 @@ import uploadIcon from '../../assets/images/upload.svg';
 import planeIcon from '../../assets/images/plane.svg';
 import pointIcon from '../../assets/images/point.svg';
 import closeIcon from '../../assets/images/close.svg';
+import qrCodeIcon from '../../assets/images/qrCode.svg';
+import plusIcon from '../../assets/images/plus.svg';
+import minusIcon from '../../assets/images/minus.svg';
 
 
 
@@ -17,6 +20,28 @@ export default function Playground(props) {
     const [buttonActive, setButtonActive] = createSignal(true);
 
     const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
+    const [newAssetsId, setNewAssetsId] = createSignal([]);
+
+    const addElementToArray = (element) => {
+        setNewAssetsId(prev => [...prev, element]);
+    };
+
+    const removeLastElementFromArray = () => {
+        const array = newAssetsId();
+        const lastElement = array[array.length -1]
+        console.log('last element:', lastElement)
+        setNewAssetsId(prev => {
+            if (prev.length === 0) return prev;
+            return prev.slice(0, -1);
+        });
+        console.log(newAssetsId())
+    };
+
+    addElementToArray('pippo')
+    addElementToArray('pluto')
+    removeLastElementFromArray();
+    removeLastElementFromArray();
+
 
     const handleDisableTap = () => {
         console.log("YEEEEEEEEEEEE")
@@ -44,7 +69,7 @@ export default function Playground(props) {
 
 
     const Container = styled('div')`
-    position: fixed;
+        position: fixed;
         top: 0;
         left: 0;
         width: 100vw;
@@ -55,7 +80,7 @@ export default function Playground(props) {
     const ContainerSideButtons = styled('div')`
         position: absolute;
         left:0;
-        top:30%;
+        top:20%;
         height: 50vh;
         display: flex;
         flex-direction: column-reverse;
@@ -71,21 +96,25 @@ export default function Playground(props) {
     `
 
     const Bttn = styled('button')`
-        width: 53px;
-        height: 53px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
         border: none;
         outline: none;
         margin: 20px;
         visibility: ${props => props.visible ? 'visible' : 'hidden'};
-        opacity: ${props => props.active ? 1 : 0.7};
+        opacity: ${props => props.active ? 1 : 0.3};
 
-        background: rgba(68, 68, 68, 0.5);
+        background: rgba(68, 68, 68, 0.4);
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(7.1px);
     `
 
+    const BorderBttn = styled(Bttn)`
+        border: 1px solid;
+        border-color: rgb(179, 179, 179);
+    `
 
 
 
@@ -97,28 +126,33 @@ export default function Playground(props) {
     return (
         <Container id="playground-container">
             <ContainerTopButtons>
-                <Bttn active={true}
-                    visible={true}>
-                    <img src={closeIcon} style="width: 10px" />
+                <Bttn data-interactive
+                    active={true}
+                    visible={buttonActive()}>
+                    <img src={qrCodeIcon} style="width: 25px" />
                 </Bttn>
+                <BorderBttn active={true}
+                    visible={true}>
+                    <img src={closeIcon} style="width: 12px" />
+                </BorderBttn>
             </ContainerTopButtons>
 
             <ContainerSideButtons>
 
-                <Bttn data-interactive
+                <BorderBttn data-interactive
                     onClick={toggle}
                     active={true}
                     visible={true}
                 >
-                    <img src={buttonActive()? leftArrow : rightArrow} style="width: 25px"/>
-                </Bttn>
+                    <img src={buttonActive() ? minusIcon : plusIcon} style="width: 20px" />
+                </BorderBttn>
 
 
                 <Bttn data-interactive
                     onClick={() => { setUsePlaneDetection(() => !usePlaneDetection()) }}
                     active={true}
                     visible={buttonActive()}>
-                    <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 27px" />
+                    <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 25px" />
                 </Bttn>
 
 
@@ -129,7 +163,7 @@ export default function Playground(props) {
                 </Bttn>
 
                 <Bttn data-interactive visible={buttonActive()}
-                    active={true}>
+                    active={newAssetsId().length !== 0}>
                     <img src={undoIcon} style="width: 20px" />
                 </Bttn>
 

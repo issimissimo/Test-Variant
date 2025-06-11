@@ -38,11 +38,12 @@ export default function ArSession(props) {
     const [planeFound, setPlaneFound] = createSignal(false);
     const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
     const [tapEnabled, setTapEnabled] = createSignal(true);
+    const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
 
     let calibrationCompleted = false;
 
     createEffect(() => {
-        console.log('tap enabled:', tapEnabled())
+        console.log('> tap enabled:', tapEnabled())
     })
 
 
@@ -247,6 +248,8 @@ export default function ArSession(props) {
      */
     const onTapOnScreen = () => {
 
+        console.log('>> onTapOnScreen:', tapEnabled())
+
         // Stop here if it's a DOM event
         if (!tapEnabled()) {
             setTapEnabled(() => true);
@@ -256,6 +259,7 @@ export default function ArSession(props) {
         if (Reticle.isHitting()) {
             const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
             setHitMatrix(() => reticleMatrix);
+            console.log("MATRICE CAMBIATA!")
 
             if (!calibrationCompleted) {
 
