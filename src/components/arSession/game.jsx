@@ -23,7 +23,8 @@ function Game(props) {
     const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
     const [newAssetsId, setNewAssetsId] = createSignal([])
 
-    let interactiveElements = null;
+    let _interactiveElements = null;
+    let _isUndo = false;
 
     const handleDisableTap = (e) => {
         props.disableTap;
@@ -33,11 +34,8 @@ function Game(props) {
     onMount(() => {
         // Disable TAP event
         // when a DOM interactive element is selected
-        interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
-        // console.log("--------------")
-        // console.log("interactive elements:", interactiveElements)
-        // console.log("--------------")
-        interactiveElements.forEach(element => {
+        _interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
+        _interactiveElements.forEach(element => {
             element.addEventListener('pointerdown', handleDisableTap);
             element.addEventListener('touchstart', handleDisableTap);
         });
@@ -54,97 +52,73 @@ function Game(props) {
 
 
     onCleanup(() => {
-        interactiveElements.forEach(element => {
+        _interactiveElements.forEach(element => {
             element.removeEventListener('pointerdown', handleDisableTap);
             element.removeEventListener('touchstart', handleDisableTap);
         });
     })
 
 
-    // createEffect(() => {
-
-    //     console.log("EFFECT.....")
-    //     // When we receive the hitMatrix from TAP,
-    //     // we must initialize AssetManager, if not yet initialized
-    //     if (!AssetManager.initialized()) {
-    //         AssetManager.init(props.scene, props.hitMatrix);
-    //         console.log("AssetManager initialized!")
-
-    //         // Next, if we have data,
-    //         // we use them to spawn saved assets
-    //         if (props.data) {
-    //             AssetManager.importFromJSON(props.data);
-    //             AssetManager.loadAllAssets();
-    //         }
-    //     }
-
-    //     // If AssetManager alreay initialized,
-    //     // we create an asset
-    //     else {
-    //         createAssetOnTap(props.hitMatrix)
-    //     }
-    // })
 
     createEffect(() => {
-
-        // console.log("1 --- EFFECT.....")
-        // // When we receive the hitMatrix from TAP,
-        // // we must initialize AssetManager, if not yet initialized
+        console.log("--- createEffect ---")
+        // When we receive the hitMatrix from TAP,
+        // we must initialize AssetManager, if not yet initialized
         if (!AssetManager.initialized()) {
             AssetManager.init(props.scene, props.hitMatrix);
             console.log("AssetManager initialized!")
 
-            // // Next, if we have data,
-            // // we use them to spawn saved assets
-            // if (props.data) {
-            //     AssetManager.importFromJSON(props.data);
-            //     AssetManager.loadAllAssets();
-            // }
+            // Next, if we have data,
+            // we use them to spawn saved assets
+            if (props.data) {
+                AssetManager.importFromJSON(props.data);
+                AssetManager.loadAllAssets();
+            }
         }
         else {
-            console.log("2 --- EFFECT.....", props.hitMatrix)
             createAssetOnTap(props.hitMatrix)
         }
-
-
-
-        // // If AssetManager alreay initialized,
-        // // we create an asset
-        // else {
-        //     createAssetOnTap(props.hitMatrix)
-        // }
     })
 
 
     const createAssetOnTap = (matrix) => {
-        // if (props.canEdit) {
+        // // What the fuck!!!!
+        // if (_isUndo) {
+        //     _isUndo = false;
+        //     return;
+        // }
+        if (!_isUndo) {
             console.log('adesso devo creare un asset...')
             // const asset = AssetManager.addAsset('baloon', 'baloons.glb', { matrix: props.hitMatrix });
             const asset = AssetManager.addAsset('gizmo', 'gizmo.glb', { matrix: matrix });
             AssetManager.loadAsset(asset.id);
             setNewAssetsId(prev => [...prev, asset.id]);
             console.log('adesso i nuovi asset sono:', newAssetsId())
-        // }
+        }
     }
 
 
     ///
     // BUTTONS HANDLERS
     const handleSaveData = async () => {
-        const data = AssetManager.exportToJSON();
-        await props.saveData(data)
-        console.log("DATA SAVED!")
+        if (newAssetsId().length !== 0) {
+            const data = AssetManager.exportToJSON();
+            await props.saveData(data)
+            console.log("DATA SAVED!")
+        }
     }
 
     const handleUndo = () => {
         if (newAssetsId().length !== 0) {
+            _isUndo = true;
             console.log('adesso cancello ultimo asset...')
             console.log('prima:', newAssetsId())
-            const array = newAssetsId();
+            const array = [...newAssetsId()];
             const id = array.pop();
             AssetManager.removeAsset(id);
-            setNewAssetsId(() => array)
+            setNewAssetsId(array)
             console.log('dopo:', newAssetsId())
+            setTimeout(() => { _isUndo = false }, 100)
         }
     }
 
@@ -202,7 +176,7 @@ function Game(props) {
         margin: 20px;
         visibility: ${props => props.visible ? 'visible' : 'hidden'};
         opacity: ${props => props.active ? 1 : 0.3};
-        background: rgba(68, 68, 68, 0.4);
+        background: rgba(68, 68, 68, 0.2);
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(7.1px);
@@ -252,7 +226,7 @@ function Game(props) {
                     </Bttn>
 
                     <Bttn data-interactive
-                        active={true}
+                        active={newAssetsId().length !== 0}
                         visible={props.canEdit}
                         onClick={handleSaveData}>
                         <img src={uploadIcon} style="width: 20px" />
