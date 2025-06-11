@@ -19,7 +19,7 @@ import minusIcon from '../../assets/images/minus.svg';
 
 
 function Game(props) {
-    const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
+    // const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
     const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
     const [newAssetsId, setNewAssetsId] = createSignal([])
 
@@ -42,7 +42,7 @@ function Game(props) {
             element.addEventListener('touchstart', handleDisableTap);
         });
 
-        if (canEdit()) {
+        if (props.canEdit) {
             Reticle.set({
                 color: 0xcccccc,
                 radius: 0.15,
@@ -61,40 +61,70 @@ function Game(props) {
     })
 
 
+    // createEffect(() => {
+
+    //     console.log("EFFECT.....")
+    //     // When we receive the hitMatrix from TAP,
+    //     // we must initialize AssetManager, if not yet initialized
+    //     if (!AssetManager.initialized()) {
+    //         AssetManager.init(props.scene, props.hitMatrix);
+    //         console.log("AssetManager initialized!")
+
+    //         // Next, if we have data,
+    //         // we use them to spawn saved assets
+    //         if (props.data) {
+    //             AssetManager.importFromJSON(props.data);
+    //             AssetManager.loadAllAssets();
+    //         }
+    //     }
+
+    //     // If AssetManager alreay initialized,
+    //     // we create an asset
+    //     else {
+    //         createAssetOnTap(props.hitMatrix)
+    //     }
+    // })
+
     createEffect(() => {
 
-        console.log("EFFECT.....")
-        // When we receive the hitMatrix from TAP,
-        // we must initialize AssetManager, if not yet initialized
+        // console.log("1 --- EFFECT.....")
+        // // When we receive the hitMatrix from TAP,
+        // // we must initialize AssetManager, if not yet initialized
         if (!AssetManager.initialized()) {
             AssetManager.init(props.scene, props.hitMatrix);
             console.log("AssetManager initialized!")
 
-            // Next, if we have data,
-            // we use them to spawn saved assets
-            if (props.data) {
-                AssetManager.importFromJSON(props.data);
-                AssetManager.loadAllAssets();
-            }
+            // // Next, if we have data,
+            // // we use them to spawn saved assets
+            // if (props.data) {
+            //     AssetManager.importFromJSON(props.data);
+            //     AssetManager.loadAllAssets();
+            // }
         }
-
-        // If AssetManager alreay initialized,
-        // we create an asset
         else {
+            console.log("2 --- EFFECT.....", props.hitMatrix)
             createAssetOnTap(props.hitMatrix)
         }
+
+
+
+        // // If AssetManager alreay initialized,
+        // // we create an asset
+        // else {
+        //     createAssetOnTap(props.hitMatrix)
+        // }
     })
 
 
     const createAssetOnTap = (matrix) => {
-        if (canEdit()) {
+        // if (props.canEdit) {
             console.log('adesso devo creare un asset...')
             // const asset = AssetManager.addAsset('baloon', 'baloons.glb', { matrix: props.hitMatrix });
             const asset = AssetManager.addAsset('gizmo', 'gizmo.glb', { matrix: matrix });
             AssetManager.loadAsset(asset.id);
             setNewAssetsId(prev => [...prev, asset.id]);
-            console.log('adesso gli asset creati sono:', newAssetsId())
-        }
+            console.log('adesso i nuovi asset sono:', newAssetsId())
+        // }
     }
 
 
@@ -119,8 +149,8 @@ function Game(props) {
     }
 
     const handleToggleEdit = () => {
-        setCanEdit(!canEdit());
-        Reticle.setVisible(canEdit());
+        props.setCanEdit(!props.canEdit);
+        Reticle.setHidden(!props.canEdit);
     }
 
     const handleClose = () => {
@@ -193,7 +223,7 @@ function Game(props) {
             <ContainerTop>
                 <Bttn data-interactive
                     active={true}
-                    visible={canEdit()}
+                    visible={props.canEdit}
                     onClick={handleShowQrCode}>
                     <img src={qrCodeIcon} style="width: 25px" />
                 </Bttn>
@@ -211,26 +241,26 @@ function Game(props) {
                         active={true}
                         visible={true}
                         onClick={handleToggleEdit}>
-                        <img src={canEdit() ? minusIcon : plusIcon} style="width: 20px" />
+                        <img src={props.canEdit ? minusIcon : plusIcon} style="width: 20px" />
                     </BorderBttn>
 
                     <Bttn data-interactive
                         active={true}
-                        visible={canEdit()}
+                        visible={props.canEdit}
                         onClick={handleUsePlaneDetection}>
                         <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 25px" />
                     </Bttn>
 
                     <Bttn data-interactive
                         active={true}
-                        visible={canEdit()}
+                        visible={props.canEdit}
                         onClick={handleSaveData}>
                         <img src={uploadIcon} style="width: 20px" />
                     </Bttn>
 
                     <Bttn data-interactive
                         active={newAssetsId().length !== 0}
-                        visible={canEdit()}
+                        visible={props.canEdit}
                         onClick={handleUndo}>
                         <img src={undoIcon} style="width: 20px" />
                     </Bttn>

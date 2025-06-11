@@ -248,6 +248,8 @@ export default function ArSession(props) {
      */
     const onTapOnScreen = () => {
 
+        if (!canEdit()) return;
+
         console.log('>> onTapOnScreen:', tapEnabled())
 
         // Stop here if it's a DOM event
@@ -344,6 +346,8 @@ export default function ArSession(props) {
                 return <Game
                     currentMode={props.currentMode}
                     disableTap={setTapEnabled(() => false)}
+                    canEdit={canEdit()}
+                    setCanEdit={(value) => setCanEdit(() => value)}
                     marker={props.marker}
                     saveData={(data) => handleSaveMarkerData(data)}
                     scene={SceneManager.scene}

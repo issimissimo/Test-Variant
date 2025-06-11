@@ -10,6 +10,7 @@ let _hitTestSource = null;
 let _hitTestSourceRequested = false;
 let _isHitting = false;
 let _surfType = null;
+let _hidden = false;
 
 // Variabili per il Piano di riferimento per l'orientamento del reticolo
 let _geomLookAt = null;
@@ -149,6 +150,11 @@ const Reticle = {
      * @returns {void}
      */
     update(frame, callback) {
+        if (_hidden){
+            _mesh.visible = false;
+            return;
+        }
+
         if (!_initialized) {
             console.error("Reticle is not set");
             return;
@@ -241,18 +247,16 @@ const Reticle = {
         return _mesh.matrix;
     },
 
-    setVisible(value) {
+    setHidden(value) {
         if (!_initialized) {
             console.error("Reticle is not set");
             return;
         }
-        console.log('setVisible:', value)
-        _mesh.visible = value;
-        console.log('mesh visible:', _mesh.visible)
+        _hidden = value;
     },
 
-    visible() {
-        return _mesh.visible;
+    hidden() {
+        return _hidden;
     },
 
     surfType() {
