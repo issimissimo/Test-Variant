@@ -138,6 +138,7 @@ function Game(props) {
 
     const handleTogglePlaneDetection = () => {
         setUsePlaneDetection(() => !usePlaneDetection());
+        Reticle.setUsePlaneDetection(usePlaneDetection());
     }
 
 

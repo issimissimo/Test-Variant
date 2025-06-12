@@ -204,6 +204,7 @@ export default function ArSession(props) {
             Reticle.set({
                 renderer: SceneManager.renderer,
                 scene: SceneManager.scene,
+                camera: SceneManager.camera,
                 color: 0x00ff00,
                 radius: 0.06,
                 innerRadius: 0.05,

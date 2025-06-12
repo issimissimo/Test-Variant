@@ -1,16 +1,34 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import {
+    Vector3,
+    Quaternion,
+    Matrix4,
+    PlaneGeometry,
+    Mesh,
+    MeshBasicMaterial,
+    RingGeometry,
+    DoubleSide,
+    Scene,
+    Camera,
+    WebGLRenderer
+} from 'three';
+
 
 let _renderer = null;
 let _scene = null;
-let _mesh = null;
+let _camera = null;
+let _planeMesh = null;
+let _circleMesh = null;
 
 // Elementi di stato
 let _hitTestSource = null;
 let _hitTestSourceRequested = false;
 let _isHitting = false;
 let _surfType = null;
-let _hidden = false;
+let _planeHidden = false;
+let _circleHidden = false;
+let _reticleMode = null;
 
 // Variabili per il Piano di riferimento per l'orientamento del reticolo
 let _geomLookAt = null;
@@ -30,13 +48,13 @@ function _addPlaneForReticleSurface() {
     );
     _reticleLookAt.translateY(.3);
     _reticleLookAt.visible = false;
-    _mesh.add(_reticleLookAt);
+    _planeMesh.add(_reticleLookAt);
 }
 
 
 function _getReticleSurface() {
     _reticleLookAt.getWorldPosition(_reticleWorldPosition);
-    _mesh.getWorldPosition(_reticleLookAtWorldPosition);
+    _planeMesh.getWorldPosition(_reticleLookAtWorldPosition);
     _reticleDirection.subVectors(_reticleWorldPosition, _reticleLookAtWorldPosition).normalize();
     if (_reticleDirection.y == 1) {
         return 'floor';
@@ -51,23 +69,23 @@ function _getReticleSurface() {
 function _alignZAxisWithUp() {
     // Calcola l'attuale direzione dell'asse Z della mesh
     const zAxis = new THREE.Vector3(0, 0, 1);
-    zAxis.applyQuaternion(_mesh.quaternion);
+    zAxis.applyQuaternion(_planeMesh.quaternion);
     // Vettore di riferimento per "l'alto" (solitamente l'asse Y nel sistema di coordinate globale)
     const upVector = new THREE.Vector3(0, 1, 0);
     // Calcola l'angolo tra l'asse Z attuale e il vettore UP
     const quaternion = new THREE.Quaternion();
     quaternion.setFromUnitVectors(zAxis, upVector);
     // Applica questa rotazione correttiva
-    _mesh.quaternion.premultiply(quaternion);
+    _planeMesh.quaternion.premultiply(quaternion);
     // Aggiorna la matrice dell'oggetto
-    _mesh.updateMatrix();
+    _planeMesh.updateMatrix();
 }
 
 
 function _setReticlePropertiers() {
-    _mesh.matrixAutoUpdate = false;
-    _mesh.visible = false;
-    _scene.add(_mesh);
+    _planeMesh.matrixAutoUpdate = false;
+    _planeMesh.visible = false;
+    _scene.add(_planeMesh);
     _addPlaneForReticleSurface();
     _initialized = true;
 }
@@ -80,6 +98,12 @@ const _options = {
     color: 0x00ff00
 }
 
+const MODE = {
+    PLANE: 'plane',
+    FREE: 'free'
+}
+
+
 
 
 const Reticle = {
@@ -89,6 +113,7 @@ const Reticle = {
      * @param {Object} [options={}] - Oggetto delle opzioni di configurazione.
      * @param {THREE.WebGLRenderer} [options.renderer] - Il renderer da utilizzare.
      * @param {THREE.Scene} [options.scene] - La scena a cui aggiungere il reticolo.
+     * @param {THREE.Camera} [options.camera] - La camera a cui aggiungere il cerchio.
      * @param {string} [options.fileName] - Il percorso del file GLTF da caricare come mesh del reticolo.
      * @param {number} [options.radius] - Il raggio esterno del reticolo.
      * @param {number} [options.innerRadius] - Il raggio interno del reticolo.
@@ -99,8 +124,9 @@ const Reticle = {
 
         if (options.renderer) _renderer = options.renderer;
         if (options.scene) _scene = options.scene;
+        if (options.camera) _camera = options.camera;
 
-        if (!_renderer || !_scene) {
+        if (!_renderer || !_scene || !_camera) {
             console.error("XrReticle: renderer or scene not set");
             return;
         }
@@ -117,7 +143,7 @@ const Reticle = {
                 (gltf) => {
                     const r = gltf.scene;
                     const ref = r.children[0];
-                    _mesh = ref.clone();
+                    _planeMesh = ref.clone();
                     _setReticlePropertiers();
                 },
                 (xhr) => {
@@ -136,9 +162,21 @@ const Reticle = {
             const material = new THREE.MeshBasicMaterial({
                 color: _options.color || 0xffffff, side: THREE.DoubleSide
             });
-            _mesh = new THREE.Mesh(ringGeometry, material);
+            _planeMesh = new THREE.Mesh(ringGeometry, material);
             _setReticlePropertiers();
         }
+
+        // Add the circle in front of the camera
+        // to use in place of plane detection
+        const circleGeometry = new THREE.RingGeometry(0, 0.2, 24);
+        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        _circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
+        _camera.add(_circleMesh);
+        _circleMesh.position.z = -1;
+        _scene.add(_camera);
+
+        // At the end, we set the default mode
+        setUsePlaneDetection(true)
     },
 
     /**
@@ -150,8 +188,8 @@ const Reticle = {
      * @returns {void}
      */
     update(frame, callback) {
-        if (_hidden){
-            _mesh.visible = false;
+        if (_planeHidden) {
+            _planeMesh.visible = false;
             return;
         }
 
@@ -185,7 +223,7 @@ const Reticle = {
             if (hitTestResults.length) {
 
                 _isHitting = true;
-                _mesh.visible = true;
+                _planeMesh.visible = true;
 
                 const hit = hitTestResults[0];
                 const pose = hit.getPose(referenceSpace);
@@ -196,9 +234,9 @@ const Reticle = {
                 let quat = new THREE.Quaternion();
                 let scale = new THREE.Vector3();
                 threeMatrix.decompose(pos, quat, scale);
-                _mesh.position.copy(pos);
-                _mesh.quaternion.copy(quat);
-                _mesh.updateMatrix(); ////// NON QUI!!!!!!!!
+                _planeMesh.position.copy(pos);
+                _planeMesh.quaternion.copy(quat);
+                _planeMesh.updateMatrix(); ////// NON QUI!!!!!!!!
 
                 _surfType = _getReticleSurface();
                 if (_surfType == 'wall') _alignZAxisWithUp();
@@ -209,7 +247,7 @@ const Reticle = {
 
             } else {
                 _isHitting = false;
-                _mesh.visible = false;
+                _planeMesh.visible = false;
                 _surfType = null;
             }
         }
@@ -228,7 +266,7 @@ const Reticle = {
             console.error("Reticle is not set");
             return;
         }
-        return _mesh.position;
+        return _planeMesh.position;
     },
 
     getHitQuaternion() {
@@ -236,7 +274,7 @@ const Reticle = {
             console.error("Reticle is not set");
             return;
         }
-        return _mesh.quaternion;
+        return _planeMesh.quaternion;
     },
 
     getHitMatrix() {
@@ -244,19 +282,21 @@ const Reticle = {
             console.error("Reticle is not set");
             return;
         }
-        return _mesh.matrix;
+        if (_reticleMode === MODE.PLANE) return _planeMesh.matrix;
+        return _circleMesh.matrixWorld;
     },
+
 
     setHidden(value) {
         if (!_initialized) {
             console.error("Reticle is not set");
             return;
         }
-        _hidden = value;
+        _planeHidden = value;
     },
 
     hidden() {
-        return _hidden;
+        return _planeHidden;
     },
 
     surfType() {
@@ -265,7 +305,25 @@ const Reticle = {
             return;
         }
         return _surfType;
-    }
+    },
+
+    setUsePlaneDetection(value) {
+        _reticleMode = value ? MODE.PLANE : MODE.FREE;
+
+        console.log('reticle MODE:', _reticleMode)
+
+        // switch (_reticleMode) {
+        //     case MODE.PLANE:
+        //     console.log("PLANE MODE");
+        //     _circleMesh.visible = false;
+
+        //     case MODE.FREE:
+        //     console.log("FREE MODE");
+
+
+        // }
+
+    },
 }
 
 export default Reticle;   
