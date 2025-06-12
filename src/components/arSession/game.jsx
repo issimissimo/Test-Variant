@@ -19,27 +19,34 @@ import minusIcon from '../../assets/images/minus.svg';
 
 
 function Game(props) {
-    // const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
-    const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
-    const [newAssetsId, setNewAssetsId] = createSignal([])
 
-    let _interactiveElements = null;
+    //#region [constants]
+
+    const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
+    const [newAssetsId, setNewAssetsId] = createSignal([]);
+    const [messageOpen, setMessageOpen] = createSignal(false);
+    const [message, setMessage] = createSignal(null)
+
+    let _interactiveElements = [];
     let _isUndo = false;
 
-    const handleDisableTap = (e) => {
-        props.disableTap;
-        e.stopPropagation();
-    };
+
+
+
+
+
+    //#region [lifeCycle]
 
     onMount(() => {
         // Disable TAP event
-        // when a DOM interactive element is selected
+        // when a DOM interactive element is clicked
         _interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
         _interactiveElements.forEach(element => {
-            element.addEventListener('pointerdown', handleDisableTap);
-            element.addEventListener('touchstart', handleDisableTap);
+            element.addEventListener('pointerdown', disableTap);
+            element.addEventListener('touchstart', disableTap);
         });
 
+        // Set Reticle
         if (props.canEdit) {
             Reticle.set({
                 color: 0xcccccc,
@@ -53,15 +60,14 @@ function Game(props) {
 
     onCleanup(() => {
         _interactiveElements.forEach(element => {
-            element.removeEventListener('pointerdown', handleDisableTap);
-            element.removeEventListener('touchstart', handleDisableTap);
+            element.removeEventListener('pointerdown', disableTap);
+            element.removeEventListener('touchstart', disableTap);
         });
     })
 
 
 
     createEffect(() => {
-        console.log("--- createEffect ---")
         // When we receive the hitMatrix from TAP,
         // we must initialize AssetManager, if not yet initialized
         if (!AssetManager.initialized()) {
@@ -81,32 +87,20 @@ function Game(props) {
     })
 
 
-    const createAssetOnTap = (matrix) => {
-        // // What the fuck!!!!
-        // if (_isUndo) {
-        //     _isUndo = false;
-        //     return;
-        // }
-        if (!_isUndo) {
-            console.log('adesso devo creare un asset...')
-            // const asset = AssetManager.addAsset('baloon', 'baloons.glb', { matrix: props.hitMatrix });
-            const asset = AssetManager.addAsset('gizmo', 'gizmo.glb', { matrix: matrix });
-            AssetManager.loadAsset(asset.id);
-            setNewAssetsId(prev => [...prev, asset.id]);
-            console.log('adesso i nuovi asset sono:', newAssetsId())
-        }
-    }
 
 
-    ///
-    // BUTTONS HANDLERS
+
+    //#region [handlers]
+
     const handleSaveData = async () => {
         if (newAssetsId().length !== 0) {
             const data = AssetManager.exportToJSON();
             await props.saveData(data)
             console.log("DATA SAVED!")
+            setupMessage('Dati salvati')
         }
     }
+
 
     const handleUndo = () => {
         if (newAssetsId().length !== 0) {
@@ -130,17 +124,50 @@ function Game(props) {
     const handleClose = () => {
     }
 
-    const handleShowQrCode = () => {
-
+    const handleToggleQrCode = () => {
+        setMessageOpen(() => !messageOpen());
+        console.log(messageOpen())
     }
 
-    const handleUsePlaneDetection = () => {
+    const handleTogglePlaneDetection = () => {
         setUsePlaneDetection(() => !usePlaneDetection());
     }
 
 
-    ///
-    // STYLES
+
+
+    //#region [functions]
+
+    const disableTap = (e) => {
+        props.disableTap;
+        e.stopPropagation();
+    };
+
+    const createAssetOnTap = (matrix) => {
+        if (!_isUndo) {
+            console.log('adesso devo creare un asset...')
+            // const asset = AssetManager.addAsset('baloon', 'baloons.glb', { matrix: props.hitMatrix });
+            const asset = AssetManager.addAsset('gizmo', 'gizmo.glb', { matrix: matrix });
+            AssetManager.loadAsset(asset.id);
+            setNewAssetsId(prev => [...prev, asset.id]);
+            console.log('adesso i nuovi asset sono:', newAssetsId())
+        }
+    }
+
+    const setupMessage = (msg, autoClose = true, closeTime = 5000) => {
+        setMessage(() => msg);
+        if (autoClose) {
+            setTimeout(() => {
+                setMessage(() => null)
+            }, closeTime)
+        }
+    }
+
+
+
+
+    //#region [style]
+
     const ContainerMain = styled('div')`
         position: fixed;
         top: 0;
@@ -167,6 +194,31 @@ function Game(props) {
         justify-content: end;
     `
 
+    const ContainerCenter = styled('div')`
+        position: absolute;
+        top: 0;
+        left:0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* z-index: 1000; */
+        visibility: ${props => props.visible ? 'visible' : 'hidden'};
+    `
+
+    const ContainerMessage = styled('div')`
+        background-color: #222222;
+        min-height: 40px;
+        /* height: 100px; */
+        width: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 20px;
+        visibility: ${props => props.visible ? 'visible' : 'hidden'};
+    `
+
     const Bttn = styled('button')`
         width: 50px;
         height: 50px;
@@ -183,7 +235,7 @@ function Game(props) {
     `
 
     const BorderBttn = styled(Bttn)`
-        border: 1px solid;
+        border: 2px solid;
         border-color: rgb(179, 179, 179);
     `
 
@@ -191,14 +243,32 @@ function Game(props) {
 
 
 
+    //#region [return]
+
     return (
         <ContainerMain id="game-container">
 
+            {/* <ContainerCenter
+                visible={messageOpen()}>
+                <ContainerMessage
+                    visible={message()}>
+                    message
+                </ContainerMessage>
+            </ContainerCenter> */}
+
+            <ContainerCenter
+                visible={true}>
+                <ContainerMessage
+                    visible={message() ? true : false}>
+                    {message()}
+                </ContainerMessage>
+            </ContainerCenter>
+
             <ContainerTop>
                 <Bttn data-interactive
-                    active={true}
+                    active={props.data ? true : false}
                     visible={props.canEdit}
-                    onClick={handleShowQrCode}>
+                    onClick={handleToggleQrCode}>
                     <img src={qrCodeIcon} style="width: 25px" />
                 </Bttn>
                 <BorderBttn data-interactive
@@ -221,7 +291,7 @@ function Game(props) {
                     <Bttn data-interactive
                         active={true}
                         visible={props.canEdit}
-                        onClick={handleUsePlaneDetection}>
+                        onClick={handleTogglePlaneDetection}>
                         <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 25px" />
                     </Bttn>
 
@@ -243,39 +313,5 @@ function Game(props) {
 
         </ContainerMain>
     );
-
-
-    // return (
-    //     <div>
-    //         <div class={containerStyle}>
-
-    //             {props.currentMode === AppMode.SAVE &&
-
-    //                 <div>
-
-    //                     <button onClick={() => {
-    //                         const data = AssetManager.exportToJSON();
-    //                         props.saveData(data)
-    //                     }} >SAVE DATA</button>
-
-    //                     <button onClick={undo}>UNDO</button>
-
-
-    //                 </div>
-    //             }
-
-    //             <button onClick={console.log('close')} >CLOSE</button>
-
-    //         </div>
-
-    //         <p>
-    //             {props.marker.name}
-    //         </p>
-    //         <p>
-    //             {JSON.stringify(props.data)}
-    //         </p>
-    //     </div>
-    // )
-
 }
 export default Game

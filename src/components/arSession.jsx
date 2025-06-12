@@ -1,6 +1,5 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
-import { css } from 'goober';
 import { AppMode } from '../app';
 import { config } from '../config';
 
@@ -31,6 +30,9 @@ const VIEWS = {
 
 
 export default function ArSession(props) {
+
+    //#region [constants]
+
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
     const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
@@ -41,6 +43,11 @@ export default function ArSession(props) {
     const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
 
     let calibrationCompleted = false;
+
+
+    
+
+    //#region [lifeCycle]
 
     createEffect(() => {
         console.log('> tap enabled:', tapEnabled())
@@ -87,6 +94,8 @@ export default function ArSession(props) {
         else console.error("AppMode not specified")
     })
 
+
+    //#region [handlers]
 
 
     /**
@@ -174,6 +183,7 @@ export default function ArSession(props) {
     }
 
 
+    //#region [functions]
 
     /**
      * Initialize the XR scene just when a marker is loaded,
@@ -371,9 +381,8 @@ export default function ArSession(props) {
 
 
 
-    /**
-     * Return
-     */
+    //#region [return]
+
     return (
         <div id="arSession">
             {renderView()}

@@ -29,5 +29,15 @@
     "solid-transition-group": "^0.0.10",
     "spin.js": "^4.1.2",
     "three": "^0.153.0"
+  },
+  "coloredRegions": {
+    "namedColors": {
+      "constants": "rgba(26, 42, 108, 0.1)",
+      "lifeCycle": "rgba(63, 181, 140, 0.04)",
+      "handlers": "rgba(163, 214, 92, 0.04)",
+      "functions": "rgba(246, 195, 67, 0.04)",
+      "style": "rgba(192, 90, 148, 0.04)",
+      "return": "rgba(215, 38, 56, 0.04)"
+    }
   }
 }
