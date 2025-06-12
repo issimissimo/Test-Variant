@@ -358,6 +358,7 @@ export default function ArSession(props) {
                     disableTap={setTapEnabled(() => false)}
                     canEdit={canEdit()}
                     setCanEdit={(value) => setCanEdit(() => value)}
+                    userId={props.userId}
                     marker={props.marker}
                     saveData={(data) => handleSaveMarkerData(data)}
                     scene={SceneManager.scene}

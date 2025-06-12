@@ -3,6 +3,7 @@ import { styled } from 'solid-styled-components';
 import { AppMode } from '../../app';
 import AssetManager from '../../xr/assetManager';
 import Reticle from '../../xr/reticle';
+import { generateQRCodeForForMarker } from '../../hooks/useQRCode';
 
 // ICONS
 import leftArrow from '../../assets/images/leftArrow.svg';
@@ -24,7 +25,7 @@ function Game(props) {
 
     const [usePlaneDetection, setUsePlaneDetection] = createSignal(true);
     const [newAssetsId, setNewAssetsId] = createSignal([]);
-    const [messageOpen, setMessageOpen] = createSignal(false);
+    const [qrCodeOpen, setQrCodeOpen] = createSignal(false);
     const [message, setMessage] = createSignal(null)
 
     let _interactiveElements = [];
@@ -55,6 +56,10 @@ function Game(props) {
                 segments: 48,
             });
         }
+
+        // Generate QR Code
+        if (props.data)
+            generateQRCodeForForMarker(props.userId, props.marker.id);
     })
 
 
@@ -67,7 +72,7 @@ function Game(props) {
 
 
 
-    createEffect(() => {
+    createEffect(async () => {
         // When we receive the hitMatrix from TAP,
         // we must initialize AssetManager, if not yet initialized
         if (!AssetManager.initialized()) {
@@ -78,7 +83,8 @@ function Game(props) {
             // we use them to spawn saved assets
             if (props.data) {
                 AssetManager.importFromJSON(props.data);
-                AssetManager.loadAllAssets();
+                await AssetManager.loadAllAssets();
+                setupMessage('Dati caricati! Guardati intorno')
             }
         }
         else {
@@ -97,7 +103,9 @@ function Game(props) {
             const data = AssetManager.exportToJSON();
             await props.saveData(data)
             console.log("DATA SAVED!")
+            generateQRCodeForForMarker(props.userId, props.marker.id);
             setupMessage('Dati salvati')
+            setNewAssetsId(() => [])
         }
     }
 
@@ -125,8 +133,7 @@ function Game(props) {
     }
 
     const handleToggleQrCode = () => {
-        setMessageOpen(() => !messageOpen());
-        console.log(messageOpen())
+        setQrCodeOpen(() => !qrCodeOpen());
     }
 
     const handleTogglePlaneDetection = () => {
@@ -200,23 +207,37 @@ function Game(props) {
         left:0;
         width: 100%;
         height: 100%;
-        display: flex;
         justify-content: center;
         align-items: center;
-        /* z-index: 1000; */
-        visibility: ${props => props.visible ? 'visible' : 'hidden'};
+        display: ${props => props.visible ? 'flex' : 'none'};
     `
 
-    const ContainerMessage = styled('div')`
+    const ContainerInfo = styled('div')`
         background-color: #222222;
-        min-height: 40px;
-        /* height: 100px; */
         width: 200px;
-        display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 20px;
-        visibility: ${props => props.visible ? 'visible' : 'hidden'};
+        display: ${props => props.visible ? 'flex' : 'none'};
+    `
+
+    const MessageText = styled('p')`
+        margin: 10px;
+        padding: 0px;
+        text-align: center;
+        display: ${props => props.visible ? 'block' : 'none'};
+    `
+
+    const ContainerQrCode = styled('div')`
+        border-radius: 1rem;
+        background-color: #222222;
+        padding:10px;
+        padding-bottom: 5px;
+        display: ${props => props.visible ? 'block' : 'none'};
+    `
+
+    const QrCode = styled('img')`
+        display: ${props => props.visible ? 'block' : 'none'};
     `
 
     const Bttn = styled('button')`
@@ -258,10 +279,21 @@ function Game(props) {
 
             <ContainerCenter
                 visible={true}>
-                <ContainerMessage
-                    visible={message() ? true : false}>
-                    {message()}
-                </ContainerMessage>
+
+                <ContainerInfo
+                    visible={message() || qrCodeOpen() ? true : false}>
+
+                    <ContainerQrCode
+                     visible={qrCodeOpen() ? true : false}>
+                        <img id='qr-code'/>
+                    </ContainerQrCode>
+
+                    <MessageText
+                        visible={message() ? true : false}>
+                        {message()}
+                    </MessageText>
+
+                </ContainerInfo>
             </ContainerCenter>
 
             <ContainerTop>
