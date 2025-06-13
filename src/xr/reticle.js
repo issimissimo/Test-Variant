@@ -30,6 +30,7 @@ let _planeHidden = false;
 let _circleHidden = false;
 let _reticleMode = null;
 
+
 // Variabili per il Piano di riferimento per l'orientamento del reticolo
 let _geomLookAt = null;
 let _reticleLookAt = null;
@@ -168,7 +169,7 @@ const Reticle = {
 
         // Add the circle in front of the camera
         // to use in place of plane detection
-        const circleGeometry = new THREE.RingGeometry(0, 0.2, 24);
+        const circleGeometry = new THREE.RingGeometry(0, 0.02, 24);
         const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
         _circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
         _camera.add(_circleMesh);
@@ -176,7 +177,7 @@ const Reticle = {
         _scene.add(_camera);
 
         // At the end, we set the default mode
-        setUsePlaneDetection(true)
+        this.setUsePlaneDetection(true)
     },
 
     /**
@@ -201,6 +202,20 @@ const Reticle = {
         const referenceSpace = _renderer.xr.getReferenceSpace();
         const session = _renderer.xr.getSession();
 
+
+        // Update camera from pose
+        const framePose = frame.getViewerPose(referenceSpace);
+        if (framePose) {
+            var position = framePose.transform.position;
+            var rotation = framePose.transform.orientation;
+            _camera.position.set(position.x, position.y, position.z);
+            _camera.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+            _camera.updateMatrixWorld();
+        }
+
+
+
+        // Check for hit source
         if (_hitTestSourceRequested === false) {
             session.requestReferenceSpace("viewer").then(function (referenceSpace) {
                 session
@@ -261,21 +276,21 @@ const Reticle = {
         return _isHitting;
     },
 
-    getHitPosition() {
-        if (!_initialized) {
-            console.error("Reticle is not set");
-            return;
-        }
-        return _planeMesh.position;
-    },
+    // getHitPosition() {
+    //     if (!_initialized) {
+    //         console.error("Reticle is not set");
+    //         return;
+    //     }
+    //     return _planeMesh.position;
+    // },
 
-    getHitQuaternion() {
-        if (!_initialized) {
-            console.error("Reticle is not set");
-            return;
-        }
-        return _planeMesh.quaternion;
-    },
+    // getHitQuaternion() {
+    //     if (!_initialized) {
+    //         console.error("Reticle is not set");
+    //         return;
+    //     }
+    //     return _planeMesh.quaternion;
+    // },
 
     getHitMatrix() {
         if (!_initialized) {
