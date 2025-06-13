@@ -26,7 +26,7 @@ let _hitTestSource = null;
 let _hitTestSourceRequested = false;
 let _isHitting = false;
 let _surfType = null;
-let _planeHidden = false;
+let _hidden = false;
 let _circleHidden = false;
 let _reticleMode = null;
 
@@ -189,83 +189,139 @@ const Reticle = {
      * @returns {void}
      */
     update(frame, callback) {
-        if (_planeHidden) {
+        if (_hidden) {
             _planeMesh.visible = false;
-            return;
-        }
-
-        if (!_initialized) {
-            console.error("Reticle is not set");
+            _circleMesh.visible = false;
             return;
         }
 
         const referenceSpace = _renderer.xr.getReferenceSpace();
-        const session = _renderer.xr.getSession();
 
 
-        // Update camera from pose
-        const framePose = frame.getViewerPose(referenceSpace);
-        if (framePose) {
-            var position = framePose.transform.position;
-            var rotation = framePose.transform.orientation;
-            _camera.position.set(position.x, position.y, position.z);
-            _camera.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
-            _camera.updateMatrixWorld();
-        }
-
-
-
-        // Check for hit source
-        if (_hitTestSourceRequested === false) {
-            session.requestReferenceSpace("viewer").then(function (referenceSpace) {
-                session
-                    .requestHitTestSource({ space: referenceSpace })
-                    .then(function (source) {
-                        _hitTestSource = source;
-                    });
-            });
-
-            session.addEventListener("end", function () {
-                _hitTestSourceRequested = false;
-                _hitTestSource = null;
-            });
-
-            _hitTestSourceRequested = true;
-        }
-
-        if (_hitTestSource) {
-            const hitTestResults = frame.getHitTestResults(_hitTestSource);
-            if (hitTestResults.length) {
-
-                _isHitting = true;
-                _planeMesh.visible = true;
-
-                const hit = hitTestResults[0];
-                const pose = hit.getPose(referenceSpace);
-                const rawMatrix = pose.transform.matrix;
-                const threeMatrix = new THREE.Matrix4();
-                threeMatrix.fromArray(rawMatrix);
-                let pos = new THREE.Vector3();
-                let quat = new THREE.Quaternion();
-                let scale = new THREE.Vector3();
-                threeMatrix.decompose(pos, quat, scale);
-                _planeMesh.position.copy(pos);
-                _planeMesh.quaternion.copy(quat);
-                _planeMesh.updateMatrix(); ////// NON QUI!!!!!!!!
-
-                _surfType = _getReticleSurface();
-                if (_surfType == 'wall') _alignZAxisWithUp();
-
-                ///// MA QUI!!!!!
-
-                if (callback) callback(_surfType);
-
-            } else {
-                _isHitting = false;
-                _planeMesh.visible = false;
-                _surfType = null;
+        // Update camera from pose (used from CircleMesh)
+        if (_reticleMode === MODE.FREE) {
+            _planeMesh.visible = false;
+            _circleMesh.visible = true;
+            const framePose = frame.getViewerPose(referenceSpace);
+            if (framePose) {
+                var position = framePose.transform.position;
+                var rotation = framePose.transform.orientation;
+                _camera.position.set(position.x, position.y, position.z);
+                _camera.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+                _camera.updateMatrixWorld();
             }
         }
+
+
+        // Check for hit source (used from PlaneMesh)
+        else if (_reticleMode === MODE.PLANE) {
+            _circleMesh.visible = false;
+
+            const session = _renderer.xr.getSession();
+
+            if (_hitTestSourceRequested === false) {
+                session.requestReferenceSpace("viewer").then(function (referenceSpace) {
+                    session
+                        .requestHitTestSource({ space: referenceSpace })
+                        .then(function (source) {
+                            _hitTestSource = source;
+                        });
+                });
+
+                session.addEventListener("end", function () {
+                    _hitTestSourceRequested = false;
+                    _hitTestSource = null;
+                });
+
+                _hitTestSourceRequested = true;
+            }
+
+            if (_hitTestSource) {
+                const hitTestResults = frame.getHitTestResults(_hitTestSource);
+                if (hitTestResults.length) {
+
+                    _isHitting = true;
+                    _planeMesh.visible = true;
+
+                    const hit = hitTestResults[0];
+                    const pose = hit.getPose(referenceSpace);
+                    const rawMatrix = pose.transform.matrix;
+                    const threeMatrix = new THREE.Matrix4();
+                    threeMatrix.fromArray(rawMatrix);
+                    let pos = new THREE.Vector3();
+                    let quat = new THREE.Quaternion();
+                    let scale = new THREE.Vector3();
+                    threeMatrix.decompose(pos, quat, scale);
+                    _planeMesh.position.copy(pos);
+                    _planeMesh.quaternion.copy(quat);
+                    _planeMesh.updateMatrix(); ////// NON QUI!!!!!!!!
+
+                    _surfType = _getReticleSurface();
+                    if (_surfType == 'wall') _alignZAxisWithUp();
+
+                    if (callback) callback(_surfType);
+
+                } else {
+                    _isHitting = false;
+                    _planeMesh.visible = false;
+                    _surfType = null;
+                }
+            }
+        }
+
+
+        // const session = _renderer.xr.getSession();
+
+        // if (_hitTestSourceRequested === false) {
+        //     session.requestReferenceSpace("viewer").then(function (referenceSpace) {
+        //         session
+        //             .requestHitTestSource({ space: referenceSpace })
+        //             .then(function (source) {
+        //                 _hitTestSource = source;
+        //             });
+        //     });
+
+        //     session.addEventListener("end", function () {
+        //         _hitTestSourceRequested = false;
+        //         _hitTestSource = null;
+        //     });
+
+        //     _hitTestSourceRequested = true;
+        // }
+
+        // if (_hitTestSource) {
+        //     const hitTestResults = frame.getHitTestResults(_hitTestSource);
+        //     if (hitTestResults.length) {
+
+        //         _isHitting = true;
+        //         _planeMesh.visible = true;
+
+        //         const hit = hitTestResults[0];
+        //         const pose = hit.getPose(referenceSpace);
+        //         const rawMatrix = pose.transform.matrix;
+        //         const threeMatrix = new THREE.Matrix4();
+        //         threeMatrix.fromArray(rawMatrix);
+        //         let pos = new THREE.Vector3();
+        //         let quat = new THREE.Quaternion();
+        //         let scale = new THREE.Vector3();
+        //         threeMatrix.decompose(pos, quat, scale);
+        //         _planeMesh.position.copy(pos);
+        //         _planeMesh.quaternion.copy(quat);
+        //         _planeMesh.updateMatrix(); ////// NON QUI!!!!!!!!
+
+        //         _surfType = _getReticleSurface();
+        //         if (_surfType == 'wall') _alignZAxisWithUp();
+
+        //         ///// MA QUI!!!!!
+
+        //         if (callback) callback(_surfType);
+
+        //     } else {
+        //         _isHitting = false;
+        //         _planeMesh.visible = false;
+        //         _surfType = null;
+        //     }
+        // }
     },
 
     isHitting() {
@@ -307,11 +363,11 @@ const Reticle = {
             console.error("Reticle is not set");
             return;
         }
-        _planeHidden = value;
+        _hidden = value;
     },
 
     hidden() {
-        return _planeHidden;
+        return _hidden;
     },
 
     surfType() {
@@ -324,21 +380,12 @@ const Reticle = {
 
     setUsePlaneDetection(value) {
         _reticleMode = value ? MODE.PLANE : MODE.FREE;
-
         console.log('reticle MODE:', _reticleMode)
-
-        // switch (_reticleMode) {
-        //     case MODE.PLANE:
-        //     console.log("PLANE MODE");
-        //     _circleMesh.visible = false;
-
-        //     case MODE.FREE:
-        //     console.log("FREE MODE");
-
-
-        // }
-
     },
+
+    usePlaneDetection() {
+        return _reticleMode === MODE.PLANE ? true : false;
+    }
 }
 
 export default Reticle;   

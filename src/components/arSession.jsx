@@ -269,23 +269,22 @@ export default function ArSession(props) {
             return;
         }
 
-        if (Reticle.isHitting()) {
+        if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
             const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
+            
+            // Set the hitMatrix signal
             setHitMatrix(() => reticleMatrix);
             console.log("MATRICE CAMBIATA!")
 
+            // First time...
             if (!calibrationCompleted) {
 
                 if (config.isDebug) {
                     SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
                 }
-
-                //
-                // FINALLY GO TO GAME!!
-                //
-                console.log("GO TO GAME!!!!!!!!!!!!!!")
-                goToGame();
+                
                 calibrationCompleted = true;
+                goToGame();
             }
         }
     }
