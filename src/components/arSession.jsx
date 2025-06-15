@@ -49,7 +49,7 @@ export default function ArSession(props) {
     const [planeFound, setPlaneFound] = createSignal(false);
     const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
     const [tapEnabled, setTapEnabled] = createSignal(true);
-    const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false)
+    const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
 
     let calibrationCompleted = false;
 
@@ -60,6 +60,7 @@ export default function ArSession(props) {
 
     createEffect(() => {
         console.log('> tap enabled:', tapEnabled())
+        console.log('> iOS:', iOS())
     })
 
 
@@ -209,23 +210,24 @@ export default function ArSession(props) {
             SceneManager.loadGizmo();
 
 
+            // // Init Reticle
+            // Reticle.set({
+            //     renderer: SceneManager.renderer,
+            //     scene: SceneManager.scene,
+            //     camera: SceneManager.camera,
+            //     color: 0x00ff00,
+            //     radius: 0.06,
+            //     innerRadius: 0.05,
+            //     segments: 4,
+            // });
+
             // Init Reticle
             Reticle.set({
                 renderer: SceneManager.renderer,
                 scene: SceneManager.scene,
                 camera: SceneManager.camera,
-                color: 0x00ff00,
-                radius: 0.06,
-                innerRadius: 0.05,
-                segments: 4,
+                fileName: 'models/gizmo.glb'
             });
-
-            // // Init Reticle
-            // Reticle.set({
-            //     renderer: SceneManager.renderer,
-            //     scene: SceneManager.scene,
-            //     fileName: 'models/gridPlane.glb'
-            // });
         }
     }
 

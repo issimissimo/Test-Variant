@@ -69,7 +69,7 @@ function _alignZAxisWithUp() {
     const zAxis = new Vector3(0, 0, 1);
     zAxis.applyQuaternion(_planeMesh.quaternion);
     // Vettore di riferimento per "l'alto" (solitamente l'asse Y nel sistema di coordinate globale)
-    const upVector = new Vector3(0, 1, 0);
+    const upVector = new Vector3(0, -1, 0);
     // Calcola l'angolo tra l'asse Z attuale e il vettore UP
     const quaternion = new Quaternion();
     quaternion.setFromUnitVectors(zAxis, upVector);
@@ -252,7 +252,7 @@ const Reticle = {
                     _planeMesh.updateMatrix(); ////// NON QUI!!!!!!!!
 
                     _surfType = _getReticleSurface();
-                    if (_surfType == 'wall') _alignZAxisWithUp();
+                    if (_surfType == 'wall' && !window.iOS) _alignZAxisWithUp();
 
                     if (callback) callback(_surfType);
 

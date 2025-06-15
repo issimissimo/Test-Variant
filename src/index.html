@@ -54,6 +54,21 @@
     new Spinner(opts).spin(target);
   </script>
 
+  <script>
+    var iOS = null;
+    window.addEventListener('vlaunch-initialized', (event) => {
+      if (event.detail.launchRequired) {
+        // //We need to use launch to get WebXR as we're on iOS
+        // window.location.href = event.detail.launchUrl
+        iOS = true;
+      }
+      else {
+        console.log("NON SIAMO SU IOS........")
+        iOS = false;
+      }
+    })
+  </script>
+
   <script type="module" src="/index.jsx"></script>
 </body>
 

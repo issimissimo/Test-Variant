@@ -73,11 +73,6 @@ export default function Calibration(props) {
         return () => clearTimeout(timeout)
     })
 
-    // onMount(() => {
-    //     timeout = setTimeout(() => {
-    //         setDifficult(() => true);
-    //     }, 15000);
-    // })
 
     onCleanup(() => {
         if (timeout) clearTimeout(timeout)
@@ -88,7 +83,6 @@ export default function Calibration(props) {
             {props.planeFound ?
                 <div>
                     FOUND!
-                    
                 </div>
                 :
                 <div>
