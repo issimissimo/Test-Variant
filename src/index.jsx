@@ -4,5 +4,5 @@ import App from './app.jsx'
 
 
 loadConfig().then(() => {
-  render(() => <App />, document.getElementById('root'))
+  render(() => <App />, document.getElementById('overlay'))
 })

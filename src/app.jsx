@@ -205,7 +205,7 @@ export default function App() {
     };
 
     return (
-        <div id="overlay">
+        <div>
             {renderView()}
         </div>
     );
