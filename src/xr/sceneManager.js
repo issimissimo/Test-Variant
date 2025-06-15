@@ -1,6 +1,16 @@
-import * as THREE from 'three';
+// import * as from 'three';
+
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
+import { 
+    Scene,
+    PerspectiveCamera,
+    HemisphereLight,
+    WebGLRenderer,
+    BoxGeometry,
+    MeshBasicMaterial,
+    Mesh,
+} from 'three';
 
 
 const SceneManager = {
@@ -12,12 +22,12 @@ const SceneManager = {
             return;
         }
         console.log("Initializing SceneManager")
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-        this.light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+        this.scene = new Scene();
+        this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+        this.light = new HemisphereLight(0xffffff, 0xbbbbff, 1);
         this.light.position.set(0.5, 1, 0.25);
         this.scene.add(this.light);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.xr.enabled = true;
@@ -61,7 +71,7 @@ const SceneManager = {
     },
 
     // Add a mesh to the scene
-    // mesh: THREE.Mesh, matrix: THREE.Matrix4, name: string, matrixAutoUpdate: boolean, visible: boolean,  
+    // mesh: Mesh, matrix: Matrix4, name: string, matrixAutoUpdate: boolean, visible: boolean,  
     addGltfToScene(gltf, matrix, name = "", childrenNumber = 0, matrixAutoUpdate = true, visible = true) {
         const ref = gltf.children[childrenNumber];
         const mesh = ref.clone();
@@ -74,9 +84,9 @@ const SceneManager = {
     },
 
     addTestCube(matrix, size = 0.2, name = "testCube") {
-        const geometry = new THREE.BoxGeometry(size, size, size);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
+        const geometry = new BoxGeometry(size, size, size);
+        const material = new MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new Mesh(geometry, material);
         matrix.decompose(cube.position, cube.quaternion, cube.scale);
         cube.name = name;
         this.scene.add(cube);

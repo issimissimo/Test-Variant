@@ -1,6 +1,9 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { styled } from 'solid-styled-components';
 
+
+
+
 import leftArrow from '../../assets/images/leftArrow.svg';
 import rightArrow from '../../assets/images/rightArrow.svg';
 import undoIcon from '../../assets/images/undo.svg';
@@ -28,7 +31,7 @@ export default function Playground(props) {
 
     const removeLastElementFromArray = () => {
         const array = newAssetsId();
-        const lastElement = array[array.length -1]
+        const lastElement = array[array.length - 1]
         console.log('last element:', lastElement)
         setNewAssetsId(prev => {
             if (prev.length === 0) return prev;
@@ -124,52 +127,10 @@ export default function Playground(props) {
 
 
     return (
-        <Container id="playground-container">
-            <ContainerTopButtons>
-                <Bttn data-interactive
-                    active={true}
-                    visible={buttonActive()}>
-                    <img src={qrCodeIcon} style="width: 25px" />
-                </Bttn>
-                <BorderBttn active={true}
-                    visible={true}>
-                    <img src={closeIcon} style="width: 12px" />
-                </BorderBttn>
-            </ContainerTopButtons>
-
-            <ContainerSideButtons>
-
-                <BorderBttn data-interactive
-                    onClick={toggle}
-                    active={true}
-                    visible={true}
-                >
-                    <img src={buttonActive() ? minusIcon : plusIcon} style="width: 20px" />
-                </BorderBttn>
-
-
-                <Bttn data-interactive
-                    onClick={() => { setUsePlaneDetection(() => !usePlaneDetection()) }}
-                    active={true}
-                    visible={buttonActive()}>
-                    <img src={usePlaneDetection() ? planeIcon : pointIcon} style="width: 25px" />
-                </Bttn>
-
-
-                <Bttn data-interactive visible={buttonActive()}
-                    active={true}>
-
-                    <img src={uploadIcon} style="width: 20px" />
-                </Bttn>
-
-                <Bttn data-interactive visible={buttonActive()}
-                    active={newAssetsId().length !== 0}>
-                    <img src={undoIcon} style="width: 20px" />
-                </Bttn>
-
-
-            </ContainerSideButtons>
-        </Container>
+        <MaskedBackground>
+            <h1>Il Mio Titolo</h1>
+            <p>Il mio contenuto</p>
+        </MaskedBackground>
     );
 
 }

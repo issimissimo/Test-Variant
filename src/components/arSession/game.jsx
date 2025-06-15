@@ -237,9 +237,9 @@ function Game(props) {
         display: ${props => props.visible ? 'block' : 'none'};
     `
 
-    const QrCode = styled('img')`
-        display: ${props => props.visible ? 'block' : 'none'};
-    `
+    // const QrCode = styled('img')`
+    //     display: ${props => props.visible ? 'block' : 'none'};
+    // `
 
     const Bttn = styled('button')`
         width: 50px;

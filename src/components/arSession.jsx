@@ -2,8 +2,8 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { AppMode } from '../app';
 import { config } from '../config';
-
 import { Matrix4 } from 'three';
+import { styled } from 'solid-styled-components';
 
 // UI
 import Welcome from './arSession/welcome';
@@ -19,6 +19,14 @@ import SceneManager from '../xr/sceneManager';
 import Reticle from '../xr/reticle';
 
 
+export const BlurBackground = styled('div')`
+    background: rgba(68, 68, 68, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(7.1px);
+    `
+
+
 const VIEWS = {
     WELCOME: 'welcome',
     EDIT_MARKER: 'editMarker',
@@ -27,6 +35,7 @@ const VIEWS = {
     MARKER_NOT_EXIST: 'markerNotExist',
     PLAYGROUND: 'playground'
 };
+
 
 
 export default function ArSession(props) {
@@ -45,7 +54,7 @@ export default function ArSession(props) {
     let calibrationCompleted = false;
 
 
-    
+
 
     //#region [lifeCycle]
 
@@ -271,7 +280,7 @@ export default function ArSession(props) {
 
         if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
             const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
-            
+
             // Set the hitMatrix signal
             setHitMatrix(() => reticleMatrix);
             console.log("MATRICE CAMBIATA!")
@@ -282,7 +291,7 @@ export default function ArSession(props) {
                 if (config.isDebug) {
                     SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
                 }
-                
+
                 calibrationCompleted = true;
                 goToGame();
             }
@@ -378,6 +387,13 @@ export default function ArSession(props) {
                 />;
         }
     };
+
+
+
+
+    //#region [style]
+
+
 
 
 
