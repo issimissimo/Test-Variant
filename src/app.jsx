@@ -1,4 +1,6 @@
 import { createEffect, createSignal, onMount } from 'solid-js';
+import { Portal } from 'solid-js/web';
+
 import { useFirebase } from './hooks/useFirebase';
 import { config } from './config';
 
@@ -179,6 +181,8 @@ export default function App() {
                         goToArSession();
                     }}
                     onMarkerClicked={(marker) => {
+                        console.log("*** MARKER CLICKED ***")
+                        console.log("marker:", marker)
                         setUserId(() => firebase.auth.user().uid);
                         setCurrentMarker(() => marker);
                         goToArSession();
@@ -186,14 +190,18 @@ export default function App() {
                 />;
 
             case VIEWS.AR_SESSION:
-                return <ArSession
-                    loading={(value) => setLoading(() => value)}
-                    currentMode={currentMode()}
-                    userId={userId()}
-                    marker={currentMarker()}
-                    backToHome={() => goToHome()}
-                    onSaveMarker={(id, name) => addMarker(id, name)}
-                />;
+                return (
+                    <Portal mount={document.getElementById('overlay')}>
+                        <ArSession
+                            loading={(value) => setLoading(() => value)}
+                            currentMode={currentMode()}
+                            userId={userId()}
+                            marker={currentMarker()}
+                            backToHome={() => goToHome()}
+                            onSaveMarker={(id, name) => addMarker(id, name)}
+                        />
+                    </Portal>
+                );
 
             case VIEWS.AR_NOT_SUPPORTED:
                 return <ArNotSupported />;

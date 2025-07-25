@@ -21,7 +21,6 @@ const SceneManager = {
             console.warn("Scene already initialized");
             return;
         }
-        console.log("Initializing SceneManager");
 
         // Inizializzazione scena ThreeJS
         this.scene = new Scene();
@@ -60,7 +59,7 @@ const SceneManager = {
         });
         document.body.appendChild(this.arButton);
 
-        console.log("INITIALIZED!");
+        console.log("SceneManager initialized");
         this.initialized = true;
     },
 
@@ -69,8 +68,6 @@ const SceneManager = {
             console.warn("Scene not initialized, nothing to destroy");
             return;
         }
-
-        console.log("Destroying SceneManager");
 
         // 1. Termina sessione XR se attiva
         if (this.renderer.xr.isPresenting) {
@@ -128,7 +125,7 @@ const SceneManager = {
         this.arButton = null;
         this.initialized = false;
 
-        console.log("SceneManager destroyed successfully");
+        console.log("SceneManager destroyed");
     },
 
 
