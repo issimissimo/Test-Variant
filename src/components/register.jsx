@@ -85,6 +85,7 @@ export default function Register(props) {
             name="email"
             value={form().email}
             onInput={handleInput}
+            autocomplete="username"
             required
           />
         </div>
@@ -97,6 +98,7 @@ export default function Register(props) {
             name="password"
             value={form().password}
             onInput={handleInput}
+            autocomplete="new-password"
             required
           />
           <p>Minimo 6 caratteri</p>
@@ -110,6 +112,7 @@ export default function Register(props) {
             name="confirmPassword"
             value={form().confirmPassword}
             onInput={handleInput}
+            autocomplete="new-password"
             required
           />
         </div>

@@ -4,31 +4,10 @@
 // **************************************
 
 import { createSignal, createEffect, onMount } from 'solid-js';
-import { css } from 'goober';
 
 
-const containerStyle = css`
-  max-width: 28rem;
-  margin: 0 auto;
-  padding: 1.5rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  color: black;
-`;
 
-const loadingStyle = css`
-  text-align: center;
-  padding: 2rem;
-`;
-
-const errorStyle = css`
-  color: red;
-  text-align: center;
-  padding: 1rem;
-`;
-
-export default function Welcome(props) {
+export default function WelcomeUser(props) {
   // const firebase = useFirebase();
   // const [loading, setLoading] = createSignal(true);
   // const [error, setError] = createSignal('');

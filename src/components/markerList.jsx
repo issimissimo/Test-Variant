@@ -1,6 +1,7 @@
 import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
+import { styled } from 'solid-styled-components';
 
 
 // Stili con Goober
@@ -99,9 +100,9 @@ const addButtonStyle = css`
   }
 `;
 
-export default function Home(props) {
+export default function MarkerList(props) {
   const firebase = useFirebase();
-  const [userData, setUserData] = createSignal(null);
+  // const [userData, setUserData] = createSignal(null);
   const [markers, setMarkers] = createSignal([]);
 
 
@@ -114,7 +115,7 @@ export default function Home(props) {
       return;
     }
 
-    loadUserData();
+    // loadUserData();
     loadMarkers();
 
   });
@@ -125,26 +126,26 @@ export default function Home(props) {
     try {
       const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
       setMarkers(data);
+      // Hide the preloader
+      props.setLoading(false);
+
     } catch (error) {
       console.error("Errore caricamento markers:", error);
     }
-
-    // Hide the preloader
-    props.setLoading(false);
   };
 
-  // Funzione per caricare i dati utente da Firestore
-  const loadUserData = async () => {
-    // setDataLoading(true);
-    try {
-      const data = await firebase.firestore.fetchUserData(firebase.auth.user().uid);
-      setUserData(data);
-      // console.log("Dati utente:", data);
-    } catch (error) {
-      console.error("Errore caricamento dati utente:", error);
-    }
-   
-  };
+  // // Funzione per caricare i dati utente da Firestore
+  // const loadUserData = async () => {
+  //   // setDataLoading(true);
+  //   try {
+  //     const data = await firebase.firestore.fetchUserData(firebase.auth.user().uid);
+  //     setUserData(data);
+  //     // console.log("Dati utente:", data);
+  //   } catch (error) {
+  //     console.error("Errore caricamento dati utente:", error);
+  //   }
+
+  // };
 
   // Gestione logout
   const handleLogout = async () => {
@@ -158,9 +159,27 @@ export default function Home(props) {
 
 
 
+  /**
+   * Save a new marker, only in firebase
+   * and with the property withData = false 
+   * (JSON should be created later on)
+    */
+  const addNewMarker = async (name) => {
+    try {
+      const newMarkerId = await firebase.firestore.addMarker(props.userId, name);
+      props.onSaveMarker(newMarkerId, name);
+      console.log('Creato in Firestore il marker con ID:', newMarkerId)
+    } catch (error) {
+      console.error('Errore aggiunta marker:', error);
+      throw error;
+    }
+  };
+
+
+
   return (
     <div class={containerStyle}>
-      <h2 class={headingStyle}>Home</h2>
+      <h2 class={headingStyle}>Marker List</h2>
 
       {firebase.auth.authLoading() ? (
         <div class={loadingStyle}>
@@ -188,7 +207,7 @@ export default function Home(props) {
         <div>
           <div class={userInfoStyle}>
             <p><strong>Email:</strong> {firebase.auth.user().email}</p>
-            {userData() && userData().lastLogin && (
+            {/* {userData() && userData().lastLogin && (
               <p>
                 <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
               </p>
@@ -197,7 +216,7 @@ export default function Home(props) {
               <p>
                 <strong>Account creato:</strong> {userData().created.toLocaleString()}
               </p>
-            )}
+            )} */}
           </div>
 
           <div>
@@ -236,7 +255,7 @@ export default function Home(props) {
               Logout
             </button>
 
-            <button
+            {/* <button
               onClick={props.onGoToRegister}
               class={secondaryButton}
             >
@@ -248,7 +267,7 @@ export default function Home(props) {
               class={secondaryButton}
             >
               Vai al login
-            </button>
+            </button> */}
           </div>
         </div>
       )}

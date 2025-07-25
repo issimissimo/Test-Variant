@@ -18,7 +18,7 @@ const SceneManager = {
 
     init() {
         if (this.initialized) {
-            console.warn("Scene already initialized");
+            console.warn("Scene is already initialized");
             return;
         }
 

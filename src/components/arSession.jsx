@@ -6,11 +6,11 @@ import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
 // UI
-import Welcome from './arSession/welcome';
-import EditMarker from './arSession/editMarker';
+// import WelcomeUser from './welcomeUser';
+// import EditMarker from './editMarker';
 import Calibration from './arSession/calibration';
 import Game from './arSession/game';
-import Unavailable from './arSession/unavailable';
+// import Unavailable from './arSession/unavailable';
 import Playground from './arSession/playground'; // for DEBUG!
 
 // XR
@@ -310,12 +310,14 @@ export default function ArSession(props) {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-        if (frame) {
-            Reticle.update(frame, (surfType) => {
-            });
-            setPlaneFound(Reticle.isHitting())
+        if (SceneManager.initialized) {
+            if (frame) {
+                Reticle.update(frame, (surfType) => {
+                });
+                setPlaneFound(Reticle.isHitting())
+            }
+            SceneManager.update();
         }
-        SceneManager.update();
     };
 
 
@@ -342,7 +344,7 @@ export default function ArSession(props) {
         switch (currentView()) {
 
             case VIEWS.WELCOME:
-                return <Welcome
+                return <WelcomeUser
                     jsonData={jsonData()}
                 />;
 

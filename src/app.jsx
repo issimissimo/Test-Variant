@@ -1,15 +1,22 @@
 import { createEffect, createSignal, onMount } from 'solid-js';
 import { Portal } from 'solid-js/web';
-
 import { useFirebase } from './hooks/useFirebase';
 import { config } from './config';
+import { styled } from 'solid-styled-components';
 
 // UI
 import Register from './components/register';
 import Login from './components/login';
-import Home from './components/home';
+import MarkerList from './components/markerList';
+import EditMarker from './components/editMarker';
+import WelcomeUser from './components/welcomeUser';
 import ArSession from './components/arSession';
 import ArNotSupported from './components/arNotSupported';
+
+// XR
+import SceneManager from './xr/sceneManager';
+
+
 
 export const AppMode = {
     SAVE: "save",
@@ -19,20 +26,31 @@ export const AppMode = {
 const VIEWS = {
     REGISTER: 'register',
     LOGIN: 'login',
-    HOME: 'home',
+    MARKER_LIST: 'markerList',
+    EDIT_MARKER: "editMarker",
+    WELCOME_USER: "welcomeUser",
     AR_SESSION: 'arSession',
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
 
 
 export default function App() {
+
+    //#region [constants]
+
     const firebase = useFirebase();
     const [currentMode, setCurrentMode] = createSignal(null);
     const [currentView, setCurrentView] = createSignal(null);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [currentMarker, setCurrentMarker] = createSignal(null);
+    const [jsonData, setJsonData] = createSignal(null);
 
+
+
+
+
+    //#region [lifeCycle]
 
     createEffect(() => {
         // Hide preloader
@@ -83,6 +101,10 @@ export default function App() {
     });
 
 
+
+    //#region [functions]
+
+
     //
     // Anonymous access
     //
@@ -95,7 +117,7 @@ export default function App() {
         const markerId = params.get('markerId');
         const markerName = null;
         const withData = true;
-        addMarker(markerId, markerName, withData);
+        addNewMarker(markerId, markerName, withData);
         goToArSession();
     }
 
@@ -114,7 +136,7 @@ export default function App() {
                     const userId = firebase.auth.user().uid;
                     await firebase.auth.updateLoginTimestamp(userId)
                 }
-                goToHome();
+                goToMarkerList();
             }
         }
         else {
@@ -123,12 +145,15 @@ export default function App() {
     };
 
 
+
+
     //
     // Add a new marker on the fly to the App 
     // and set it as currentMarker
-    // Just used for App purpose, NOT for database
+    // It DOES NOT save the marker on DB, it will be saved later
+    // when there will be some data inside!
     //
-    const addMarker = (markerId = null, markerName = null, withData = false) => {
+    const addNewMarker = (markerId = null, markerName = null, withData = false) => {
         const marker = {
             id: markerId ? markerId : null,
             name: markerName ? markerName : null,
@@ -137,56 +162,184 @@ export default function App() {
         setCurrentMarker(() => marker);
     }
 
+    ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    ///////////////////////NUOVE !!!!!!!!!!!!///////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+
+    /**
+    * Save a new marker, only in firebase
+    * and with the property withData = false 
+    * (JSON should be created later on)
+     */
+    const saveMarkerInFirebase = async (name) => {
+        try {
+            const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+            props.onSaveMarker(newMarkerId, name);
+            console.log('Creato in Firestore il marker con ID:', newMarkerId)
+        } catch (error) {
+            console.error('Errore aggiunta marker:', error);
+            throw error;
+        }
+    };
+
+
+
+    //#region [handlers]
+
+
+    /**
+    * Delete a marker,
+    * both from firebase and its JSON from RealTime DB,
+    * and go back to Home
+     */
+    const handleDeleteMarker = async () => {
+        try {
+            await firebase.firestore.deleteMarker(props.userId, props.marker.id);
+            const path = `${props.userId}/${props.marker.id}`;
+            await firebase.realtimeDb.deleteData(path);
+            handleBackToHome();
+        } catch (error) {
+            console.error("Errore completo cancellazione marker:", error);
+        }
+    };
+
+
+
+    /**
+     * Load JSON from Firebase Realtime DB
+     * and set jsonData()
+     */
+    const handleLoadMarkerData = async () => {
+        try {
+            const path = `${props.userId}/${props.marker.id}/data`;
+            const data = await firebase.realtimeDb.loadData(path);
+            setJsonData(() => data);
+        } catch (error) {
+            console.error("Errore nel caricamento JSON:", error);
+        }
+    }
+
+
+
+    /**
+     * Save jsonData() to Firebase Realtime DB
+     * and, if necessary, update Firestore marker data:
+     * withData = true
+     */
+    const handleSaveMarkerData = async (data) => {
+        try {
+            const path = `${props.userId}/${props.marker.id}/data`;
+            await firebase.realtimeDb.saveData(path, data);
+            setJsonData(() => data);
+
+            if (!props.marker.withData) {
+                firebase.firestore.updateMarker(props.userId, props.marker.id,
+                    props.marker.name, true);
+            }
+        } catch (error) {
+            console.log({ type: 'error', text: `Errore: ${error.message}` });
+        }
+    }
+
+
+    /**
+     * Go back to 1st screen
+     */
+    const handleGoBack = () => {
+        SceneManager.destroy();
+        if (currentMode() === AppMode.SAVE) goToMarkerList();
+        else if (currentMode() === AppMode.LOAD) goToWelcomeUser();
+        else console.error("AppMode not defined!")
+    }
+
 
     //
     // Navigation
     //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
+
     const goToLogin = () => {
         setLoading(() => false);
         setCurrentView(VIEWS.LOGIN);
     }
-    const goToHome = () => setCurrentView(VIEWS.HOME);
+    const goToMarkerList = () => setCurrentView(VIEWS.MARKER_LIST);
+
+    const goToEditMarker = () => {
+        SceneManager.init();
+        setCurrentView(VIEWS.EDIT_MARKER);
+    }
+
+    const goToWelcomeUser = () => {
+        SceneManager.init();
+        setCurrentView(VIEWS.WELCOME_USER);
+    }
+
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
+
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
 
-    //
-    // Renderizza la vista corrente
-    //
+
+    
+    //#region [style]
+
+    const Container = styled('div')`
+        width: 90%;
+    `
+
+
+
+
+    //#region [return]
+
     const renderView = () => {
 
         switch (currentView()) {
             case VIEWS.REGISTER:
                 return <Register
-                    onSuccess={goToHome}
+                    onSuccess={goToMarkerList}
                     onGoToLogin={goToLogin}
                 />;
 
             case VIEWS.LOGIN:
                 return <Login
-                    onSuccess={goToHome}
+                    onSuccess={goToMarkerList}
                     onGoToRegister={goToRegister}
                 />;
 
-            case VIEWS.HOME:
-                return <Home
+            case VIEWS.MARKER_LIST:
+                return <MarkerList
                     setLoading={(value) => setLoading(() => value)}
                     onLogout={goToLogin}
-                    onGoToRegister={goToRegister}
-                    onGoToLogin={goToLogin}
                     onCreateMarker={() => {
                         setUserId(() => firebase.auth.user().uid);
-                        addMarker();
+                        addNewMarker();
                         goToArSession();
                     }}
                     onMarkerClicked={(marker) => {
-                        console.log("*** MARKER CLICKED ***")
-                        console.log("marker:", marker)
+                        console.log("marker clicked:", marker)
                         setUserId(() => firebase.auth.user().uid);
                         setCurrentMarker(() => marker);
-                        goToArSession();
+                        // goToArSession();
+                        goToEditMarker();
                     }}
+                />;
+
+            case VIEWS.EDIT_MARKER:
+                return <EditMarker
+                    userId={userId()}
+                    marker={currentMarker()}
+                    onCreate={saveMarkerInFirebase}
+                    // onModify={handleModifyMarker}
+                    onDelete={handleDeleteMarker}
+                    onCancel={handleGoBack}
+                />;
+
+            case VIEWS.WELCOME_USER:
+                return <WelcomeUser
+                    jsonData={jsonData()}
                 />;
 
             case VIEWS.AR_SESSION:
@@ -197,8 +350,8 @@ export default function App() {
                             currentMode={currentMode()}
                             userId={userId()}
                             marker={currentMarker()}
-                            backToHome={() => goToHome()}
-                            onSaveMarker={(id, name) => addMarker(id, name)}
+                            backToHome={() => goToMarkerList()}
+                            onSaveMarker={(id, name) => addNewMarker(id, name)}
                         />
                     </Portal>
                 );
@@ -212,9 +365,11 @@ export default function App() {
         }
     };
 
+
+
     return (
-        <div>
+        <Container>
             {renderView()}
-        </div>
+        </Container>
     );
 }
