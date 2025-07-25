@@ -130,6 +130,7 @@ function Game(props) {
     }
 
     const handleClose = () => {
+        props.onClose();
     }
 
     const handleToggleQrCode = () => {

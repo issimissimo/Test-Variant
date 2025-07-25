@@ -2,7 +2,7 @@
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
-import { 
+import {
     Scene,
     PerspectiveCamera,
     HemisphereLight,
@@ -21,39 +21,114 @@ const SceneManager = {
             console.warn("Scene already initialized");
             return;
         }
-        console.log("Initializing SceneManager")
+        console.log("Initializing SceneManager");
+
+        // Inizializzazione scena ThreeJS
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
         this.light = new HemisphereLight(0xffffff, 0xbbbbff, 1);
         this.light.position.set(0.5, 1, 0.25);
         this.scene.add(this.light);
+
+        // Inizializzazione renderer
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.xr.enabled = true;
-        this.container = document.createElement("div");
 
+        // Creazione container DOM
+        this.container = document.createElement("div");
         document.body.appendChild(this.container);
         this.container.appendChild(this.renderer.domElement);
 
+        // Inizializzazione controller XR
         this.controller = this.renderer.xr.getController(0);
         this.scene.add(this.controller);
 
-        window.addEventListener("resize", () => {
+        // Event listener per resize (manteniamo riferimento per cleanup)
+        this.resizeHandler = () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+        window.addEventListener("resize", this.resizeHandler);
+
+        // Creazione AR Button
+        this.arButton = ARButton.createButton(this.renderer, {
+            requiredFeatures: ["local", "hit-test", "dom-overlay"],
+            domOverlay: { root: document.querySelector("#overlay") },
         });
+        document.body.appendChild(this.arButton);
 
-        document.body.appendChild(
-            ARButton.createButton(this.renderer, {
-                requiredFeatures: ["local", "hit-test", "dom-overlay"],
-                domOverlay: { root: document.querySelector("#overlay") },
-            })
-        );
-
-        console.log("INITIALIZED!")
+        console.log("INITIALIZED!");
         this.initialized = true;
+    },
+
+    destroy() {
+        if (!this.initialized) {
+            console.warn("Scene not initialized, nothing to destroy");
+            return;
+        }
+
+        console.log("Destroying SceneManager");
+
+        // 1. Termina sessione XR se attiva
+        if (this.renderer.xr.isPresenting) {
+            this.renderer.xr.getSession().end();
+        }
+
+        // 2. Rimuovi event listeners
+        if (this.resizeHandler) {
+            window.removeEventListener("resize", this.resizeHandler);
+            this.resizeHandler = null;
+        }
+
+        // 3. Pulizia scena ThreeJS
+        if (this.scene) {
+            // Rimuovi tutti gli oggetti dalla scena
+            while (this.scene.children.length > 0) {
+                const child = this.scene.children[0];
+                this.scene.remove(child);
+
+                // Dispose delle geometrie e materiali se presenti
+                if (child.geometry) {
+                    child.geometry.dispose();
+                }
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(material => material.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            }
+        }
+
+        // 4. Dispose del renderer
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+
+        // 5. Rimuovi elementi DOM
+        if (this.container && this.container.parentNode) {
+            this.container.parentNode.removeChild(this.container);
+        }
+
+        if (this.arButton && this.arButton.parentNode) {
+            this.arButton.parentNode.removeChild(this.arButton);
+        }
+
+        // 6. Reset delle proprietà
+        this.scene = null;
+        this.camera = null;
+        this.light = null;
+        this.renderer = null;
+        this.container = null;
+        this.controller = null;
+        this.arButton = null;
+        this.initialized = false;
+
+        console.log("SceneManager destroyed successfully");
     },
 
 

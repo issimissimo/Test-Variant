@@ -59,8 +59,8 @@ export default function ArSession(props) {
     //#region [lifeCycle]
 
     createEffect(() => {
-        console.log('> tap enabled:', tapEnabled())
-        console.log('> iOS:', iOS())
+        // console.log('> tap enabled:', tapEnabled())
+        // console.log('> iOS:', iOS())
     })
 
 
@@ -186,9 +186,9 @@ export default function ArSession(props) {
 
     /**
      * Go back to home screen
-     * TODO: better management
      */
     const handleBackToHome = () => {
+        SceneManager.destroy();
         props.backToHome();
     }
 
@@ -375,6 +375,7 @@ export default function ArSession(props) {
                     scene={SceneManager.scene}
                     data={jsonData()}
                     hitMatrix={hitMatrix()}
+                    onClose={handleBackToHome}
                 />;
 
             case VIEWS.MARKER_NOT_EXIST:
