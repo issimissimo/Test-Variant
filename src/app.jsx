@@ -117,7 +117,7 @@ export default function App() {
         const markerId = params.get('markerId');
         const markerName = null;
         const withData = true;
-        handleAddNewMarker(markerId, markerName, withData);
+        setupMarker(markerId, markerName, withData);
         goToArSession();
     }
 
@@ -150,17 +150,17 @@ export default function App() {
     //
     // Add a new marker on the fly to the App 
     // and set it as currentMarker
-    // It DOES NOT save the marker on DB, it will be saved later
-    // when there will be some data inside!
     //
-    const handleAddNewMarker = (markerId = null, markerName = null, withData = false) => {
+    /// MA DAVVERO CI SERVE?????????????????
+    const setupMarker = (markerId = null, markerName = null, withData = false) => {
         const marker = {
             id: markerId ? markerId : null,
             name: markerName ? markerName : null,
             withData: withData
         }
         setCurrentMarker(() => marker);
-        goToEditMarker();
+        console.log("current marker:", currentMarker())
+        // goToEditMarker();
     }
 
 
@@ -315,12 +315,14 @@ export default function App() {
                     //     addNewMarker();
                     //     goToArSession();
                     // }}
-                    onCreateMarker={handleAddNewMarker}
+                    onCreateNewMarker={() => {
+                        setupMarker();
+                        goToEditMarker();
+                    }}
                     onMarkerClicked={(marker) => {
                         console.log("marker clicked:", marker)
                         setUserId(() => firebase.auth.user().uid);
                         setCurrentMarker(() => marker);
-                        // goToArSession();
                         goToEditMarker();
                     }}
                 />;
@@ -329,7 +331,7 @@ export default function App() {
                 return <EditMarker
                     userId={firebase.auth.user().uid}
                     marker={currentMarker()}
-                    // onCreate={saveMarkerInFirebase}
+                    onNewMarkerCreated={(id, name) => setupMarker(id, name)}
                     // onModify={handleModifyMarker}
                     // onDelete={handleDeleteMarker}
                     onCancel={handleGoBack}
@@ -349,7 +351,7 @@ export default function App() {
                             userId={userId()}
                             marker={currentMarker()}
                             backToHome={() => goToMarkerList()}
-                            onSaveMarker={(id, name) => handleAddNewMarker(id, name)}
+                            onSaveMarker={(id, name) => setupMarker(id, name)}
                         />
                     </Portal>
                 );

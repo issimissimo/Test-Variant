@@ -4,6 +4,8 @@ import { css } from 'goober';
 import { styled } from 'solid-styled-components';
 import { Button, BUTTON_MODE } from './ui/ui';
 
+import { faCoffee, faCheck, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+
 
 // Stili con Goober
 const containerStyle = css`
@@ -223,7 +225,7 @@ export default function MarkerList(props) {
           <div>
             <button
               // onClick={() => setEditingMarker({})}
-              onClick={() => props.onCreateMarker()}
+              onClick={() => props.onCreateNewMarker()}
               class={addButtonStyle}
             >
               + Crea nuovo marker
@@ -270,6 +272,9 @@ export default function MarkerList(props) {
               Vai al login
             </button> */}
           </div>
+          {/* <Button icon={faTrashAlt}>
+            CIAO
+          </Button> */}
         </div>
       )}
     </div>

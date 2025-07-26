@@ -3,6 +3,7 @@ import { useFirebase } from '../hooks/useFirebase';
 import { generateQRCodeForForMarker } from '../hooks/useQRCode';
 import { styled } from 'solid-styled-components';
 import { Button, BUTTON_MODE } from './ui/ui';
+import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -15,6 +16,7 @@ export default function EditMarker(props) {
   const [name, setName] = createSignal(props.marker?.name || '');
   const [oldName, setOldName] = createSignal(props.marker?.name || '');
   const [canSave, setCanSave] = createSignal(false);
+  const [markerId, setMarkerId] = createSignal(props.marker.id)
 
 
   //#region [lifeCycle]
@@ -26,19 +28,34 @@ export default function EditMarker(props) {
 
   createEffect(() => {
     if (name() !== props.marker.name && name() !== "" && name() !== oldName()) {
-      console.log("adesso posso salvare")
-      // updateName()
       setCanSave(() => true)
     }
     else {
-      console.log("adesso NON posso salvare")
       setCanSave(() => false)
     }
   })
 
 
   //#region [functions]
-  const saveMarker = async () => {
+
+  /**
+    * Create a new marker, only in firebase
+    * and with the property withData = false 
+    * (JSON should be created later on)
+     */
+  const createMarker = async () => {
+    try {
+      const newMarkerId = await firebase.firestore.addMarker(props.userId, name());
+      setMarkerId(() => newMarkerId);
+      props.onNewMarkerCreated(newMarkerId, name);
+      console.log('Creato in Firestore il marker con ID:', newMarkerId)
+    } catch (error) {
+      console.log({ type: 'error', text: `Errore: ${error.message}` });
+    }
+  };
+
+
+  const updateMarker = async () => {
     try {
       await firebase.firestore.updateMarker(props.userId, props.marker.id,
         name(), props.marker.withData);
@@ -58,11 +75,14 @@ export default function EditMarker(props) {
   const deleteMarker = async () => {
     try {
       await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-      const path = `${props.userId}/${props.marker.id}`;
-      await firebase.realtimeDb.deleteData(path);
-      props.onCancel();
+      if (props.marker.withData) {
+        const path = `${props.userId}/${props.marker.id}`;
+        await firebase.realtimeDb.deleteData(path);
+        props.onCancel();
+      }
+      else props.onCancel();
     } catch (error) {
-      console.error("Errore completo cancellazione marker:", error);
+      console.log({ type: 'error', text: `Errore: ${error.message}` });
     }
   };
 
@@ -132,19 +152,20 @@ export default function EditMarker(props) {
 
         <Button
           type="button"
-          onClick={saveMarker}
+          onClick={props.marker.id ? updateMarker : createMarker}
           active={canSave()}
           mode={BUTTON_MODE.HIGHLIGHT}
+          icon={faSave}
         >
           Salva
         </Button>
 
-        {props.marker?.id && (
+        {markerId() && (
           <Button
             onClick={() => { deleteMarker() }}
             active={true}
             mode={BUTTON_MODE.DANGER}
-            icon="fas fa-trash-alt"
+            icon={faTrashAlt}
           >
             Elimina
           </Button>

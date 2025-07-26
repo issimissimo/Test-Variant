@@ -1,4 +1,5 @@
 import { styled } from 'solid-styled-components';
+import Fa from 'solid-fa';
 
 
 export const BUTTON_MODE = {
@@ -21,33 +22,34 @@ const StyledButton = styled('button')`
         justify-content: center;
         gap: 8px;
         background: ${props => {
-      switch (props.mode) {
-        case BUTTON_MODE.DANGER:
-          return 'rgba(220, 53, 69, 0.8)'; // Rosso
-        case BUTTON_MODE.HIGHLIGHT:
-          return 'rgba(0, 123, 255, 0.8)'; // Blu
-        case BUTTON_MODE.DEFAULT:
-        default:
-          return 'rgba(68, 68, 68, 0.2)'; // Grigio
-      }
-    }};
+    switch (props.mode) {
+      case BUTTON_MODE.DANGER:
+        return 'rgba(220, 53, 69, 0.8)'; // Rosso
+      case BUTTON_MODE.HIGHLIGHT:
+        return 'rgba(0, 123, 255, 0.8)'; // Blu
+      case BUTTON_MODE.DEFAULT:
+      default:
+        return 'rgba(68, 68, 68, 0.2)'; // Grigio
+    }
+  }};
         
     `
 
 
 
 export const Button = (props) => {
+  const Icon = () => (
+    <Fa icon={props.icon} size="1x" class="icon" />
+  );
   return (
     <StyledButton
       type={props.type || "button"}
       onClick={props.onClick}
       active={props.active ?? true}
       mode={props.mode || BUTTON_MODE.DEFAULT}
-      disabled={props.disabled}
-      style={props.style}
       class={props.class}
     >
-      {props.icon && <i class={props.icon}></i>}
+      {props.icon && <Icon />}
       {props.children}
     </StyledButton>
   );
