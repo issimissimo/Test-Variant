@@ -13,7 +13,6 @@ export default function Main(props) {
 
   //#region [constants]
   const firebase = useFirebase();
-  const [loading, setLoading] = createSignal(true);
   const [markerValid, setMarkerValid] = createSignal(false)
 
   
@@ -26,7 +25,6 @@ export default function Main(props) {
   //#region [functions]
   const loadMarkerFromFirestore = async () => {
     const marker = await firebase.firestore.fetchMarker(props.userId, props.markerId);
-    console.log(marker)
 
     if (marker !== undefined && marker !== null) {
       setMarkerValid(() => marker.withData);
@@ -37,8 +35,9 @@ export default function Main(props) {
       }
     }
 
-    setLoading(() => false);
-    props.onMarkerLoaded;
+    props.onCheckFinished(marker);
+    // setLoading(() => false);
+    // props.onCheckFinished(marker);
   }
 
 
@@ -46,7 +45,7 @@ export default function Main(props) {
   //#region [return]
   return (
     <div>
-      {!loading() && (
+      {!props.loading && (
         markerValid() ? <Welcome /> : <Error />
       )}
     </div>

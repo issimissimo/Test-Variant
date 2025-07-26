@@ -113,12 +113,9 @@ export default function App() {
         if (!firebase.auth.user()) {
             await firebase.auth.loginAnonymous();
         }
-        console.log('---> logged as anonymous')
         setUserId(() => params.get('userId'));
         const markerId = params.get('markerId');
         setupMarker(markerId);
-        // goToArSession();
-        // setLoading(false);
         goToAnonymous();
     }
 
@@ -335,9 +332,14 @@ export default function App() {
                 return <Anonymous
                     userId={userId()}
                     markerId={currentMarker().id}
-                    onMarkerLoaded={setLoading(false)}
+                    loading={loading()}
+                    onCheckFinished={(marker) => {
+                        setLoading(() => false);
+                        if (marker !== undefined) {
+                            setupMarker(currentMarker().id, marker.name, marker.withData);
+                        }
+                    }}
                 />;
-                // return <ARWelcomeScreen></ARWelcomeScreen>
 
             case VIEWS.AR_SESSION:
                 return (
