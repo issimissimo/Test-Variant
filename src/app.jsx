@@ -117,7 +117,7 @@ export default function App() {
         const markerId = params.get('markerId');
         const markerName = null;
         const withData = true;
-        addNewMarker(markerId, markerName, withData);
+        handleAddNewMarker(markerId, markerName, withData);
         goToArSession();
     }
 
@@ -153,95 +153,92 @@ export default function App() {
     // It DOES NOT save the marker on DB, it will be saved later
     // when there will be some data inside!
     //
-    const addNewMarker = (markerId = null, markerName = null, withData = false) => {
+    const handleAddNewMarker = (markerId = null, markerName = null, withData = false) => {
         const marker = {
             id: markerId ? markerId : null,
             name: markerName ? markerName : null,
             withData: withData
         }
         setCurrentMarker(() => marker);
+        goToEditMarker();
     }
 
-    ///////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////
-    ///////////////////////NUOVE !!!!!!!!!!!!///////////////////////////
-    ///////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////
 
-    /**
-    * Save a new marker, only in firebase
-    * and with the property withData = false 
-    * (JSON should be created later on)
-     */
-    const saveMarkerInFirebase = async (name) => {
-        try {
-            const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-            props.onSaveMarker(newMarkerId, name);
-            console.log('Creato in Firestore il marker con ID:', newMarkerId)
-        } catch (error) {
-            console.error('Errore aggiunta marker:', error);
-            throw error;
-        }
-    };
+
+    // /**
+    // * Save a new marker, only in firebase
+    // * and with the property withData = false 
+    // * (JSON should be created later on)
+    //  */
+    // const saveMarkerInFirebase = async (name) => {
+    //     try {
+    //         const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
+    //         props.onSaveMarker(newMarkerId, name);
+    //         console.log('Creato in Firestore il marker con ID:', newMarkerId)
+    //     } catch (error) {
+    //         console.error('Errore aggiunta marker:', error);
+    //         throw error;
+    //     }
+    // };
 
 
 
     //#region [handlers]
 
 
-    /**
-    * Delete a marker,
-    * both from firebase and its JSON from RealTime DB,
-    * and go back to Home
-     */
-    const handleDeleteMarker = async () => {
-        try {
-            await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-            const path = `${props.userId}/${props.marker.id}`;
-            await firebase.realtimeDb.deleteData(path);
-            handleBackToHome();
-        } catch (error) {
-            console.error("Errore completo cancellazione marker:", error);
-        }
-    };
+    // /**
+    // * Delete a marker,
+    // * both from firebase and its JSON from RealTime DB,
+    // * and go back to Home
+    //  */
+    // const handleDeleteMarker = async () => {
+    //     try {
+    //         await firebase.firestore.deleteMarker(props.userId, props.marker.id);
+    //         const path = `${props.userId}/${props.marker.id}`;
+    //         await firebase.realtimeDb.deleteData(path);
+    //         handleBackToHome();
+    //     } catch (error) {
+    //         console.error("Errore completo cancellazione marker:", error);
+    //     }
+    // };
 
 
 
-    /**
-     * Load JSON from Firebase Realtime DB
-     * and set jsonData()
-     */
-    const handleLoadMarkerData = async () => {
-        try {
-            const path = `${props.userId}/${props.marker.id}/data`;
-            const data = await firebase.realtimeDb.loadData(path);
-            setJsonData(() => data);
-        } catch (error) {
-            console.error("Errore nel caricamento JSON:", error);
-        }
-    }
+    // /**
+    //  * Load JSON from Firebase Realtime DB
+    //  * and set jsonData()
+    //  */
+    // const handleLoadMarkerData = async () => {
+    //     try {
+    //         const path = `${props.userId}/${props.marker.id}/data`;
+    //         const data = await firebase.realtimeDb.loadData(path);
+    //         setJsonData(() => data);
+    //     } catch (error) {
+    //         console.error("Errore nel caricamento JSON:", error);
+    //     }
+    // }
 
 
 
-    /**
-     * Save jsonData() to Firebase Realtime DB
-     * and, if necessary, update Firestore marker data:
-     * withData = true
-     */
-    const handleSaveMarkerData = async (data) => {
-        try {
-            const path = `${props.userId}/${props.marker.id}/data`;
-            await firebase.realtimeDb.saveData(path, data);
-            setJsonData(() => data);
+    // /**
+    //  * Save jsonData() to Firebase Realtime DB
+    //  * and, if necessary, update Firestore marker data:
+    //  * withData = true
+    //  */
+    // const handleSaveMarkerData = async (data) => {
+    //     try {
+    //         const path = `${props.userId}/${props.marker.id}/data`;
+    //         await firebase.realtimeDb.saveData(path, data);
+    //         setJsonData(() => data);
 
-            if (!props.marker.withData) {
-                firebase.firestore.updateMarker(props.userId, props.marker.id,
-                    props.marker.name, true);
-            }
-        } catch (error) {
-            console.log({ type: 'error', text: `Errore: ${error.message}` });
-        }
-    }
+    //         if (!props.marker.withData) {
+    //             firebase.firestore.updateMarker(props.userId, props.marker.id,
+    //                 props.marker.name, true);
+    //         }
+    //     } catch (error) {
+    //         console.log({ type: 'error', text: `Errore: ${error.message}` });
+    //     }
+    // }
 
 
     /**
@@ -282,7 +279,7 @@ export default function App() {
 
 
 
-    
+
     //#region [style]
 
     const Container = styled('div')`
@@ -313,11 +310,12 @@ export default function App() {
                 return <MarkerList
                     setLoading={(value) => setLoading(() => value)}
                     onLogout={goToLogin}
-                    onCreateMarker={() => {
-                        setUserId(() => firebase.auth.user().uid);
-                        addNewMarker();
-                        goToArSession();
-                    }}
+                    // onCreateMarker={() => {
+                    //     setUserId(() => firebase.auth.user().uid);
+                    //     addNewMarker();
+                    //     goToArSession();
+                    // }}
+                    onCreateMarker={handleAddNewMarker}
                     onMarkerClicked={(marker) => {
                         console.log("marker clicked:", marker)
                         setUserId(() => firebase.auth.user().uid);
@@ -329,11 +327,11 @@ export default function App() {
 
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
-                    userId={userId()}
+                    userId={firebase.auth.user().uid}
                     marker={currentMarker()}
-                    onCreate={saveMarkerInFirebase}
+                    // onCreate={saveMarkerInFirebase}
                     // onModify={handleModifyMarker}
-                    onDelete={handleDeleteMarker}
+                    // onDelete={handleDeleteMarker}
                     onCancel={handleGoBack}
                 />;
 
@@ -351,7 +349,7 @@ export default function App() {
                             userId={userId()}
                             marker={currentMarker()}
                             backToHome={() => goToMarkerList()}
-                            onSaveMarker={(id, name) => addNewMarker(id, name)}
+                            onSaveMarker={(id, name) => handleAddNewMarker(id, name)}
                         />
                     </Portal>
                 );

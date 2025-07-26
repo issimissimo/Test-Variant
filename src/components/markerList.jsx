@@ -2,6 +2,7 @@ import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { css } from 'goober';
 import { styled } from 'solid-styled-components';
+import { Button, BUTTON_MODE } from './ui/ui';
 
 
 // Stili con Goober
