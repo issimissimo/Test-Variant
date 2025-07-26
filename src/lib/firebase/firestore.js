@@ -80,10 +80,23 @@ export const fetchMarkers = async (userId) => {
         const snapshot = await getDocs(markersRef);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        console.error("Errore nel caricamento markers:", error);
+        console.error("Errore nel caricamento dei markers:", error);
         throw error;
     }
 };
+
+
+export const fetchMarker = async (userId, markerId) => {
+    try {
+        const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
+        const snapshot = await getDoc(markerRef);
+        return snapshot.data();
+    } catch (error) {
+        console.error("Errore nel caricamento del marker:", error);
+        throw error;
+    }
+};
+
 
 export const addMarker = async (userId, name) => {
     try {

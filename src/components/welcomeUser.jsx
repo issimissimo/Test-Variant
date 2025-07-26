@@ -1,21 +1,33 @@
-// **************************************
-// ** Schermata di benvenuto per utente anonimo
-// **
-// **************************************
-
 import { createSignal, createEffect, onMount } from 'solid-js';
+import { styled } from 'solid-styled-components';
+import { useFirebase } from '../hooks/useFirebase';
 
+// XR
+import SceneManager from '../xr/sceneManager';
 
 
 export default function WelcomeUser(props) {
-  // const firebase = useFirebase();
-  // const [loading, setLoading] = createSignal(true);
-  // const [error, setError] = createSignal('');
-  // const [params, setParams] = createSignal(null);
+
+
+  const firebase = useFirebase();
+  const [loading, setLoading] = createSignal(true);
+  const [markerValid, setMarkerValid] = createSignal(false)
 
   onMount(() => {
-    // console.log('user', firebase.auth.user().uid)
+    loadMarkerFromFirestore();
   })
+
+  const loadMarkerFromFirestore = async () => {
+    const marker = await firebase.firestore.fetchMarker(props.userId, props.markerId);
+    console.log(marker)
+
+    if (marker !== undefined && marker !== null) {
+      setMarkerValid(() => marker.withData);
+    }
+
+    setLoading(() => false);
+    props.onMarkerLoaded;
+  }
 
   // // Effetto per gestire il login anonimo e la reattività
   // createEffect(() => {
@@ -74,12 +86,32 @@ export default function WelcomeUser(props) {
   //     );
   // }
 
+
+  const WelcomeScreen = () => {
+    return (
+      <div>
+        <h2>Benvenuto</h2>
+        <p>
+          {JSON.stringify(props.jsonData)}
+        </p>
+      </div>
+    );
+  }
+
+  const UnavailableScreen = () => {
+    return (
+      <div>
+        NON ESISTE!
+      </div>
+    )
+  }
+
+  //#region [return]
   return (
     <div>
-      <h2>Benvenuto anonimo!</h2>
-      <p>
-        {JSON.stringify(props.jsonData)}
-      </p>
+      {!loading() && (
+        markerValid() ? <WelcomeScreen /> : <UnavailableScreen />
+      )}
     </div>
   );
 }

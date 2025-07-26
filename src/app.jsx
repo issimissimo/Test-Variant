@@ -113,10 +113,10 @@ export default function App() {
         console.log('---> logged as anonymous')
         setUserId(() => params.get('userId'));
         const markerId = params.get('markerId');
-        const markerName = null;
-        const withData = true;
-        setupMarker(markerId, markerName, withData);
-        goToArSession();
+        setupMarker(markerId);
+        // goToArSession();
+        // setLoading(false);
+        goToWelcomeUser();
     }
 
 
@@ -149,7 +149,6 @@ export default function App() {
     // Add a new marker on the fly to the App 
     // and set it as currentMarker
     //
-    /// MA DAVVERO CI SERVE?????????????????
     const setupMarker = (markerId = null, markerName = null, withData = false) => {
         const marker = {
             id: markerId ? markerId : null,
@@ -158,7 +157,6 @@ export default function App() {
         }
         setCurrentMarker(() => marker);
         console.log("current marker:", currentMarker())
-        // goToEditMarker();
     }
 
 
@@ -269,7 +267,7 @@ export default function App() {
     }
 
     const goToWelcomeUser = () => {
-        SceneManager.init();
+        // SceneManager.init();
         setCurrentView(VIEWS.WELCOME_USER);
     }
 
@@ -321,9 +319,8 @@ export default function App() {
                         goToEditMarker();
                     }}
                     onMarkerClicked={(marker) => {
-                        console.log("marker clicked:", marker)
-                        setUserId(() => firebase.auth.user().uid);
-                        setCurrentMarker(() => marker);
+                        // setUserId(() => firebase.auth.user().uid);
+                        setupMarker(marker.id, marker.name)
                         goToEditMarker();
                     }}
                 />;
@@ -340,7 +337,10 @@ export default function App() {
 
             case VIEWS.WELCOME_USER:
                 return <WelcomeUser
-                    jsonData={jsonData()}
+                    userId={userId()}
+                    markerId={currentMarker().id}
+                    onMarkerLoaded={setLoading(false)}
+                // jsonData={jsonData()}
                 />;
 
             case VIEWS.AR_SESSION:
