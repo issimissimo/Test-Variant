@@ -78,9 +78,9 @@ export default function EditMarker(props) {
       if (props.marker.withData) {
         const path = `${props.userId}/${props.marker.id}`;
         await firebase.realtimeDb.deleteData(path);
-        props.onCancel();
+        props.onBack();
       }
-      else props.onCancel();
+      else props.onBack();
     } catch (error) {
       console.log({ type: 'error', text: `Errore: ${error.message}` });
     }
@@ -143,7 +143,7 @@ export default function EditMarker(props) {
 
         <Button
           type="button"
-          onClick={() => { props.onCancel() }}
+          onClick={() => { props.onBack() }}
           active={true}
           mode={BUTTON_MODE.DEFAULT}
         >

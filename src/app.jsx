@@ -37,7 +37,6 @@ const VIEWS = {
 export default function App() {
 
     //#region [constants]
-
     const firebase = useFirebase();
     const [currentMode, setCurrentMode] = createSignal(null);
     const [currentView, setCurrentView] = createSignal(null);
@@ -51,7 +50,6 @@ export default function App() {
 
 
     //#region [lifeCycle]
-
     createEffect(() => {
         // Hide preloader
         if (!loading()) document.getElementById("loading").style.display = "none";
@@ -242,9 +240,11 @@ export default function App() {
 
 
     /**
-     * Go back to 1st screen
+     * Clear all and
+     * go back to 1st screen
      */
     const handleGoBack = () => {
+        setupMarker();
         SceneManager.destroy();
         if (currentMode() === AppMode.SAVE) goToMarkerList();
         else if (currentMode() === AppMode.LOAD) goToWelcomeUser();
@@ -284,6 +284,7 @@ export default function App() {
 
     const Container = styled('div')`
         width: 90%;
+        height: 90%;
     `
 
 
@@ -334,7 +335,7 @@ export default function App() {
                     onNewMarkerCreated={(id, name) => setupMarker(id, name)}
                     // onModify={handleModifyMarker}
                     // onDelete={handleDeleteMarker}
-                    onCancel={handleGoBack}
+                    onBack={handleGoBack}
                 />;
 
             case VIEWS.WELCOME_USER:
