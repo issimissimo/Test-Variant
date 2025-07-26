@@ -9,12 +9,15 @@ import Register from './components/register';
 import Login from './components/login';
 import MarkerList from './components/markerList';
 import EditMarker from './components/editMarker';
-import WelcomeUser from './components/welcomeUser';
+import Anonymous from './components/anonymous/main';
 import ArSession from './components/arSession';
 import ArNotSupported from './components/arNotSupported';
 
 // XR
 import SceneManager from './xr/sceneManager';
+
+
+
 
 
 
@@ -28,7 +31,7 @@ const VIEWS = {
     LOGIN: 'login',
     MARKER_LIST: 'markerList',
     EDIT_MARKER: "editMarker",
-    WELCOME_USER: "welcomeUser",
+    ANONYMOUS: "anonymous",
     AR_SESSION: 'arSession',
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
@@ -116,7 +119,7 @@ export default function App() {
         setupMarker(markerId);
         // goToArSession();
         // setLoading(false);
-        goToWelcomeUser();
+        goToAnonymous();
     }
 
 
@@ -245,7 +248,7 @@ export default function App() {
         setupMarker();
         SceneManager.destroy();
         if (currentMode() === AppMode.SAVE) goToMarkerList();
-        else if (currentMode() === AppMode.LOAD) goToWelcomeUser();
+        else if (currentMode() === AppMode.LOAD) goToAnonymous();
         else console.error("AppMode not defined!")
     }
 
@@ -266,13 +269,8 @@ export default function App() {
         setCurrentView(VIEWS.EDIT_MARKER);
     }
 
-    const goToWelcomeUser = () => {
-        // SceneManager.init();
-        setCurrentView(VIEWS.WELCOME_USER);
-    }
-
+    const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
-
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
 
@@ -281,8 +279,8 @@ export default function App() {
     //#region [style]
 
     const Container = styled('div')`
-        width: 90%;
-        height: 90%;
+        width: 100%;
+        height: 100%;
     `
 
 
@@ -330,18 +328,16 @@ export default function App() {
                     userId={firebase.auth.user().uid}
                     marker={currentMarker()}
                     onNewMarkerCreated={(id, name) => setupMarker(id, name)}
-                    // onModify={handleModifyMarker}
-                    // onDelete={handleDeleteMarker}
                     onBack={handleGoBack}
                 />;
 
-            case VIEWS.WELCOME_USER:
-                return <WelcomeUser
+            case VIEWS.ANONYMOUS:
+                return <Anonymous
                     userId={userId()}
                     markerId={currentMarker().id}
                     onMarkerLoaded={setLoading(false)}
-                // jsonData={jsonData()}
                 />;
+                // return <ARWelcomeScreen></ARWelcomeScreen>
 
             case VIEWS.AR_SESSION:
                 return (
