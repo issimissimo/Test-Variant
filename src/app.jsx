@@ -9,7 +9,7 @@ import Register from './components/register';
 import Login from './components/login';
 import MarkerList from './components/markerList';
 import EditMarker from './components/editMarker';
-import Anonymous from './components/anonymous/main';
+import Anonymous from './components/anonymous';
 import ArSession from './components/arSession';
 import ArNotSupported from './components/arNotSupported';
 
@@ -239,6 +239,10 @@ export default function App() {
 
     const handleInitScene = () => {
         SceneManager.init();
+        SceneManager.renderer.xr.addEventListener("sessionstart", () => {
+            console.log("AR STARTED!");
+            goToArSession();
+        });
     }
 
 
