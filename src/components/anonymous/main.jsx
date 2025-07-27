@@ -5,9 +5,6 @@ import { useFirebase } from '../../hooks/useFirebase';
 import Welcome from './welcome';
 import Error from './error';
 
-// XR
-import SceneManager from '../../xr/sceneManager';
-
 
 export default function Main(props) {
 
@@ -28,16 +25,9 @@ export default function Main(props) {
 
     if (marker !== undefined && marker !== null) {
       setMarkerValid(() => marker.withData);
-      
-      // Initialize SceneManager
-      if (markerValid()) {
-        SceneManager.init();
-      }
     }
 
     props.onCheckFinished(marker);
-    // setLoading(() => false);
-    // props.onCheckFinished(marker);
   }
 
 

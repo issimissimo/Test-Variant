@@ -1,5 +1,5 @@
 {
   "isDebug": true,
-  "debugOnDesktop": false,
+  "debugOnDesktop": true,
   "usePlayGround": false
 }

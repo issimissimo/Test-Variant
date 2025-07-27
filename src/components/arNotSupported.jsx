@@ -1,6 +1,6 @@
 import { onMount, createSignal } from 'solid-js';
 import { styled, keyframes } from 'solid-styled-components';
-import { faMobileAlt, faQrcode, faDesktop, faTabletAlt } from '@fortawesome/free-solid-svg-icons';
+import { faMobileAlt } from '@fortawesome/free-solid-svg-icons';
 import { init } from '../hooks/useQRCode';
 
 
@@ -125,6 +125,8 @@ const InfoIcon = styled('div')`
   }
 `;
 
+
+
 const IconSVG = styled('svg')`
   width: 50px;
   height: 50px;
@@ -169,7 +171,7 @@ const QRContainer = styled('div')`
   margin: 0 auto 1rem;
   background: linear-gradient(45deg, #f8f9fa, #e9ecef, #dee2e6, #ced4da);
   background-size: 400% 400%;
-  border-radius: 20px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,6 +207,13 @@ const QRPlaceholder = styled('div')`
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+`;
+
+
+
+const QRImage = styled('img')`
+  width: 170px;
+  height: 170px;
 `;
 
 
@@ -260,7 +269,7 @@ export default function ARUnsupported() {
 
     const renderQRIcon = () => {
         return (
-            <img id="qr-code" />
+            <QRImage id="qr-code" />
         );
     };
 
@@ -313,7 +322,7 @@ export default function ARUnsupported() {
                 </DevicesList> */}
 
                 <InstructionText>
-                    Scansiona con un dispositivo compatibile per vivere
+                    Scansiona il Qr Code con un dispositivo compatibile per vivere
                     l'esperienza di realtà aumentata completa.
                 </InstructionText>
             </ContentWrapper>

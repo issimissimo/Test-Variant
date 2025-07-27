@@ -144,6 +144,7 @@ export default function MarkerList(props) {
                   <Item
                     onClick={() => {
                       props.onMarkerClicked(marker)
+                      console.log("marker clicked:", marker)
                     }}
                   >
                     {marker.name}

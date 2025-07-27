@@ -237,11 +237,16 @@ export default function App() {
     // }
 
 
+    const handleInitScene = () => {
+        SceneManager.init();
+    }
+
+
     /**
      * Clear all and
      * go back to 1st screen
      */
-    const handleGoBack = () => {
+    const handleReset = () => {
         setupMarker();
         SceneManager.destroy();
         if (currentMode() === AppMode.SAVE) goToMarkerList();
@@ -254,18 +259,12 @@ export default function App() {
     // Navigation
     //
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
-
     const goToLogin = () => {
         setLoading(() => false);
         setCurrentView(VIEWS.LOGIN);
     }
     const goToMarkerList = () => setCurrentView(VIEWS.MARKER_LIST);
-
-    const goToEditMarker = () => {
-        SceneManager.init();
-        setCurrentView(VIEWS.EDIT_MARKER);
-    }
-
+    const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
     const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
@@ -304,18 +303,13 @@ export default function App() {
                 return <MarkerList
                     setLoading={(value) => setLoading(() => value)}
                     onLogout={goToLogin}
-                    // onCreateMarker={() => {
-                    //     setUserId(() => firebase.auth.user().uid);
-                    //     addNewMarker();
-                    //     goToArSession();
-                    // }}
                     onCreateNewMarker={() => {
                         setupMarker();
                         goToEditMarker();
                     }}
                     onMarkerClicked={(marker) => {
                         // setUserId(() => firebase.auth.user().uid);
-                        setupMarker(marker.id, marker.name)
+                        setupMarker(marker.id, marker.name, marker.withData)
                         goToEditMarker();
                     }}
                 />;
@@ -325,7 +319,8 @@ export default function App() {
                     userId={firebase.auth.user().uid}
                     marker={currentMarker()}
                     onNewMarkerCreated={(id, name) => setupMarker(id, name)}
-                    onBack={handleGoBack}
+                    initScene={handleInitScene}
+                    onBack={handleReset}
                 />;
 
             case VIEWS.ANONYMOUS:
@@ -335,8 +330,9 @@ export default function App() {
                     loading={loading()}
                     onCheckFinished={(marker) => {
                         setLoading(() => false);
-                        if (marker !== undefined) {
+                        if (marker !== undefined && marker.withData) {
                             setupMarker(currentMarker().id, marker.name, marker.withData);
+                            handleInitScene();
                         }
                     }}
                 />;

@@ -33,6 +33,11 @@ export default function EditMarker(props) {
     else {
       setCanSave(() => false)
     }
+
+    if (markerId() !== null) {
+      console.log("marker id:", markerId())
+      props.initScene();
+    }
   })
 
 
@@ -78,13 +83,19 @@ export default function EditMarker(props) {
       if (props.marker.withData) {
         const path = `${props.userId}/${props.marker.id}`;
         await firebase.realtimeDb.deleteData(path);
-        props.onBack();
+        goBack();
       }
-      else props.onBack();
+      else goBack();
     } catch (error) {
       console.log({ type: 'error', text: `Errore: ${error.message}` });
     }
   };
+
+
+  const goBack = () => {
+    setMarkerId(() => null);
+    props.onBack();
+  }
 
 
   //#region [style]
@@ -143,7 +154,7 @@ export default function EditMarker(props) {
 
         <Button
           type="button"
-          onClick={() => { props.onBack() }}
+          onClick={() => { goBack() }}
           active={true}
           mode={BUTTON_MODE.DEFAULT}
         >
