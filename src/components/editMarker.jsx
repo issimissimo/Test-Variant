@@ -27,19 +27,18 @@ export default function EditMarker(props) {
   })
 
   createEffect(() => {
-    if (name() !== props.marker.name && name() !== "" && name() !== oldName()) {
-      setCanSave(() => true)
-    }
-    else {
-      setCanSave(() => false)
-    }
-
-    if (markerId() !== null) {
-      console.log("marker id:", markerId())
-      props.initScene();
-    }
+    // Enable save button
+    // only if something changed
+    setCanSave(() => props.marker.name && name() !== "" && name() !== oldName() ?
+      true : false)
   })
 
+
+  createEffect(() => {
+    // Create AR Button
+    // only if it's not a new marker
+    if (markerId() !== null) props.initScene();
+  })
 
   //#region [functions]
 

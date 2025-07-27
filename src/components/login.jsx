@@ -246,7 +246,6 @@ const RegisterSection = styled('div')`
 
 const RegisterText = styled('p')`
   font-size: 0.9rem;
-  /* color: #6c757d; */
   margin: 0 0 1rem 0;
 `;
 
@@ -280,19 +279,35 @@ const ErrorMessage = styled('div')`
   border-left: 4px solid #dc3545;
 `;
 
+const SuccessMessage = styled('div')`
+  background: #d4edda;
+  color: #155724;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #28a745;
+`;
+
 export default function ARLoginScreen(props) {
-  // Segnali per i form
-  const [email, setEmail] = createSignal('');
-  const [password, setPassword] = createSignal('');
+  // Hook Firebase
+  const { auth } = useFirebase();
+
+  // Segnali per i form (strutturati come nel backup)
+  const [form, setForm] = createSignal({
+    email: '',
+    password: ''
+  });
+
   const [showPassword, setShowPassword] = createSignal(false);
-  const [isLoading, setIsLoading] = createSignal(false);
-  const [error, setError] = createSignal('');
+  const [loading, setLoading] = createSignal(false);
+  const [message, setMessage] = createSignal({ type: '', text: '' });
 
   // Funzione per renderizzare icone SVG
   const renderIcon = (iconDefinition) => {
     const { icon } = iconDefinition;
     const [width, height, , , svgPathData] = icon;
-    
+
     return (
       <InputIcon viewBox={`0 0 ${width} ${height}`}>
         {Array.isArray(svgPathData) ? (
@@ -309,7 +324,7 @@ export default function ARLoginScreen(props) {
   const renderPasswordToggleIcon = (iconDefinition) => {
     const { icon } = iconDefinition;
     const [width, height, , , svgPathData] = icon;
-    
+
     return (
       <PasswordToggleIcon viewBox={`0 0 ${width} ${height}`}>
         {Array.isArray(svgPathData) ? (
@@ -326,7 +341,7 @@ export default function ARLoginScreen(props) {
   const renderLogoIcon = (iconDefinition) => {
     const { icon } = iconDefinition;
     const [width, height, , , svgPathData] = icon;
-    
+
     return (
       <LogoIcon viewBox={`0 0 ${width} ${height}`}>
         {Array.isArray(svgPathData) ? (
@@ -340,23 +355,50 @@ export default function ARLoginScreen(props) {
     );
   };
 
-  // Handlers
+  // Handler per l'input (adattato dal backup)
+  const handleInput = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handler per il login (adattato dal backup)
   const handleLogin = async () => {
-    if (!email() || !password()) {
-      setError('Tutti i campi sono obbligatori');
+    const currentForm = form();
+
+    if (!currentForm.email || !currentForm.password) {
+      setMessage({ type: 'error', text: 'Tutti i campi sono obbligatori' });
       return;
     }
 
-    setIsLoading(true);
-    setError('');
+    setMessage({ type: '', text: '' });
+    setLoading(true);
 
     try {
-      // Qui inserisci la tua logica di autenticazione
-      await props.onLogin?.(email(), password());
-    } catch (err) {
-      setError(err.message || 'Errore durante il login');
-    } finally {
-      setIsLoading(false);
+      // Login usando la stessa logica del backup
+      await auth.login(currentForm);
+
+      // Notifica l'App di navigare verso la home (come nel backup)
+      if (props.onSuccess) {
+        props.onSuccess();
+      }
+    } catch (error) {
+      let errorMessage = error.message;
+
+      // Gestione errori personalizzata (dal backup)
+      if (errorMessage.includes('user-not-found')) {
+        errorMessage = 'Utente non trovato';
+      } else if (errorMessage.includes('wrong-password')) {
+        errorMessage = 'Password errata';
+      } else if (errorMessage.includes('too-many-requests')) {
+        errorMessage = 'Troppi tentativi falliti. Riprova più tardi';
+      } else if (errorMessage.includes('invalid-email')) {
+        errorMessage = 'Formato email non valido';
+      } else if (errorMessage.includes('user-disabled')) {
+        errorMessage = 'Account disabilitato';
+      }
+
+      setMessage({ type: 'error', text: errorMessage });
+      setLoading(false);
     }
   };
 
@@ -378,7 +420,7 @@ export default function ARLoginScreen(props) {
   return (
     <Container>
       <BackgroundPattern />
-      
+
       <LoginCard>
         <Header>
           <Logo>
@@ -389,8 +431,16 @@ export default function ARLoginScreen(props) {
         </Header>
 
         <Form>
-          {error() && (
-            <ErrorMessage>{error()}</ErrorMessage>
+          {/* Messaggio di errore o successo */}
+          {message().text && (
+            <>
+              {message().type === 'error' && (
+                <ErrorMessage>{message().text}</ErrorMessage>
+              )}
+              {message().type === 'success' && (
+                <SuccessMessage>{message().text}</SuccessMessage>
+              )}
+            </>
           )}
 
           <InputGroup>
@@ -399,11 +449,13 @@ export default function ARLoginScreen(props) {
               {renderIcon(faUser)}
               <Input
                 type="email"
+                name="email"
                 placeholder="inserisci la tua email"
-                value={email()}
-                onInput={(e) => setEmail(e.target.value)}
+                value={form().email}
+                onInput={handleInput}
                 onKeyPress={handleKeyPress}
                 autocomplete="email"
+                required
               />
             </InputWrapper>
           </InputGroup>
@@ -414,11 +466,13 @@ export default function ARLoginScreen(props) {
               {renderIcon(faLock)}
               <Input
                 type={showPassword() ? 'text' : 'password'}
+                name="password"
                 placeholder="inserisci la tua password"
-                value={password()}
-                onInput={(e) => setPassword(e.target.value)}
+                value={form().password}
+                onInput={handleInput}
                 onKeyPress={handleKeyPress}
                 autocomplete="current-password"
+                required
               />
               <PasswordToggle
                 type="button"
@@ -432,9 +486,9 @@ export default function ARLoginScreen(props) {
 
           <LoginButton
             onClick={handleLogin}
-            disabled={isLoading() || !email() || !password()}
+            disabled={loading() || !form().email || !form().password}
           >
-            {isLoading() ? 'Accesso in corso...' : 'Accedi'}
+            {loading() ? 'Accesso in corso...' : 'Accedi'}
           </LoginButton>
         </Form>
 
