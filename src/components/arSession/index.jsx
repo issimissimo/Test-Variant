@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onMount } from 'solid-js';
+import { createSignal, createEffect, onMount, onCleanup } from 'solid-js';
 import { useFirebase } from '../../hooks/useFirebase';
 import { AppMode } from '../../app';
 import { config } from '../../config';
@@ -6,11 +6,12 @@ import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
 // UI
-// import WelcomeUser from './welcomeUser';
-// import EditMarker from './editMarker';
+import { CircleButton } from '../ui/ui';
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+
+// Components
 import Calibration from './calibration';
 import Game from './game';
-// import Unavailable from './arSession/unavailable';
 import Playground from './playground'; // for DEBUG!
 
 // XR
@@ -69,79 +70,48 @@ export default function Main(props) {
     * from SAVE or LOAD page (EditMarker / Welcome)
      */
     onMount(async () => {
+        console.log("AR Session started!")
 
-        if (props.currentMode === AppMode.SAVE) {
+        subscribeDomElementsToDisableTap();
 
-            // regular mode
-            if (!config.usePlayGround) {
-                goToEditMarker();
-                initialize();
-            }
-            // debug mode
-            else {
-                handleLoadMarkerData();
-                goToPlayGround();
-            }
+        // if (props.currentMode === AppMode.SAVE) {
 
-        }
-        else if (props.currentMode === AppMode.LOAD) {
-            await handleLoadMarkerData();
-            if (jsonData()) {
+        //     // regular mode
+        //     if (!config.usePlayGround) {
+        //         goToEditMarker();
+        //         initialize();
+        //     }
+        //     // debug mode
+        //     else {
+        //         handleLoadMarkerData();
+        //         goToPlayGround();
+        //     }
 
-                // All good, we've loaded the JSON data and we can
-                // go to Welcome screen
-                goToWelcome();
-                initialize();
-            }
-            else {
-                console.error("You are loading a marker as anonymous, but marker has no data or does not exist!")
-                goToMarkerNotExist();
-            }
+        // }
+        // else if (props.currentMode === AppMode.LOAD) {
+        //     await handleLoadMarkerData();
+        //     if (jsonData()) {
 
-            // Hide the preloader
-            props.loading(false);
-        }
-        else console.error("AppMode not specified")
-    })
+        //         // All good, we've loaded the JSON data and we can
+        //         // go to Welcome screen
+        //         goToWelcome();
+        //         initialize();
+        //     }
+        //     else {
+        //         console.error("You are loading a marker as anonymous, but marker has no data or does not exist!")
+        //         goToMarkerNotExist();
+        //     }
+
+        //     // Hide the preloader
+        //     props.loading(false);
+        // }
+        // else console.error("AppMode not specified")
+    });
+
 
 
     //#region [handlers]
 
-
-    /**
-    * Create a new marker, only in firebase
-    * and with the property withData = false 
-    * (JSON should be created later on)
-     */
-    const handleCreateMarker = async (name) => {
-        try {
-            const newMarkerId = await firebase.firestore.addMarker(firebase.auth.user().uid, name);
-            props.onSaveMarker(newMarkerId, name);
-            console.log('Creato in Firestore il marker con ID:', newMarkerId)
-        } catch (error) {
-            console.error('Errore aggiunta marker:', error);
-            throw error;
-        }
-    };
-
-
-
-
-    /**
-    * Delete a marker,
-    * both from firebase and its JSON from RealTime DB,
-    * and go back to Home
-     */
-    const handleDeleteMarker = async () => {
-        try {
-            await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-            const path = `${props.userId}/${props.marker.id}`;
-            await firebase.realtimeDb.deleteData(path);
-            handleBackToHome();
-        } catch (error) {
-            console.error("Errore completo cancellazione marker:", error);
-        }
-    };
 
 
 
@@ -185,15 +155,39 @@ export default function Main(props) {
 
 
     /**
-     * Go back to home screen
+     * Go back
      */
-    const handleBackToHome = () => {
-        SceneManager.destroy();
-        props.backToHome();
+    const handleGoBack = () => {
+        unSubscribeDomElementsToDisableTap();
+        props.onBack();
     }
 
 
     //#region [functions]
+
+    let _interactiveElements = [];
+
+    function subscribeDomElementsToDisableTap() {
+        _interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
+        _interactiveElements.forEach(element => {
+            element.addEventListener('pointerdown', disableTap);
+            element.addEventListener('touchstart', disableTap);
+        });
+    };
+
+    function unSubscribeDomElementsToDisableTap() {
+        _interactiveElements.forEach(element => {
+            element.removeEventListener('pointerdown', disableTap);
+            element.removeEventListener('touchstart', disableTap);
+        });
+    };
+
+    function disableTap(e) {
+        setTapEnabled(() => false);
+        e.stopPropagation();
+    };
+
+
 
     /**
      * Initialize the XR scene just when a marker is loaded,
@@ -232,33 +226,33 @@ export default function Main(props) {
     }
 
 
-    /**
-     * We do some stuff, when the user click "Enter AR" button
-     * and consequently 'onSessionStarted' is called
-     */
-    const onARSessionStarted = () => {
-        if (props.currentMode === AppMode.SAVE) {
+    // /**
+    //  * We do some stuff, when the user click "Enter AR" button
+    //  * and consequently 'onSessionStarted' is called
+    //  */
+    // const onARSessionStarted = () => {
+    //     if (props.currentMode === AppMode.SAVE) {
 
-            // Check if is a new marker
-            console.log('current marker:', props.marker)
+    //         // Check if is a new marker
+    //         console.log('current marker:', props.marker)
 
-            if (props.marker.id) {
-                console.log('current marker is saved, with id:', props.marker.id)
+    //         if (props.marker.id) {
+    //             console.log('current marker is saved, with id:', props.marker.id)
 
-                if (props.marker.withData) {
-                    console.log('...and it seem to have a JSON saved too...')
-                    handleLoadMarkerData();
-                }
-            }
+    //             if (props.marker.withData) {
+    //                 console.log('...and it seem to have a JSON saved too...')
+    //                 handleLoadMarkerData();
+    //             }
+    //         }
 
-            else {
-                console.log('current marker is not saved, we need to save it on Firestore...')
-                handleCreateMarker(markerName());
-            }
-        }
-        console.log("NOW GO TO CALIBRATION!")
-        goToCalibration();
-    }
+    //         else {
+    //             console.log('current marker is not saved, we need to save it on Firestore...')
+    //             handleCreateMarker(markerName());
+    //         }
+    //     }
+    //     console.log("NOW GO TO CALIBRATION!")
+    //     goToCalibration();
+    // }
 
 
 
@@ -357,7 +351,7 @@ export default function Main(props) {
                     onCreate={handleCreateMarker}
                     // onModify={handleModifyMarker}
                     onDelete={handleDeleteMarker}
-                    onCancel={handleBackToHome}
+                // onCancel={handleBackToHome}
                 />;
 
             case VIEWS.CALIBRATION:
@@ -377,7 +371,7 @@ export default function Main(props) {
                     scene={SceneManager.scene}
                     data={jsonData()}
                     hitMatrix={hitMatrix()}
-                    onClose={handleBackToHome}
+                // onClose={handleBackToHome}
                 />;
 
             case VIEWS.MARKER_NOT_EXIST:
@@ -398,8 +392,13 @@ export default function Main(props) {
 
     //#region [style]
 
-
-
+    const BackButtonContainer = styled('div')`
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+    `
 
 
 
@@ -407,7 +406,14 @@ export default function Main(props) {
 
     return (
         <div id="arSession">
-            {renderView()}
+            <BackButtonContainer>
+                <CircleButton
+                    onClick={handleGoBack}
+                    icon={faArrowLeft}
+                >
+                </CircleButton>
+            </BackButtonContainer>
+            {/* {renderView()} */}
         </div>
     );
 }

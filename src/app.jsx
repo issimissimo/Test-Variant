@@ -237,10 +237,13 @@ export default function App() {
     // }
 
 
+    /**
+     * Initialize Three Scene, with AR Button
+     * and go to ARSession
+     */
     const handleInitScene = () => {
         SceneManager.init();
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
-            console.log("AR STARTED!");
             goToArSession();
         });
     }
@@ -267,7 +270,10 @@ export default function App() {
         setLoading(() => false);
         setCurrentView(VIEWS.LOGIN);
     }
-    const goToMarkerList = () => setCurrentView(VIEWS.MARKER_LIST);
+    const goToMarkerList = () => {
+        setUserId(() => firebase.auth.user().uid);
+        setCurrentView(VIEWS.MARKER_LIST);
+    }
     const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
     const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
@@ -320,7 +326,7 @@ export default function App() {
 
             case VIEWS.EDIT_MARKER:
                 return <EditMarker
-                    userId={firebase.auth.user().uid}
+                    userId={userId()}
                     marker={currentMarker()}
                     onNewMarkerCreated={(id, name) => setupMarker(id, name)}
                     initScene={handleInitScene}
@@ -349,7 +355,8 @@ export default function App() {
                             currentMode={currentMode()}
                             userId={userId()}
                             marker={currentMarker()}
-                            backToHome={() => goToMarkerList()}
+                            // backToHome={() => goToMarkerList()}
+                            onBack={handleReset}
                             onSaveMarker={(id, name) => setupMarker(id, name)}
                         />
                     </Portal>

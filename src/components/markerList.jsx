@@ -83,10 +83,11 @@ export default function MarkerList(props) {
     `
 
 
+
+
   //#region [return]
   return (
     <Container id="markerList">
-
 
       {firebase.auth.authLoading() ? (
         <div>
@@ -152,25 +153,6 @@ export default function MarkerList(props) {
               )}
             </div>
           </div>
-
-          <div>
-
-
-            {/* <button
-              onClick={props.onGoToRegister}
-              class={secondaryButton}
-            >
-              Vai alla registrazione
-            </button>
-
-            <button
-              onClick={props.onGoToLogin}
-              class={secondaryButton}
-            >
-              Vai al login
-            </button> */}
-          </div>
-
         </div>
       )}
       <AddNewContainer>

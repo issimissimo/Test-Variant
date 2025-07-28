@@ -55,3 +55,38 @@ export const Button = (props) => {
   );
 };
 
+
+const StyledCircleButton = styled('button')`
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        outline: none;
+        /* margin: 20px; */
+        opacity: ${props => props.active ? 1 : 0.2};
+        pointer-events: ${props => props.active ? 'auto' : 'none'};
+        /* visibility: ${props => props.visible ? 'visible' : 'hidden'}; */
+        background: rgba(68, 68, 68, 0.2);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(7.1px);
+    `
+
+
+export const CircleButton = (props) => {
+  const Icon = () => (
+    <Fa icon={props.icon} size="1x" class="icon" />
+  );
+  return (
+    <StyledCircleButton
+      type={props.type || "button"}
+      onClick={props.onClick}
+      active={props.active ?? true}
+      class={props.class}
+    >
+      {props.icon && <Icon />}
+      {/* {props.children} */}
+    </StyledCircleButton>
+  );
+};
+
