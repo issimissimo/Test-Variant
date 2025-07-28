@@ -63,7 +63,9 @@ const SceneManager = {
             optionalFeatures: ["dom-overlay"],
             domOverlay: { root: document.getElementById("overlay") },
         })
-        document.body.appendChild(this.arButton);
+        document.getElementById("ArButtonContainer").appendChild(this.arButton);
+        
+        // document.body.appendChild(this.arButton);
 
         console.log("SceneManager initialized");
         this.initialized = true;

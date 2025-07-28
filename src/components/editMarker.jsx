@@ -2,7 +2,9 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { generateQRCodeForForMarker } from '../hooks/useQRCode';
 import { styled } from 'solid-styled-components';
-import { Button, BUTTON_MODE } from './ui/ui';
+
+//UI
+import { Button, BUTTON_MODE, ArButtonContainer } from './ui/ui';
 import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -179,6 +181,8 @@ export default function EditMarker(props) {
           </Button>
         )}
       </Form>
+
+      <ArButtonContainer id="ArButtonContainer"/>
     </Container>
   );
 }

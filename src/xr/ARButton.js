@@ -2,44 +2,51 @@ class ARButton {
   static createButton(renderer, sessionInit = {}) {
 
     const button = document.createElement("button");
+    button.id = "ARButton";
+    button.style.width = "100%";
+    button.style.height = "40px";
+    button.style.borderRadius = "90px";
+    button.style.border = "none";
+    button.style.outline = "none";
+    // margin-top: 15px;
+    button.style.display = "flex";
+    button.style.alignItems = "center";
+    button.style.justifyContent = "center";
 
-    function showStartAR(/*device*/) {
+
+    navigator.xr
+      .isSessionSupported("immersive-ar")
+      .then(function (supported) {
+
+        if (supported) {
+          button.textContent = "Inizia in AR";
+          button.style.pointerEvents = "auto";
+          button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
+          initializeButton();
+        }
+        else {
+          button.textContent = "AR non supportata :(";
+          button.style.pointerEvents = "none";
+          button.style.backgroundColor = "rgb(83, 83, 83)"
+        }
+      })
+
+
+    function initializeButton() {
       let currentSession = null;
 
       function onSessionStarted(session) {
         session.addEventListener("end", onSessionEnded);
-
         renderer.xr.setReferenceSpaceType("local");
-
         renderer.xr.setSession(session);
-        button.textContent = "STOP AR";
-
         currentSession = session;
       }
 
-      function onSessionEnded(/*event*/) {
+      function onSessionEnded() {
         currentSession.removeEventListener("end", onSessionEnded);
-
-        button.textContent = "START AR!";
-
         currentSession = null;
       }
 
-      //
-
-      button.style.cursor = "pointer";
-      button.style.left = "calc(50% - 50px)";
-      button.style.width = "110px";
-
-      button.textContent = "START AR!";
-
-      // button.onmouseenter = function () {
-      //   button.style.opacity = "1.0";
-      // };
-
-      // button.onmouseleave = function () {
-      //   button.style.opacity = "1.0";
-      // };
 
       button.onclick = function () {
         if (currentSession === null) {
@@ -52,72 +59,7 @@ class ARButton {
       };
     }
 
-    // function disableButton() {
-    //   button.style.display = "";
-
-    //   button.style.cursor = "auto";
-    //   button.style.left = "calc(50% - 75px)";
-    //   button.style.width = "150px";
-
-    //   button.onmouseenter = null;
-    //   button.onmouseleave = null;
-
-    //   button.onclick = null;
-    // }
-
-    function showARNotSupported() {
-      // disableButton();
-      button.textContent = "AR non supportata :(";
-    }
-
-    function stylizeElement(element) {
-      element.style.position = "absolute";
-      element.style.bottom = "20px";
-      element.style.padding = "9px 6px";
-      element.style.border = "2px solid #fff";
-      element.style.borderRadius = "10px";
-      element.style.background = "transparent";
-      element.style.color = "#fff";
-      element.style.textAlign = "center";
-      element.style.opacity = "1";
-      element.style.outline = "none";
-      element.style.zIndex = "999";
-    }
-
-    if ("xr" in navigator) {
-      button.id = "ARButton";
-      button.style.display = "none";
-
-      stylizeElement(button);
-
-      navigator.xr
-        .isSessionSupported("immersive-ar")
-        .then(function (supported) {
-          supported ? showStartAR() : showARNotSupported();
-        })
-        .catch(showARNotSupported);
-
-      return button;
-    } else {
-      const message = document.createElement("a");
-
-      if (window.isSecureContext === false) {
-        message.href = document.location.href.replace(/^http:/, "https:");
-        message.innerHTML = "WEBXR NEEDS HTTPS"; // TODO Improve message
-      } else {
-        message.href = "https://immersiveweb.dev/";
-        message.innerHTML = "WEBXR NOT AVAILABLE :(";
-        document.querySelector(".arrows").style.display = "none";
-      }
-
-      message.style.left = "calc(50% - 90px)";
-      message.style.width = "180px";
-      message.style.textDecoration = "none";
-
-      stylizeElement(message);
-
-      return message;
-    }
+    return button;
   }
 }
 

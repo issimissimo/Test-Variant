@@ -1,9 +1,12 @@
 import { createSignal, onMount } from 'solid-js';
 import { useFirebase } from '../../hooks/useFirebase';
 
-//UI
+//Components
 import Welcome from './welcome';
 import Error from './error';
+
+//UI
+import { ArButtonContainer } from '../ui/ui';
 
 
 export default function Main(props) {
@@ -12,7 +15,7 @@ export default function Main(props) {
   const firebase = useFirebase();
   const [markerValid, setMarkerValid] = createSignal(false)
 
-  
+
   //#region [lifeCycle]
   onMount(() => {
     loadMarkerFromFirestore();
@@ -36,7 +39,13 @@ export default function Main(props) {
   return (
     <div>
       {!props.loading && (
-        markerValid() ? <Welcome /> : <Error />
+        markerValid() ?
+          <div>
+            <Welcome />
+            <ArButtonContainer id="ArButtonContainer"/>
+          </div>
+          :
+          <Error />
       )}
     </div>
   );

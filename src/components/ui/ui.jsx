@@ -90,3 +90,19 @@ export const CircleButton = (props) => {
   );
 };
 
+
+export const ArButtonContainer = styled('div')`
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        /* width: 100%; */
+        height: 150px;
+        z-index: 1000;
+        /* background-color: red; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        padding: 50px;
+    `
