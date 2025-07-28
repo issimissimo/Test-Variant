@@ -320,11 +320,16 @@ export default function Main(props) {
     /**
      * Navigation helpers
      */
-    const goToWelcome = () => setCurrentView(VIEWS.WELCOME);
-    const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
-    const goToCalibration = () => setCurrentView(VIEWS.CALIBRATION);
-    const goToGame = () => setCurrentView(VIEWS.GAME);
-    const goToMarkerNotExist = () => setCurrentView(VIEWS.MARKER_NOT_EXIST);
+    const goToCalibration = () => {
+        unSubscribeDomElementsToDisableTap();
+        subscribeDomElementsToDisableTap();
+        setCurrentView(VIEWS.CALIBRATION)
+    };
+    const goToGame = () => {
+        unSubscribeDomElementsToDisableTap();
+        subscribeDomElementsToDisableTap();
+        setCurrentView(VIEWS.GAME)
+    };
     const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
 
 

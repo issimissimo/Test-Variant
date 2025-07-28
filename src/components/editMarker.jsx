@@ -102,8 +102,6 @@ export default function EditMarker(props) {
         max-width: 28rem;
         margin: 0 auto;
         padding: 1.5rem;
-        background-color: grey;
- 
         display: flex;
         flex-direction: column;
         /* max-width: 28rem; */

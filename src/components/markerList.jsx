@@ -51,7 +51,6 @@ export default function MarkerList(props) {
         margin: 0 auto;
         box-sizing: border-box;
         padding: 1.5rem;
-        background-color: grey;
         display: flex;
         flex-direction: column;
         margin: 0 auto;

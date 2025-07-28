@@ -6,7 +6,7 @@ import { styled } from 'solid-styled-components';
 
 // UI
 import Register from './components/register';
-import Login from './components/login';
+import Login from './components/login_new';
 import MarkerList from './components/markerList';
 import EditMarker from './components/editMarker';
 import Anonymous from './components/anonymous';
@@ -318,7 +318,6 @@ export default function App() {
                         goToEditMarker();
                     }}
                     onMarkerClicked={(marker) => {
-                        // setUserId(() => firebase.auth.user().uid);
                         setupMarker(marker.id, marker.name, marker.withData)
                         goToEditMarker();
                     }}
@@ -355,7 +354,6 @@ export default function App() {
                             currentMode={currentMode()}
                             userId={userId()}
                             marker={currentMarker()}
-                            // backToHome={() => goToMarkerList()}
                             onBack={handleReset}
                             onSaveMarker={(id, name) => setupMarker(id, name)}
                         />

@@ -1,7 +1,8 @@
 // import * as from 'three';
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
+// import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
+import { ARButton } from "./ARButton";
 import {
     Scene,
     PerspectiveCamera,
@@ -53,10 +54,15 @@ const SceneManager = {
         window.addEventListener("resize", this.resizeHandler);
 
         // Creazione AR Button
+        // this.arButton = ARButton.createButton(this.renderer, {
+        //     requiredFeatures: ["local", "hit-test", "dom-overlay"],
+        //     domOverlay: { root: document.querySelector("#overlay") },
+        // });
         this.arButton = ARButton.createButton(this.renderer, {
-            requiredFeatures: ["local", "hit-test", "dom-overlay"],
-            domOverlay: { root: document.querySelector("#overlay") },
-        });
+            requiredFeatures: ["hit-test"],
+            optionalFeatures: ["dom-overlay"],
+            domOverlay: { root: document.getElementById("overlay") },
+        })
         document.body.appendChild(this.arButton);
 
         console.log("SceneManager initialized");

@@ -1,5 +1,6 @@
 class ARButton {
   static createButton(renderer, sessionInit = {}) {
+
     const button = document.createElement("button");
 
     function showStartAR(/*device*/) {
@@ -26,21 +27,19 @@ class ARButton {
 
       //
 
-      button.style.display = "";
-
       button.style.cursor = "pointer";
       button.style.left = "calc(50% - 50px)";
       button.style.width = "110px";
 
       button.textContent = "START AR!";
 
-      button.onmouseenter = function () {
-        button.style.opacity = "1.0";
-      };
+      // button.onmouseenter = function () {
+      //   button.style.opacity = "1.0";
+      // };
 
-      button.onmouseleave = function () {
-        button.style.opacity = "1.0";
-      };
+      // button.onmouseleave = function () {
+      //   button.style.opacity = "1.0";
+      // };
 
       button.onclick = function () {
         if (currentSession === null) {
@@ -53,24 +52,22 @@ class ARButton {
       };
     }
 
-    function disableButton() {
-      button.style.display = "";
+    // function disableButton() {
+    //   button.style.display = "";
 
-      button.style.cursor = "auto";
-      button.style.left = "calc(50% - 75px)";
-      button.style.width = "150px";
+    //   button.style.cursor = "auto";
+    //   button.style.left = "calc(50% - 75px)";
+    //   button.style.width = "150px";
 
-      button.onmouseenter = null;
-      button.onmouseleave = null;
+    //   button.onmouseenter = null;
+    //   button.onmouseleave = null;
 
-      button.onclick = null;
-    }
+    //   button.onclick = null;
+    // }
 
     function showARNotSupported() {
-      disableButton();
-      document.querySelector(".arrows").style.display = "none";
-      document.querySelector(".banner").style.display = "block";
-      button.textContent = "AR NOT SUPPORTED :(";
+      // disableButton();
+      button.textContent = "AR non supportata :(";
     }
 
     function stylizeElement(element) {
@@ -79,15 +76,12 @@ class ARButton {
       element.style.padding = "9px 6px";
       element.style.border = "2px solid #fff";
       element.style.borderRadius = "10px";
-      element.style.transform = "rotate(2deg)";
       element.style.background = "transparent";
       element.style.color = "#fff";
-      element.style.font = '21px "Gaegu", cursive';
       element.style.textAlign = "center";
       element.style.opacity = "1";
       element.style.outline = "none";
       element.style.zIndex = "999";
-      element.style.visibility = "hidden";
     }
 
     if ("xr" in navigator) {
