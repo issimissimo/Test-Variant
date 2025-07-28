@@ -201,7 +201,7 @@ export default function ArSession(props) {
      * (with Three.js, xr, Reticle)
      */
     const initialize = () => {
-        if (!SceneManager.initialized) {
+        if (!SceneManager._initialized) {
 
             SceneManager.init();
             SceneManager.renderer.setAnimationLoop(render);
@@ -310,7 +310,7 @@ export default function ArSession(props) {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-        if (SceneManager.initialized) {
+        if (SceneManager._initialized) {
             if (frame) {
                 Reticle.update(frame, (surfType) => {
                 });

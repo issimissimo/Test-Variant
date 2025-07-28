@@ -80,7 +80,7 @@ function _alignZAxisWithUp() {
 }
 
 
-function _setReticlePropertiers() {
+function _setReticleProperties() {
     _planeMesh.matrixAutoUpdate = false;
     _planeMesh.visible = false;
     _scene.add(_planeMesh);
@@ -119,7 +119,7 @@ const Reticle = {
      * @param {number} [options.color] - Il colore del reticolo.
      */
     set(options = {}) {
-
+        console.log("set reticle")
         if (options.renderer) _renderer = options.renderer;
         if (options.scene) _scene = options.scene;
         if (options.camera) _camera = options.camera;
@@ -135,6 +135,7 @@ const Reticle = {
         if (options.color) _options.color = options.color;
 
         if (options.fileName) {
+            console.log("loading GLTF")
             const loader = new GLTFLoader();
             loader.load(
                 options.fileName,
@@ -142,7 +143,8 @@ const Reticle = {
                     const r = gltf.scene;
                     const ref = r.children[0];
                     _planeMesh = ref.clone();
-                    _setReticlePropertiers();
+                    console.log("reticle GLTF loaded, now set properties")
+                    _setReticleProperties();
                 },
                 (xhr) => {
                     // console.log((xhr.loaded / xhr.total * 100) + '% loaded of reticle');
@@ -159,7 +161,7 @@ const Reticle = {
             const ringGeometry = new RingGeometry(_options.innerRadius, _options.radius, _options.segments).rotateX(-Math.PI / 2);
             const material = new MeshBasicMaterial({ color: _options.color || 0xffffff });
             _planeMesh = new Mesh(ringGeometry, material);
-            _setReticlePropertiers();
+            _setReticleProperties();
         }
 
         // Add the circle in front of the camera
@@ -263,6 +265,10 @@ const Reticle = {
                 }
             }
         }
+    },
+
+    initialized() {
+        return _initialized;
     },
 
     isHitting() {

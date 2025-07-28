@@ -1,7 +1,6 @@
 // import * as from 'three';
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-// import { ARButton } from "three/examples/jsm/webxr/ARButton.js";
 import { ARButton } from "./ARButton";
 import {
     Scene,
@@ -15,10 +14,10 @@ import {
 
 
 const SceneManager = {
-    initialized: false,
+    _initialized: false,
 
     init() {
-        if (this.initialized) {
+        if (this._initialized) {
             console.warn("Scene is already initialized");
             return;
         }
@@ -54,10 +53,6 @@ const SceneManager = {
         window.addEventListener("resize", this.resizeHandler);
 
         // Creazione AR Button
-        // this.arButton = ARButton.createButton(this.renderer, {
-        //     requiredFeatures: ["local", "hit-test", "dom-overlay"],
-        //     domOverlay: { root: document.querySelector("#overlay") },
-        // });
         this.arButton = ARButton.createButton(this.renderer, {
             requiredFeatures: ["hit-test"],
             optionalFeatures: ["dom-overlay"],
@@ -65,14 +60,12 @@ const SceneManager = {
         })
         document.getElementById("ArButtonContainer").appendChild(this.arButton);
         
-        // document.body.appendChild(this.arButton);
-
         console.log("SceneManager initialized");
-        this.initialized = true;
+        this._initialized = true;
     },
 
     destroy() {
-        if (!this.initialized) {
+        if (!this._initialized) {
             console.warn("Scene not initialized, nothing to destroy");
             return;
         }
@@ -131,7 +124,7 @@ const SceneManager = {
         this.container = null;
         this.controller = null;
         this.arButton = null;
-        this.initialized = false;
+        this._initialized = false;
 
         console.log("SceneManager destroyed");
     },
@@ -143,11 +136,15 @@ const SceneManager = {
 
 
     update() {
-        if (!this.initialized) {
+        if (!this._initialized) {
             console.error("SceneManager not initialized");
             return;
         }
         this.renderer.render(this.scene, this.camera);
+    },
+
+    initialized() {
+        return this._initialized;
     },
 
     // Add a mesh to the scene

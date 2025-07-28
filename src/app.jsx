@@ -4,7 +4,7 @@ import { useFirebase } from './hooks/useFirebase';
 import { config } from './config';
 import { styled } from 'solid-styled-components';
 
-// UI
+// Components
 import Register from './components/register';
 import Login from './components/login_new';
 import MarkerList from './components/markerList';

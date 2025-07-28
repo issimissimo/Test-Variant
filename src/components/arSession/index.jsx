@@ -65,14 +65,13 @@ export default function Main(props) {
     })
 
 
-    /**
-    * At the beginning we need to switch
-    * from SAVE or LOAD page (EditMarker / Welcome)
-     */
-    onMount(async () => {
+   
+    onMount(() => {
         console.log("AR Session started!")
 
         subscribeDomElementsToDisableTap();
+
+        start();
 
         // if (props.currentMode === AppMode.SAVE) {
 
@@ -115,41 +114,41 @@ export default function Main(props) {
 
 
 
-    /**
-     * Load JSON from Firebase Realtime DB
-     * and set jsonData()
-     */
-    const handleLoadMarkerData = async () => {
-        try {
-            const path = `${props.userId}/${props.marker.id}/data`;
-            const data = await firebase.realtimeDb.loadData(path);
-            setJsonData(() => data);
-        } catch (error) {
-            console.error("Errore nel caricamento JSON:", error);
-        }
-    }
+    // /**
+    //  * Load JSON from Firebase Realtime DB
+    //  * and set jsonData()
+    //  */
+    // const handleLoadMarkerData = async () => {
+    //     try {
+    //         const path = `${props.userId}/${props.marker.id}/data`;
+    //         const data = await firebase.realtimeDb.loadData(path);
+    //         setJsonData(() => data);
+    //     } catch (error) {
+    //         console.error("Errore nel caricamento JSON:", error);
+    //     }
+    // }
 
 
 
-    /**
-     * Save jsonData() to Firebase Realtime DB
-     * and, if necessary, update Firestore marker data:
-     * withData = true
-     */
-    const handleSaveMarkerData = async (data) => {
-        try {
-            const path = `${props.userId}/${props.marker.id}/data`;
-            await firebase.realtimeDb.saveData(path, data);
-            setJsonData(() => data);
+    // /**
+    //  * Save jsonData() to Firebase Realtime DB
+    //  * and, if necessary, update Firestore marker data:
+    //  * withData = true
+    //  */
+    // const handleSaveMarkerData = async (data) => {
+    //     try {
+    //         const path = `${props.userId}/${props.marker.id}/data`;
+    //         await firebase.realtimeDb.saveData(path, data);
+    //         setJsonData(() => data);
 
-            if (!props.marker.withData) {
-                firebase.firestore.updateMarker(props.userId, props.marker.id,
-                    props.marker.name, true);
-            }
-        } catch (error) {
-            console.log({ type: 'error', text: `Errore: ${error.message}` });
-        }
-    }
+    //         if (!props.marker.withData) {
+    //             firebase.firestore.updateMarker(props.userId, props.marker.id,
+    //                 props.marker.name, true);
+    //         }
+    //     } catch (error) {
+    //         console.log({ type: 'error', text: `Errore: ${error.message}` });
+    //     }
+    // }
 
 
 
@@ -173,6 +172,7 @@ export default function Main(props) {
             element.addEventListener('pointerdown', disableTap);
             element.addEventListener('touchstart', disableTap);
         });
+        console.log("interactive el:", _interactiveElements)
     };
 
     function unSubscribeDomElementsToDisableTap() {
@@ -190,39 +190,36 @@ export default function Main(props) {
 
 
     /**
-     * Initialize the XR scene just when a marker is loaded,
+     * Initialize the XR scene,
      * both as admin (SAVE mode) or user (LOAD mode)
      * (with Three.js, xr, Reticle)
      */
-    const initialize = () => {
-        if (!SceneManager.initialized) {
+    const start = () => {
 
-            SceneManager.init();
-            SceneManager.renderer.setAnimationLoop(render);
-            SceneManager.renderer.xr.addEventListener("sessionstart", onARSessionStarted);
-            SceneManager.controller.addEventListener("select", onTapOnScreen);
-            SceneManager.loadGizmo();
+        SceneManager.renderer.setAnimationLoop(render);
+        SceneManager.controller.addEventListener("select", onTapOnScreen);
+        SceneManager.loadGizmo();
 
 
-            // // Init Reticle
-            // Reticle.set({
-            //     renderer: SceneManager.renderer,
-            //     scene: SceneManager.scene,
-            //     camera: SceneManager.camera,
-            //     color: 0x00ff00,
-            //     radius: 0.06,
-            //     innerRadius: 0.05,
-            //     segments: 4,
-            // });
+        // // Init Reticle
+        // Reticle.set({
+        //     renderer: SceneManager.renderer,
+        //     scene: SceneManager.scene,
+        //     camera: SceneManager.camera,
+        //     color: 0x00ff00,
+        //     radius: 0.06,
+        //     innerRadius: 0.05,
+        //     segments: 4,
+        // });
 
-            // Init Reticle
-            Reticle.set({
-                renderer: SceneManager.renderer,
-                scene: SceneManager.scene,
-                camera: SceneManager.camera,
-                fileName: 'models/gizmo.glb'
-            });
-        }
+        // Init Reticle
+        Reticle.set({
+            renderer: SceneManager.renderer,
+            scene: SceneManager.scene,
+            camera: SceneManager.camera,
+            fileName: 'models/gizmo.glb'
+        });
+
     }
 
 
@@ -304,8 +301,8 @@ export default function Main(props) {
      * Always updates the SceneManager for each animation frame.
      */
     function render(timestamp, frame) {
-        if (SceneManager.initialized) {
-            if (frame) {
+        if (SceneManager.initialized()) {
+            if (frame && Reticle.initialized()) {
                 Reticle.update(frame, (surfType) => {
                 });
                 setPlaneFound(Reticle.isHitting())

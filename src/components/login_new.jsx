@@ -52,17 +52,18 @@ const BackgroundPattern = styled('div')`
 `;
 
 const LoginCard = styled('div')`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 2rem;
+  /* background: rgba(255, 255, 255, 0.1); */
+  /* backdrop-filter: blur(10px); */
+  /* border-radius: 20px; */
+  /* padding: 2rem; */
   width: 85%;
   max-width: 400px;
-  box-shadow: 
+  /* box-shadow: 
     0 20px 40px rgba(0,0,0,0.1),
-    0 0 0 1px rgba(255,255,255,0.2);
+    0 0 0 1px rgba(255,255,255,0.2); */
   animation: ${fadeInUp} 0.8s ease-out;
   color: white;
+  z-index: 999;
   
   @media (max-width: 480px) {
     padding: 1.5rem;
@@ -198,7 +199,7 @@ const LoginButton = styled('button')`
   padding: 0.875rem;
   background: linear-gradient(45deg, #667eea, #764ba2);
   color: white;
-  border: none;
+  border: 2px solid;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
@@ -419,7 +420,7 @@ export default function ARLoginScreen(props) {
 
   return (
     <Container>
-      <BackgroundPattern />
+      <BackgroundPattern/>
 
       <LoginCard>
         <Header>
@@ -484,7 +485,7 @@ export default function ARLoginScreen(props) {
             </InputWrapper>
           </InputGroup>
 
-          <LoginButton
+          <LoginButton id="loginButton"
             onClick={handleLogin}
             disabled={loading() || !form().email || !form().password}
           >
