@@ -28,12 +28,8 @@ export const BlurBackground = styled('div')`
 
 
 const VIEWS = {
-    WELCOME: 'welcome',
-    EDIT_MARKER: 'editMarker',
     CALIBRATION: 'calibration',
     GAME: 'game',
-    MARKER_NOT_EXIST: 'markerNotExist',
-    PLAYGROUND: 'playground'
 };
 
 
@@ -49,14 +45,18 @@ export default function Main(props) {
     const [planeFound, setPlaneFound] = createSignal(false);
     const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
     // const [tapEnabled, setTapEnabled] = createSignal(true);
-    const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
+    // const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
 
     let tapEnabled = true;
     let calibrationCompleted = false;
 
 
 
+    const [interactable, setInteractable] = createSignal([]);
 
+    createEffect(() => {
+        console.log(interactable())
+    })
 
 
     //#region [lifeCycle]
@@ -105,11 +105,7 @@ export default function Main(props) {
     });
 
 
-    createEffect(() => {
-        // console.log('> tap enabled:', tapEnabled())
-        // console.log('> iOS:', iOS())
-        console.log(clickableDomElements());
-    })
+    
 
 
 
@@ -161,7 +157,7 @@ export default function Main(props) {
      * Go back
      */
     const handleGoBack = () => {
-        unSubscribeDomElementsToDisableTap();
+        removeDomElementsToDisableTap();
         props.onBack();
     }
 
@@ -171,6 +167,7 @@ export default function Main(props) {
     let _clickableDomElements = [];
 
     function updateClickableDomElementsHandler() {
+        removeDomElementsToDisableTap();
         _clickableDomElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
         _clickableDomElements.forEach(element => {
             element.addEventListener('pointerdown', disableTap);
@@ -179,7 +176,7 @@ export default function Main(props) {
         console.log("interactive DOM elements:", _clickableDomElements)
     };
 
-    function unSubscribeDomElementsToDisableTap() {
+    function removeDomElementsToDisableTap() {
         _clickableDomElements.forEach(element => {
             element.removeEventListener('pointerdown', disableTap);
             element.removeEventListener('touchstart', disableTap);
@@ -191,7 +188,11 @@ export default function Main(props) {
         e.stopPropagation();
     };
 
-
+    createEffect(() => {
+        // console.log('> tap enabled:', tapEnabled())
+        // console.log('> iOS:', iOS())
+        console.log(_clickableDomElements);
+    })
 
     /**
      * Initialize the XR scene,
@@ -272,6 +273,10 @@ export default function Main(props) {
             tapEnabled = true;
             return;
         }
+
+        interactable().forEach(el => {
+            el.onTap();
+        });
 
         // if (!canEdit()) return;
 
@@ -368,31 +373,31 @@ export default function Main(props) {
                     planeFound={planeFound()}
                 />;
 
-            case VIEWS.GAME:
-                return <Game
-                    currentMode={props.currentMode}
-                    // disableTap={setTapEnabled(() => false)}
-                    canEdit={canEdit()}
-                    setCanEdit={(value) => setCanEdit(() => value)}
-                    userId={props.userId}
-                    marker={props.marker}
-                    saveData={(data) => handleSaveMarkerData(data)}
-                    scene={SceneManager.scene}
-                    data={jsonData()}
-                    hitMatrix={hitMatrix()}
-                // onClose={handleBackToHome}
-                />;
+            // case VIEWS.GAME:
+            //     return <Game
+            //         currentMode={props.currentMode}
+            //         // disableTap={setTapEnabled(() => false)}
+            //         canEdit={canEdit()}
+            //         setCanEdit={(value) => setCanEdit(() => value)}
+            //         userId={props.userId}
+            //         marker={props.marker}
+            //         saveData={(data) => handleSaveMarkerData(data)}
+            //         scene={SceneManager.scene}
+            //         data={jsonData()}
+            //         hitMatrix={hitMatrix()}
+            //     // onClose={handleBackToHome}
+            //     />;
 
             // case VIEWS.MARKER_NOT_EXIST:
             //     return <Unavailable
             //     />;
 
-            case VIEWS.PLAYGROUND:
-                return <Playground
-                    jsonData={jsonData()}
-                    setJsonData={(data) => setJsonData(() => data)}
-                    save={handleSaveMarkerData}
-                />;
+            // case VIEWS.PLAYGROUND:
+            //     return <Playground
+            //         jsonData={jsonData()}
+            //         setJsonData={(data) => setJsonData(() => data)}
+            //         save={handleSaveMarkerData}
+            //     />;
         }
     };
 
@@ -401,7 +406,7 @@ export default function Main(props) {
 
     //#region [style]
 
-    
+
 
 
 
@@ -409,8 +414,13 @@ export default function Main(props) {
 
     return (
         <div id="arSession">
-        
+
             <BackButton onClick={handleGoBack} />
+
+            <Calibration
+                planeFound={planeFound()}
+                onInteractableReady={(el) => setInteractable(() => el)}
+            />;
 
             {/* {renderView()} */}
         </div>
