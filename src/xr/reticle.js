@@ -119,7 +119,8 @@ const Reticle = {
      * @param {number} [options.color] - Il colore del reticolo.
      */
     set(options = {}) {
-        console.log("set reticle")
+        _initialized = false;
+
         if (options.renderer) _renderer = options.renderer;
         if (options.scene) _scene = options.scene;
         if (options.camera) _camera = options.camera;
@@ -143,7 +144,6 @@ const Reticle = {
                     const r = gltf.scene;
                     const ref = r.children[0];
                     _planeMesh = ref.clone();
-                    console.log("reticle GLTF loaded, now set properties")
                     _setReticleProperties();
                 },
                 (xhr) => {

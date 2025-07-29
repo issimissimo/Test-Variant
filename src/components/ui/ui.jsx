@@ -1,5 +1,6 @@
 import { styled } from 'solid-styled-components';
 import Fa from 'solid-fa';
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 
 export const BUTTON_MODE = {
@@ -106,3 +107,29 @@ export const ArButtonContainer = styled('div')`
         box-sizing: border-box;
         padding: 50px;
     `
+
+//
+// Back Button
+//
+
+const BackButtonStyled = styled(CircleButton)`
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        border: 1px solid;
+    `
+
+export const BackButton = (props) => {
+  return (
+    <BackButtonStyled
+      icon={faArrowLeft}
+      onClick={props.onClick}
+    >
+    </BackButtonStyled>
+  )
+}

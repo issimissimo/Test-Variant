@@ -52,15 +52,15 @@ const BackgroundPattern = styled('div')`
 `;
 
 const LoginCard = styled('div')`
-  /* background: rgba(255, 255, 255, 0.1); */
-  /* backdrop-filter: blur(10px); */
-  /* border-radius: 20px; */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
   /* padding: 2rem; */
   width: 85%;
   max-width: 400px;
-  /* box-shadow: 
+  box-shadow: 
     0 20px 40px rgba(0,0,0,0.1),
-    0 0 0 1px rgba(255,255,255,0.2); */
+    0 0 0 1px rgba(255,255,255,0.2);
   animation: ${fadeInUp} 0.8s ease-out;
   color: white;
   z-index: 999;

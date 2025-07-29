@@ -6,8 +6,7 @@ import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
 // UI
-import { CircleButton } from '../ui/ui';
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { BackButton } from '../ui/ui';
 
 // Components
 import Calibration from './calibration';
@@ -45,31 +44,29 @@ export default function Main(props) {
 
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
-    const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
+    // const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
     const [jsonData, setJsonData] = createSignal(null);
     const [planeFound, setPlaneFound] = createSignal(false);
     const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
-    const [tapEnabled, setTapEnabled] = createSignal(true);
+    // const [tapEnabled, setTapEnabled] = createSignal(true);
     const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
 
+    let tapEnabled = true;
     let calibrationCompleted = false;
+
+
 
 
 
 
     //#region [lifeCycle]
 
-    createEffect(() => {
-        // console.log('> tap enabled:', tapEnabled())
-        // console.log('> iOS:', iOS())
-    })
-
-
-   
     onMount(() => {
         console.log("AR Session started!")
 
-        subscribeDomElementsToDisableTap();
+        /// questo non ci serve più dopo che avremo messo i componenti
+        // perchè verrà chiamato direttamente dai componenti oNmOUNT
+        updateClickableDomElementsHandler();
 
         start();
 
@@ -106,6 +103,13 @@ export default function Main(props) {
         // }
         // else console.error("AppMode not specified")
     });
+
+
+    createEffect(() => {
+        // console.log('> tap enabled:', tapEnabled())
+        // console.log('> iOS:', iOS())
+        console.log(clickableDomElements());
+    })
 
 
 
@@ -164,26 +168,26 @@ export default function Main(props) {
 
     //#region [functions]
 
-    let _interactiveElements = [];
+    let _clickableDomElements = [];
 
-    function subscribeDomElementsToDisableTap() {
-        _interactiveElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
-        _interactiveElements.forEach(element => {
+    function updateClickableDomElementsHandler() {
+        _clickableDomElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
+        _clickableDomElements.forEach(element => {
             element.addEventListener('pointerdown', disableTap);
             element.addEventListener('touchstart', disableTap);
         });
-        console.log("interactive el:", _interactiveElements)
+        console.log("interactive DOM elements:", _clickableDomElements)
     };
 
     function unSubscribeDomElementsToDisableTap() {
-        _interactiveElements.forEach(element => {
+        _clickableDomElements.forEach(element => {
             element.removeEventListener('pointerdown', disableTap);
             element.removeEventListener('touchstart', disableTap);
         });
     };
 
     function disableTap(e) {
-        setTapEnabled(() => false);
+        tapEnabled = false;
         e.stopPropagation();
     };
 
@@ -198,6 +202,9 @@ export default function Main(props) {
 
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.controller.addEventListener("select", onTapOnScreen);
+
+        // only for debug, load the default gizmo to show
+        // where we tap
         SceneManager.loadGizmo();
 
 
@@ -261,34 +268,39 @@ export default function Main(props) {
      */
     const onTapOnScreen = () => {
 
-        if (!canEdit()) return;
-
-        console.log('>> onTapOnScreen:', tapEnabled())
-
-        // Stop here if it's a DOM event
-        if (!tapEnabled()) {
-            setTapEnabled(() => true);
+        if (!tapEnabled) {
+            tapEnabled = true;
             return;
         }
 
-        if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
-            const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
+        // if (!canEdit()) return;
 
-            // Set the hitMatrix signal
-            setHitMatrix(() => reticleMatrix);
-            console.log("MATRICE CAMBIATA!")
+        // console.log('>> onTapOnScreen:', tapEnabled())
 
-            // First time...
-            if (!calibrationCompleted) {
+        // // Stop here if it's a DOM event
+        // if (!tapEnabled()) {
+        //     setTapEnabled(() => true);
+        //     return;
+        // }
 
-                if (config.isDebug) {
-                    SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
-                }
+        // if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
+        //     const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
 
-                calibrationCompleted = true;
-                goToGame();
-            }
-        }
+        //     // Set the hitMatrix signal
+        //     setHitMatrix(() => reticleMatrix);
+        //     console.log("MATRICE CAMBIATA!")
+
+        //     // First time...
+        //     if (!calibrationCompleted) {
+
+        //         if (config.isDebug) {
+        //             SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
+        //         }
+
+        //         calibrationCompleted = true;
+        //         goToGame();
+        //     }
+        // }
     }
 
 
@@ -296,7 +308,6 @@ export default function Main(props) {
 
     /**
      * Handles the rendering loop for the AR scene.
-     * 
      * If an XR frame is available, updates the Reticle based on the current frame and surface type.
      * Always updates the SceneManager for each animation frame.
      */
@@ -318,13 +329,9 @@ export default function Main(props) {
      * Navigation helpers
      */
     const goToCalibration = () => {
-        unSubscribeDomElementsToDisableTap();
-        subscribeDomElementsToDisableTap();
         setCurrentView(VIEWS.CALIBRATION)
     };
     const goToGame = () => {
-        unSubscribeDomElementsToDisableTap();
-        subscribeDomElementsToDisableTap();
         setCurrentView(VIEWS.GAME)
     };
     const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
@@ -339,22 +346,22 @@ export default function Main(props) {
 
         switch (currentView()) {
 
-            case VIEWS.WELCOME:
-                return <WelcomeUser
-                    jsonData={jsonData()}
-                />;
+            // case VIEWS.WELCOME:
+            //     return <WelcomeUser
+            //         jsonData={jsonData()}
+            //     />;
 
-            case VIEWS.EDIT_MARKER:
-                return <EditMarker
-                    userId={props.userId}
-                    marker={props.marker}
-                    markerName={markerName()}
-                    setMarkerName={(name) => setMarkerName(() => name)}
-                    onCreate={handleCreateMarker}
-                    // onModify={handleModifyMarker}
-                    onDelete={handleDeleteMarker}
-                // onCancel={handleBackToHome}
-                />;
+            // case VIEWS.EDIT_MARKER:
+            //     return <EditMarker
+            //         userId={props.userId}
+            //         marker={props.marker}
+            //         markerName={markerName()}
+            //         setMarkerName={(name) => setMarkerName(() => name)}
+            //         onCreate={handleCreateMarker}
+            //         // onModify={handleModifyMarker}
+            //         onDelete={handleDeleteMarker}
+            //     // onCancel={handleBackToHome}
+            //     />;
 
             case VIEWS.CALIBRATION:
                 return <Calibration
@@ -364,7 +371,7 @@ export default function Main(props) {
             case VIEWS.GAME:
                 return <Game
                     currentMode={props.currentMode}
-                    disableTap={setTapEnabled(() => false)}
+                    // disableTap={setTapEnabled(() => false)}
                     canEdit={canEdit()}
                     setCanEdit={(value) => setCanEdit(() => value)}
                     userId={props.userId}
@@ -376,9 +383,9 @@ export default function Main(props) {
                 // onClose={handleBackToHome}
                 />;
 
-            case VIEWS.MARKER_NOT_EXIST:
-                return <Unavailable
-                />;
+            // case VIEWS.MARKER_NOT_EXIST:
+            //     return <Unavailable
+            //     />;
 
             case VIEWS.PLAYGROUND:
                 return <Playground
@@ -394,13 +401,7 @@ export default function Main(props) {
 
     //#region [style]
 
-    const BackButtonContainer = styled('div')`
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-    `
+    
 
 
 
@@ -408,13 +409,9 @@ export default function Main(props) {
 
     return (
         <div id="arSession">
-            <BackButtonContainer>
-                <CircleButton
-                    onClick={handleGoBack}
-                    icon={faArrowLeft}
-                >
-                </CircleButton>
-            </BackButtonContainer>
+        
+            <BackButton onClick={handleGoBack} />
+
             {/* {renderView()} */}
         </div>
     );

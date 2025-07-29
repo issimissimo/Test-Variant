@@ -4,7 +4,7 @@ import { generateQRCodeForForMarker } from '../hooks/useQRCode';
 import { styled } from 'solid-styled-components';
 
 //UI
-import { Button, BUTTON_MODE, ArButtonContainer } from './ui/ui';
+import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from './ui/ui';
 import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -105,7 +105,7 @@ export default function EditMarker(props) {
         margin: 0 auto;
         padding: 1.5rem;
         display: flex;
-        flex-direction: column;
+        /* flex-direction: column; */
         /* max-width: 28rem; */
         margin: 0 auto;
         /* padding: 1.5rem; */
@@ -113,11 +113,14 @@ export default function EditMarker(props) {
         border-radius: 0.5rem;
         
         min-height: 500px;
+        margin-top: 50px;
+        justify-content: center;
     `
 
   const Form = styled('form')`
         display: flex;
         flex-direction: column;
+        width: 100%;
     `
 
   const Title = styled('input')`
@@ -129,12 +132,21 @@ export default function EditMarker(props) {
         text-align: center;
     `
 
-
+  const QrCodeContainer = styled('div')`
+        width: 100%;
+        align-items: center;
+    `
+  
+  const QrCodeImg = styled('img')`
+        text-align: center;
+    `
 
 
   //#region [return]
   return (
     <Container id="editMarker">
+
+      <BackButton onClick={() => goBack()} />
 
       <Form>
         <Title id="title"
@@ -144,21 +156,14 @@ export default function EditMarker(props) {
           placeholder="Nome"
           required
         />
-
-        {props.marker.withData ?
-          <img id="qr-code" />
-          :
-          <p>No data here!</p>
-        }
-
-        <Button
-          type="button"
-          onClick={() => { goBack() }}
-          active={true}
-          mode={BUTTON_MODE.DEFAULT}
-        >
-          Indietro
-        </Button>
+        
+        <QrCodeContainer>
+          {props.marker.withData ?
+            <QrCodeImg id="qr-code" />
+            :
+            <p>No data here!</p>
+          }
+        </QrCodeContainer>
 
         <Button
           type="button"
@@ -182,7 +187,7 @@ export default function EditMarker(props) {
         )}
       </Form>
 
-      <ArButtonContainer id="ArButtonContainer"/>
+      <ArButtonContainer id="ArButtonContainer" />
     </Container>
   );
 }
