@@ -1,13 +1,28 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
-import useInteractable from './useInteractable';
+import { useInteractable } from './hooks';
 
 import { styled } from 'solid-styled-components';
 
-
+// import SceneManager from '../../xr/sceneManager';
+import Reticle from '../../xr/reticle';
 
 
 export default function Calibration(props) {
     const [difficult, setDifficult] = createSignal(false)
+
+    onMount(() => {
+
+        // Setup Reticle for calibration
+        // Reticle.set({
+        //     renderer: SceneManager.renderer,
+        //     scene: SceneManager.scene,
+        //     camera: SceneManager.camera,
+        //     fileName: 'models/gizmo.glb'
+        // });
+        Reticle.set({
+            fileName: 'models/gizmo.glb'
+        });
+    });
 
     let timeout = null;
 
@@ -26,16 +41,18 @@ export default function Calibration(props) {
     // })
 
 
-    const interactable = useInteractable("calibration", {
+    // Put here derived functions
+    // from useInteractable
+    const { interactable } = useInteractable("calibration", {
 
-        // Override completo - sostituisce tutto
         onTap: () => {
+            // Call super
+            interactable.super.onTap();
+
+            // function
             console.log("calibration: onTap");
         }
     });
-
-    // Add this interactable
-    props.onInteractableReady?.(interactable);
 
 
     return (

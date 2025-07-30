@@ -11,6 +11,7 @@ import {
     Camera,
     WebGLRenderer
 } from 'three';
+import SceneManager from "./sceneManager";
 
 
 let _renderer = null;
@@ -121,11 +122,11 @@ const Reticle = {
     set(options = {}) {
         _initialized = false;
 
-        if (options.renderer) _renderer = options.renderer;
-        if (options.scene) _scene = options.scene;
-        if (options.camera) _camera = options.camera;
+        _renderer = SceneManager.renderer;
+        _scene = SceneManager.scene;
+        _camera = SceneManager.camera;
 
-        if (!_renderer || !_scene || !_camera) {
+        if (!SceneManager.initialized || !_renderer || !_scene || !_camera) {
             console.error("XrReticle: renderer or scene not set");
             return;
         }

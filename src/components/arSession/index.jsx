@@ -19,18 +19,19 @@ import SceneManager from '../../xr/sceneManager';
 import Reticle from '../../xr/reticle';
 
 
-export const BlurBackground = styled('div')`
-    background: rgba(68, 68, 68, 0.2);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(7.1px);
-    `
+// export const BlurBackground = styled('div')`
+//     background: rgba(68, 68, 68, 0.2);
+//     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+//     backdrop-filter: blur(5px);
+//     -webkit-backdrop-filter: blur(7.1px);
+//     `
 
+import { Context } from './hooks';
 
-const VIEWS = {
-    CALIBRATION: 'calibration',
-    GAME: 'game',
-};
+// const VIEWS = {
+//     CALIBRATION: 'calibration',
+//     GAME: 'game',
+// };
 
 
 
@@ -52,23 +53,40 @@ export default function Main(props) {
 
 
 
-    const [interactable, setInteractable] = createSignal([]);
+    const [interactable, setInteractable] = createSignal(null);
 
     createEffect(() => {
-        console.log(interactable())
+        console.log("INTERACTABLES:", interactable())
     })
 
 
     //#region [lifeCycle]
 
     onMount(() => {
-        console.log("AR Session started!")
 
-        /// questo non ci serve più dopo che avremo messo i componenti
-        // perchè verrà chiamato direttamente dai componenti oNmOUNT
-        updateClickableDomElementsHandler();
+        // /// questo non ci serve più dopo che avremo messo i componenti
+        // // perchè verrà chiamato direttamente dai componenti oNmOUNT
+        // updateClickableDomElements();
 
-        start();
+
+
+        SceneManager.renderer.setAnimationLoop(render);
+        SceneManager.controller.addEventListener("select", () => {
+            if (!tapEnabled) {
+                tapEnabled = true;
+                return;
+            }
+            interactable()?.onTap();
+        });
+
+
+
+
+
+
+
+
+        // start();
 
         // if (props.currentMode === AppMode.SAVE) {
 
@@ -105,7 +123,7 @@ export default function Main(props) {
     });
 
 
-    
+
 
 
 
@@ -157,7 +175,7 @@ export default function Main(props) {
      * Go back
      */
     const handleGoBack = () => {
-        removeDomElementsToDisableTap();
+        removeClickableDomElements();
         props.onBack();
     }
 
@@ -166,69 +184,73 @@ export default function Main(props) {
 
     let _clickableDomElements = [];
 
-    function updateClickableDomElementsHandler() {
-        removeDomElementsToDisableTap();
+    function disableTap(e) {
+        tapEnabled = false;
+        e.stopPropagation();
+    };
+
+    function updateClickableDomElements() {
+        removeClickableDomElements();
         _clickableDomElements = document.querySelectorAll('#overlay button, #overlay a, #overlay [data-interactive]');
         _clickableDomElements.forEach(element => {
             element.addEventListener('pointerdown', disableTap);
             element.addEventListener('touchstart', disableTap);
         });
-        console.log("interactive DOM elements:", _clickableDomElements)
+        console.log("clickable DOM elements:", _clickableDomElements)
     };
 
-    function removeDomElementsToDisableTap() {
+    function removeClickableDomElements() {
         _clickableDomElements.forEach(element => {
             element.removeEventListener('pointerdown', disableTap);
             element.removeEventListener('touchstart', disableTap);
         });
     };
 
-    function disableTap(e) {
-        tapEnabled = false;
-        e.stopPropagation();
-    };
 
-    createEffect(() => {
-        // console.log('> tap enabled:', tapEnabled())
-        // console.log('> iOS:', iOS())
-        console.log(_clickableDomElements);
-    })
+
+
 
     /**
      * Initialize the XR scene,
      * both as admin (SAVE mode) or user (LOAD mode)
      * (with Three.js, xr, Reticle)
      */
-    const start = () => {
+    // const start = () => {
 
-        SceneManager.renderer.setAnimationLoop(render);
-        SceneManager.controller.addEventListener("select", onTapOnScreen);
+    //     SceneManager.renderer.setAnimationLoop(render);
+    //     SceneManager.controller.addEventListener("select", () => {
+    //         if (!tapEnabled) {
+    //             tapEnabled = true;
+    //             return;
+    //         }
+    //         interactable()?.onTap();
+    //     });
 
-        // only for debug, load the default gizmo to show
-        // where we tap
-        SceneManager.loadGizmo();
+    //     // // only for debug, load the default gizmo to show
+    //     // // where we tap
+    //     // SceneManager.loadGizmo();
 
 
-        // // Init Reticle
-        // Reticle.set({
-        //     renderer: SceneManager.renderer,
-        //     scene: SceneManager.scene,
-        //     camera: SceneManager.camera,
-        //     color: 0x00ff00,
-        //     radius: 0.06,
-        //     innerRadius: 0.05,
-        //     segments: 4,
-        // });
+    //     // // Init Reticle
+    //     // Reticle.set({
+    //     //     renderer: SceneManager.renderer,
+    //     //     scene: SceneManager.scene,
+    //     //     camera: SceneManager.camera,
+    //     //     color: 0x00ff00,
+    //     //     radius: 0.06,
+    //     //     innerRadius: 0.05,
+    //     //     segments: 4,
+    //     // });
 
-        // Init Reticle
-        Reticle.set({
-            renderer: SceneManager.renderer,
-            scene: SceneManager.scene,
-            camera: SceneManager.camera,
-            fileName: 'models/gizmo.glb'
-        });
+    //     // // Init Reticle
+    //     // Reticle.set({
+    //     //     renderer: SceneManager.renderer,
+    //     //     scene: SceneManager.scene,
+    //     //     camera: SceneManager.camera,
+    //     //     fileName: 'models/gizmo.glb'
+    //     // });
 
-    }
+    // }
 
 
     // /**
@@ -267,46 +289,45 @@ export default function Main(props) {
      * or send the hitMatrix to Game
      * to create an asset on hitMatrix
      */
-    const onTapOnScreen = () => {
+    // const onTapOnScreen = () => {
 
-        if (!tapEnabled) {
-            tapEnabled = true;
-            return;
-        }
+    //     if (!tapEnabled) {
+    //         tapEnabled = true;
+    //         return;
+    //     }
 
-        interactable().forEach(el => {
-            el.onTap();
-        });
+    //     interactable().onTap();
 
-        // if (!canEdit()) return;
 
-        // console.log('>> onTapOnScreen:', tapEnabled())
+    //     // if (!canEdit()) return;
 
-        // // Stop here if it's a DOM event
-        // if (!tapEnabled()) {
-        //     setTapEnabled(() => true);
-        //     return;
-        // }
+    //     // console.log('>> onTapOnScreen:', tapEnabled())
 
-        // if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
-        //     const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
+    //     // // Stop here if it's a DOM event
+    //     // if (!tapEnabled()) {
+    //     //     setTapEnabled(() => true);
+    //     //     return;
+    //     // }
 
-        //     // Set the hitMatrix signal
-        //     setHitMatrix(() => reticleMatrix);
-        //     console.log("MATRICE CAMBIATA!")
+    //     // if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
+    //     //     const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
 
-        //     // First time...
-        //     if (!calibrationCompleted) {
+    //     //     // Set the hitMatrix signal
+    //     //     setHitMatrix(() => reticleMatrix);
+    //     //     console.log("MATRICE CAMBIATA!")
 
-        //         if (config.isDebug) {
-        //             SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
-        //         }
+    //     //     // First time...
+    //     //     if (!calibrationCompleted) {
 
-        //         calibrationCompleted = true;
-        //         goToGame();
-        //     }
-        // }
-    }
+    //     //         if (config.isDebug) {
+    //     //             SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
+    //     //         }
+
+    //     //         calibrationCompleted = true;
+    //     //         goToGame();
+    //     //     }
+    //     // }
+    // }
 
 
 
@@ -324,22 +345,23 @@ export default function Main(props) {
                 setPlaneFound(Reticle.isHitting())
             }
             SceneManager.update();
+            SceneManager.renderer.render(SceneManager.scene, SceneManager.camera);
         }
     };
 
 
 
 
-    /**
-     * Navigation helpers
-     */
-    const goToCalibration = () => {
-        setCurrentView(VIEWS.CALIBRATION)
-    };
-    const goToGame = () => {
-        setCurrentView(VIEWS.GAME)
-    };
-    const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
+    // /**
+    //  * Navigation helpers
+    //  */
+    // const goToCalibration = () => {
+    //     setCurrentView(VIEWS.CALIBRATION)
+    // };
+    // const goToGame = () => {
+    //     setCurrentView(VIEWS.GAME)
+    // };
+    // const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
 
 
 
@@ -368,10 +390,10 @@ export default function Main(props) {
             //     // onCancel={handleBackToHome}
             //     />;
 
-            case VIEWS.CALIBRATION:
-                return <Calibration
-                    planeFound={planeFound()}
-                />;
+            // case VIEWS.CALIBRATION:
+            //     return <Calibration
+            //         planeFound={planeFound()}
+            //     />;
 
             // case VIEWS.GAME:
             //     return <Game
@@ -403,6 +425,19 @@ export default function Main(props) {
 
 
 
+    /**
+     * This function is called each time
+     * a new Interactable is mounted,
+     * thanks to useInteractable
+     */
+    const handleInteractableReady = (el) => {
+        // set the interactable that we are using
+        setInteractable(() => el);
+        // update the DOM elements that can be clicked
+        updateClickableDomElements();
+    };
+
+
 
     //#region [style]
 
@@ -413,16 +448,17 @@ export default function Main(props) {
     //#region [return]
 
     return (
-        <div id="arSession">
+        <Context.Provider value={{ onReady: handleInteractableReady }}>
+            <div id="arSession">
 
-            <BackButton onClick={handleGoBack} />
+                <BackButton onClick={handleGoBack} />
 
-            <Calibration
-                planeFound={planeFound()}
-                onInteractableReady={(el) => setInteractable(() => el)}
-            />;
+                <Calibration
+                    planeFound={planeFound()}
+                />;
 
-            {/* {renderView()} */}
-        </div>
+                {/* {renderView()} */}
+            </div>
+        </Context.Provider>
     );
 }
