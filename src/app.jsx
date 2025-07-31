@@ -15,6 +15,7 @@ import ArNotSupported from './components/arNotSupported';
 
 // XR
 import SceneManager from './xr/sceneManager';
+import Reticle from './xr/reticle';
 
 
 
@@ -46,9 +47,12 @@ export default function App() {
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [currentMarker, setCurrentMarker] = createSignal(null);
+
+    const [planeFound, setPlaneFound] = createSignal(false);
+    // const [loopAnimation, setLoopAnimation] = createSignal(null);
     // const [jsonData, setJsonData] = createSignal(null);
 
-
+    let animation = null; // the animation to render in the loop
 
 
 
@@ -162,6 +166,32 @@ export default function App() {
 
 
 
+    /**
+    * Handles the rendering loop for the AR scene.
+    * If an XR frame is available, updates the Reticle based on the current frame and surface type.
+    * Always updates the SceneManager for each animation frame.
+    * 
+    * N.B: We NEED to put the render function in the SAME module
+    * in which we initialize the scene (unfortunately)!
+    */
+    function render(timestamp, frame) {
+        if (SceneManager.initialized()) {
+
+            if (frame && Reticle.initialized()) {
+                Reticle.update(frame, (surfType) => {
+                });
+                setPlaneFound(Reticle.isHitting())
+            }
+
+            if (animation) animation();
+
+            SceneManager.update();
+        }
+    };
+
+
+
+
     //#region [handlers]
 
 
@@ -171,9 +201,19 @@ export default function App() {
      */
     const handleInitScene = () => {
         SceneManager.init();
+        SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
             goToArSession();
         });
+    }
+
+
+    /**
+     * Set the animation
+     * to render in the loop (from Interactables)
+     */
+    const handleSetAnimation = (func) => {
+        animation = func;
     }
 
 
@@ -184,10 +224,13 @@ export default function App() {
     const handleReset = () => {
         setupMarker();
         SceneManager.destroy();
+        animation = null;
         if (currentMode() === AppMode.SAVE) goToMarkerList();
         else if (currentMode() === AppMode.LOAD) goToAnonymous();
         else console.error("AppMode not defined!")
     }
+
+
 
 
     //
@@ -282,6 +325,8 @@ export default function App() {
                             marker={currentMarker()}
                             onBack={handleReset}
                             onSaveMarker={(id, name) => setupMarker(id, name)}
+                            planeFound={planeFound()}
+                            setAnimation={(func) => handleSetAnimation(func)}
                         />
                     </Portal>
                 );

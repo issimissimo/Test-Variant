@@ -16,7 +16,7 @@ import Playground from './playground'; // for DEBUG!
 // XR
 import SceneManager from '../../xr/sceneManager';
 // import AssetManager from '../xr/assetManager';
-import Reticle from '../../xr/reticle';
+// import Reticle from '../../xr/reticle';
 
 
 // export const BlurBackground = styled('div')`
@@ -43,8 +43,8 @@ export default function Main(props) {
     const [currentView, setCurrentView] = createSignal(null);
     // const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
     const [jsonData, setJsonData] = createSignal(null);
-    const [planeFound, setPlaneFound] = createSignal(false);
-    const [hitMatrix, setHitMatrix] = createSignal(new Matrix4());
+    // const [planeFound, setPlaneFound] = createSignal(false);
+    const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
     // const [tapEnabled, setTapEnabled] = createSignal(true);
     // const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
 
@@ -70,7 +70,7 @@ export default function Main(props) {
 
 
 
-        SceneManager.renderer.setAnimationLoop(render);
+        // SceneManager.renderer.setAnimationLoop(render);
         SceneManager.controller.addEventListener("select", () => {
             if (!tapEnabled) {
                 tapEnabled = true;
@@ -178,6 +178,28 @@ export default function Main(props) {
         removeClickableDomElements();
         props.onBack();
     }
+
+
+
+    /**
+     * Set the reference (initial) Matrix4
+     */
+    const handleSetReferenceMatrix = (matrix) => {
+        setReferenceMatrix(() => matrix);
+    }
+
+
+    /**
+    * This function is called each time
+    * a new Interactable is mounted,
+    * thanks to useInteractable
+    */
+    const handleInteractableReady = (el) => {
+        // set the interactable that we are using
+        setInteractable(() => el);
+        // update the DOM elements that can be clicked
+        updateClickableDomElements();
+    };
 
 
     //#region [functions]
@@ -332,22 +354,21 @@ export default function Main(props) {
 
 
 
-    /**
-     * Handles the rendering loop for the AR scene.
-     * If an XR frame is available, updates the Reticle based on the current frame and surface type.
-     * Always updates the SceneManager for each animation frame.
-     */
-    function render(timestamp, frame) {
-        if (SceneManager.initialized()) {
-            if (frame && Reticle.initialized()) {
-                Reticle.update(frame, (surfType) => {
-                });
-                setPlaneFound(Reticle.isHitting())
-            }
-            SceneManager.update();
-            SceneManager.renderer.render(SceneManager.scene, SceneManager.camera);
-        }
-    };
+    // /**
+    //  * Handles the rendering loop for the AR scene.
+    //  * If an XR frame is available, updates the Reticle based on the current frame and surface type.
+    //  * Always updates the SceneManager for each animation frame.
+    //  */
+    // function render(timestamp, frame) {
+    //     if (SceneManager.initialized()) {
+    //         if (frame && Reticle.initialized()) {
+    //             Reticle.update(frame, (surfType) => {
+    //             });
+    //             setPlaneFound(Reticle.isHitting())
+    //         }
+    //         SceneManager.update();
+    //     }
+    // };
 
 
 
@@ -425,17 +446,10 @@ export default function Main(props) {
 
 
 
-    /**
-     * This function is called each time
-     * a new Interactable is mounted,
-     * thanks to useInteractable
-     */
-    const handleInteractableReady = (el) => {
-        // set the interactable that we are using
-        setInteractable(() => el);
-        // update the DOM elements that can be clicked
-        updateClickableDomElements();
-    };
+
+
+
+
 
 
 
@@ -454,7 +468,10 @@ export default function Main(props) {
                 <BackButton onClick={handleGoBack} />
 
                 <Calibration
-                    planeFound={planeFound()}
+                    // planeFound={planeFound()}
+                    planeFound={props.planeFound}
+                    setAnimation={props.setAnimation}
+                    setReferenceMatrix={handleSetReferenceMatrix}
                 />;
 
                 {/* {renderView()} */}

@@ -12,16 +12,14 @@ export default function Calibration(props) {
 
     onMount(() => {
 
-        // Setup Reticle for calibration
-        // Reticle.set({
-        //     renderer: SceneManager.renderer,
-        //     scene: SceneManager.scene,
-        //     camera: SceneManager.camera,
-        //     fileName: 'models/gizmo.glb'
-        // });
         Reticle.set({
             fileName: 'models/gizmo.glb'
         });
+
+        const anim = () => {
+            console.log("ciao!")
+        }
+        props.setAnimation(anim)
     });
 
     let timeout = null;
