@@ -1,10 +1,10 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
-import { useInteractable } from './hooks';
+import { useInteractable } from './common';
 
 import { styled } from 'solid-styled-components';
 
 // import SceneManager from '../../xr/sceneManager';
-import Reticle from '../../xr/reticle';
+import Reticle from '../../../xr/reticle';
 
 
 export default function Calibration(props) {
@@ -16,10 +16,10 @@ export default function Calibration(props) {
             fileName: 'models/gizmo.glb'
         });
 
-        const anim = () => {
-            console.log("ciao!")
-        }
-        props.setAnimation(anim)
+        // const anim = () => {
+        //     console.log("ciao!")
+        // }
+        // props.setAnimation(anim);
     });
 
     let timeout = null;
@@ -44,11 +44,12 @@ export default function Calibration(props) {
     const { interactable } = useInteractable("calibration", {
 
         onTap: () => {
-            // Call super
-            interactable.super.onTap();
+            // // Call super
+            // interactable.super.onTap();
 
-            // function
-            console.log("calibration: onTap");
+            if (props.planeFound || !Reticle.usePlaneDetection()) {
+                props.setReferenceMatrix(Reticle.getHitMatrix());
+            }
         }
     });
 

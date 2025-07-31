@@ -8,10 +8,10 @@ import { styled } from 'solid-styled-components';
 // UI
 import { BackButton } from '../ui/ui';
 
-// Components
-import Calibration from './calibration';
-import Game from './game';
-import Playground from './playground'; // for DEBUG!
+// Interactables Components
+import Calibration from './interactables/calibration';
+// import Game from './game';
+// import Playground from './playground'; // for DEBUG!
 
 // XR
 import SceneManager from '../../xr/sceneManager';
@@ -26,7 +26,7 @@ import SceneManager from '../../xr/sceneManager';
 //     -webkit-backdrop-filter: blur(7.1px);
 //     `
 
-import { Context } from './hooks';
+import { Context } from './interactables/common';
 
 // const VIEWS = {
 //     CALIBRATION: 'calibration',
@@ -186,6 +186,7 @@ export default function Main(props) {
      */
     const handleSetReferenceMatrix = (matrix) => {
         setReferenceMatrix(() => matrix);
+        console.log("CALIBRATION COMPLETED! Matrix:", referenceMatrix());
     }
 
 
@@ -305,20 +306,7 @@ export default function Main(props) {
 
 
 
-    /**
-     * When user TAP on screen,
-     * we need to finish calibration and go to Game,
-     * or send the hitMatrix to Game
-     * to create an asset on hitMatrix
-     */
-    // const onTapOnScreen = () => {
-
-    //     if (!tapEnabled) {
-    //         tapEnabled = true;
-    //         return;
-    //     }
-
-    //     interactable().onTap();
+   
 
 
     //     // if (!canEdit()) return;
@@ -354,21 +342,7 @@ export default function Main(props) {
 
 
 
-    // /**
-    //  * Handles the rendering loop for the AR scene.
-    //  * If an XR frame is available, updates the Reticle based on the current frame and surface type.
-    //  * Always updates the SceneManager for each animation frame.
-    //  */
-    // function render(timestamp, frame) {
-    //     if (SceneManager.initialized()) {
-    //         if (frame && Reticle.initialized()) {
-    //             Reticle.update(frame, (surfType) => {
-    //             });
-    //             setPlaneFound(Reticle.isHitting())
-    //         }
-    //         SceneManager.update();
-    //     }
-    // };
+ 
 
 
 
@@ -471,7 +445,7 @@ export default function Main(props) {
                     // planeFound={planeFound()}
                     planeFound={props.planeFound}
                     setAnimation={props.setAnimation}
-                    setReferenceMatrix={handleSetReferenceMatrix}
+                    setReferenceMatrix={(matrix) => handleSetReferenceMatrix(matrix)}
                 />;
 
                 {/* {renderView()} */}
