@@ -1,5 +1,5 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
-import { useInteractable } from './common';
+import { useGame } from './common';
 
 import { styled } from 'solid-styled-components';
 
@@ -41,7 +41,7 @@ export default function Calibration(props) {
 
     // Put here derived functions
     // from useInteractable
-    const { interactable } = useInteractable("calibration", {
+    const { interactable } = useGame("calibration", {
 
         onTap: () => {
             // // Call super

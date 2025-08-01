@@ -72,30 +72,22 @@ export default function App() {
 
 
     //#region [lifeCycle]
-    createEffect(() => {
-        // Hide preloader
-        if (!loading()) document.getElementById("loading").style.display = "none";
-    })
-
-
     onMount(() => {
 
         // We need to copy the function outside
         // so to be able to use it for debug on desktop purpose
         globalGoToArSession = goToArSession;
-       
+
         // Auth
         if ("xr" in navigator) {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
-                console.log("supported:", supported)
-                console.log("debugOnDesktop:", config.debugOnDesktop)
-                
                 if (!supported && !config.debugOnDesktop) {
                     goToArNotSupported();
                     setLoading(false);
                 }
                 else {
+
                     // Search for URL query string
                     const urlParams = new URLSearchParams(window.location.search);
                     const hasQueryParams = urlParams.has('userId') && urlParams.has('markerId');
@@ -111,7 +103,9 @@ export default function App() {
                         setCurrentMode(() => AppMode.SAVE);
                         if (!firebase.auth.authLoading()) {
                             checkAuthStatus();
+
                         } else {
+
                             const timer = setInterval(() => {
                                 if (!firebase.auth.authLoading()) {
                                     clearInterval(timer);
@@ -128,6 +122,13 @@ export default function App() {
             setLoading(false);
         }
     });
+
+
+    createEffect(() => {
+
+        // Hide the preloader
+        if (!loading()) document.getElementById("loading").style.display = "none";
+    })
 
 
 

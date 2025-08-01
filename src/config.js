@@ -5,14 +5,13 @@
 
 let appConfig = {
   isDebug: false,
-  debugOnDesktop: false,
-  usePlayGround: false
+  debugOnDesktop: false
 };
 
 
 export async function loadConfig() {
   try {
-    const response = await fetch('/config.json');
+    const response = await fetch('/appConfig.json');
     const externalConfig = await response.json();
     appConfig = { ...appConfig, ...externalConfig };
   } catch (error) {
@@ -27,7 +26,4 @@ export const config = {
   get debugOnDesktop() {
     return appConfig.debugOnDesktop;
   },
-  get usePlayGround() {
-    return appConfig.usePlayGround;
-  }
 };

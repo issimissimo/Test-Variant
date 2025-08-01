@@ -24,12 +24,12 @@ export const Context = createContext();
 
 
 // ===== HOOK BASE =====
-export function useInteractable(type, config = {}) {
+export function useGame(type, config = {}) {
 
     const context = useContext(Context);
 
     onMount(() => {
-        context.onReady(interactable);
+        context.onReady(game);
     })
 
 
@@ -44,13 +44,13 @@ export function useInteractable(type, config = {}) {
 
 
     // This
-    const interactable = {
+    const game = {
         type,
         onTap,
         super: { onTap: _onTapBase }
     }
 
     return {
-        interactable
+        interactable: game
     };
 }

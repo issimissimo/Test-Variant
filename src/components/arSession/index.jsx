@@ -6,15 +6,18 @@ import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
 // UI
-import { BackButton } from '../../ui';
+import { BackButton } from '@/ui';
 
-// Interactables Components
+// Components
+import Inventory from './inventory';
+
+// Games
 import Calibration from './interactables/calibration';
 // import Game from './game';
 // import Playground from './playground'; // for DEBUG!
 
 // XR
-import SceneManager from '../../xr/sceneManager';
+import SceneManager from '@xr/sceneManager';
 // import AssetManager from '../xr/assetManager';
 // import Reticle from '../../xr/reticle';
 
@@ -49,14 +52,14 @@ export default function Main(props) {
     // const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
 
     let tapEnabled = true;
-    let calibrationCompleted = false;
+    // let calibrationCompleted = false;
 
 
 
     const [interactable, setInteractable] = createSignal(null);
 
     createEffect(() => {
-        console.log("INTERACTABLES:", interactable())
+        console.log("Loaded Game:", interactable())
     })
 
 
@@ -64,18 +67,17 @@ export default function Main(props) {
 
     onMount(() => {
 
-        // /// questo non ci serve più dopo che avremo messo i componenti
-        // // perchè verrà chiamato direttamente dai componenti oNmOUNT
-        // updateClickableDomElements();
-
-
-
-        // SceneManager.renderer.setAnimationLoop(render);
+        // On TAP on screen
         SceneManager.controller.addEventListener("select", () => {
+
+            // Avoid TAP on DOM elements
             if (!tapEnabled) {
                 tapEnabled = true;
                 return;
             }
+
+            // Subscribe Games that will be loaded or created
+            // for this marker to the TAP event
             interactable()?.onTap();
         });
 
@@ -184,7 +186,7 @@ export default function Main(props) {
     /**
      * Set the reference (initial) Matrix4
      */
-    const handleSetReferenceMatrix = (matrix) => {
+    const handleOnCalibrationCompleted = (matrix) => {
         setReferenceMatrix(() => matrix);
         console.log("CALIBRATION COMPLETED! Matrix:", referenceMatrix());
     }
@@ -204,6 +206,32 @@ export default function Main(props) {
 
 
     //#region [functions]
+
+
+
+    const init = () => {
+        if (props.currentMode === AppMode.SAVE) {
+
+        }
+        else if (props.currentMode === AppMode.LOAD) {
+
+        }
+        else {
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     let _clickableDomElements = [];
 
@@ -306,7 +334,7 @@ export default function Main(props) {
 
 
 
-   
+
 
 
     //     // if (!canEdit()) return;
@@ -342,7 +370,7 @@ export default function Main(props) {
 
 
 
- 
+
 
 
 
@@ -366,56 +394,73 @@ export default function Main(props) {
      */
     const renderView = () => {
 
-        switch (currentView()) {
+        if (config.debugOnDesktop) {
+            return (
+                <Inventory>
 
-            // case VIEWS.WELCOME:
-            //     return <WelcomeUser
-            //         jsonData={jsonData()}
-            //     />;
-
-            // case VIEWS.EDIT_MARKER:
-            //     return <EditMarker
-            //         userId={props.userId}
-            //         marker={props.marker}
-            //         markerName={markerName()}
-            //         setMarkerName={(name) => setMarkerName(() => name)}
-            //         onCreate={handleCreateMarker}
-            //         // onModify={handleModifyMarker}
-            //         onDelete={handleDeleteMarker}
-            //     // onCancel={handleBackToHome}
-            //     />;
-
-            // case VIEWS.CALIBRATION:
-            //     return <Calibration
-            //         planeFound={planeFound()}
-            //     />;
-
-            // case VIEWS.GAME:
-            //     return <Game
-            //         currentMode={props.currentMode}
-            //         // disableTap={setTapEnabled(() => false)}
-            //         canEdit={canEdit()}
-            //         setCanEdit={(value) => setCanEdit(() => value)}
-            //         userId={props.userId}
-            //         marker={props.marker}
-            //         saveData={(data) => handleSaveMarkerData(data)}
-            //         scene={SceneManager.scene}
-            //         data={jsonData()}
-            //         hitMatrix={hitMatrix()}
-            //     // onClose={handleBackToHome}
-            //     />;
-
-            // case VIEWS.MARKER_NOT_EXIST:
-            //     return <Unavailable
-            //     />;
-
-            // case VIEWS.PLAYGROUND:
-            //     return <Playground
-            //         jsonData={jsonData()}
-            //         setJsonData={(data) => setJsonData(() => data)}
-            //         save={handleSaveMarkerData}
-            //     />;
+                </Inventory>
+            )
         }
+        else {
+            return (
+                <Calibration
+                    planeFound={props.planeFound}
+                    setAnimation={props.setAnimation}
+                    setReferenceMatrix={(matrix) => handleOnCalibrationCompleted(matrix)}
+                />
+            )
+        }
+
+        // switch (currentView()) {
+
+        // case VIEWS.WELCOME:
+        //     return <WelcomeUser
+        //         jsonData={jsonData()}
+        //     />;
+
+        // case VIEWS.EDIT_MARKER:
+        //     return <EditMarker
+        //         userId={props.userId}
+        //         marker={props.marker}
+        //         markerName={markerName()}
+        //         setMarkerName={(name) => setMarkerName(() => name)}
+        //         onCreate={handleCreateMarker}
+        //         // onModify={handleModifyMarker}
+        //         onDelete={handleDeleteMarker}
+        //     // onCancel={handleBackToHome}
+        //     />;
+
+        // case VIEWS.CALIBRATION:
+        //     return <Calibration
+        //         planeFound={planeFound()}
+        //     />;
+
+        // case VIEWS.GAME:
+        //     return <Game
+        //         currentMode={props.currentMode}
+        //         // disableTap={setTapEnabled(() => false)}
+        //         canEdit={canEdit()}
+        //         setCanEdit={(value) => setCanEdit(() => value)}
+        //         userId={props.userId}
+        //         marker={props.marker}
+        //         saveData={(data) => handleSaveMarkerData(data)}
+        //         scene={SceneManager.scene}
+        //         data={jsonData()}
+        //         hitMatrix={hitMatrix()}
+        //     // onClose={handleBackToHome}
+        //     />;
+
+        // case VIEWS.MARKER_NOT_EXIST:
+        //     return <Unavailable
+        //     />;
+
+        // case VIEWS.PLAYGROUND:
+        //     return <Playground
+        //         jsonData={jsonData()}
+        //         setJsonData={(data) => setJsonData(() => data)}
+        //         save={handleSaveMarkerData}
+        //     />;
+        // }
     };
 
 
@@ -429,7 +474,10 @@ export default function Main(props) {
 
     //#region [style]
 
-
+    const Container = styled('div')`
+        /* min-height: 100vh;
+        width: 100vw; */
+    `;
 
 
 
@@ -437,19 +485,19 @@ export default function Main(props) {
 
     return (
         <Context.Provider value={{ onReady: handleInteractableReady }}>
-            <div id="arSession">
+            <Container id="arSession">
 
                 <BackButton onClick={handleGoBack} />
 
-                <Calibration
+                {/* <Calibration
                     // planeFound={planeFound()}
                     planeFound={props.planeFound}
                     setAnimation={props.setAnimation}
-                    setReferenceMatrix={(matrix) => handleSetReferenceMatrix(matrix)}
-                />;
+                    setReferenceMatrix={(matrix) => handleOnCalibrationCompleted(matrix)}
+                />; */}
 
-                {/* {renderView()} */}
-            </div>
+                {renderView()}
+            </Container>
         </Context.Provider>
     );
 }
