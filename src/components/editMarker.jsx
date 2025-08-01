@@ -37,9 +37,8 @@ export default function EditMarker(props) {
 
   createEffect(() => {
     // Enable save button
-    // only if something changed
-    setCanSave(() => props.marker.name && markerName() !== "" && markerName() !== oldMarkerName() ?
-      true : false)
+    // only if the name change
+    setCanSave(() => markerName() !== "" && markerName() !== oldMarkerName() ? true : false);
   })
 
 
@@ -52,14 +51,14 @@ export default function EditMarker(props) {
   //#region [functions]
 
   /**
-    * Create a new marker, only in firebase
-    * and with the property withData = false 
-    * (JSON should be created later on)
+    * Create a new empty marker, only in firebase
+    * (games should be created later on)
      */
   const createMarker = async () => {
     const newMarkerId = await firebase.firestore.addMarker(props.userId, markerName());
     setMarkerId(() => newMarkerId);
     props.onNewMarkerCreated(newMarkerId, markerName);
+    setOldMarkerName(() => markerName());
     console.log('Creato in Firestore il marker con ID:', newMarkerId)
   };
 
@@ -79,7 +78,7 @@ export default function EditMarker(props) {
      */
   const deleteMarker = async () => {
     await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-    if (props.marker.withData) {
+    if (!empty()) {
       const path = `${props.userId}/${props.marker.id}`;
       await firebase.realtimeDb.deleteData(path);
       goBack();
@@ -88,16 +87,15 @@ export default function EditMarker(props) {
   };
 
 
-  const createGame = async () => {
-    const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
-    // setMarkerId(() => newMarkerId);
-    // props.onNewMarkerCreated(newMarkerId, markerName);
-    console.log('Creato in Firestore il game con ID:', newGameId)
-  }
+  // const createGame = async () => {
+  //   const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
+  //   // setMarkerId(() => newMarkerId);
+  //   // props.onNewMarkerCreated(newMarkerId, markerName);
+  //   console.log('Creato in Firestore il game con ID:', newGameId)
+  // }
 
 
   const goBack = () => {
-    setMarkerId(() => null);
     props.onBack();
   }
 
@@ -124,6 +122,7 @@ export default function EditMarker(props) {
         display: flex;
         flex-direction: column;
         width: 100%;
+        align-items: center;
     `
 
   const Title = styled('input')`
@@ -136,8 +135,8 @@ export default function EditMarker(props) {
     `
 
   const QrCodeContainer = styled('div')`
-        width: 100%;
-        align-items: center;
+        width: 60%;
+        display: flex;
     `
 
   const QrCodeImg = styled('img')`
@@ -160,43 +159,19 @@ export default function EditMarker(props) {
           required
         />
 
-        <div>
+        {/* <div>
           {Interactables.map(el => (
             <button
-            // onClick={() => setSelectedMaterial(material.name)}
-            // style={{
-            //   margin: '5px',
-            //   padding: '20px',
-            //   width: '150px',
-            //   height: '100px',
-            //   border: selectedMaterial() === material.name ? '3px solid #007acc' : '2px solid #ddd',
-            //   borderRadius: '8px',
-            //   backgroundImage: `url(${material.image})`,
-            //   backgroundSize: 'cover',
-            //   backgroundPosition: 'center',
-            //   color: 'white',
-            //   fontSize: '16px',
-            //   fontWeight: 'bold',
-            //   textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-            //   cursor: 'pointer'
-            // }}
             >
               {el.name.charAt(0).toUpperCase() + el.name.slice(1)}
             </button>
           ))}
-        </div>
+        </div> */}
 
 
-        {/* <QrCodeContainer>
-          {props.marker.games.length > 0 ?
-            <QrCodeImg id="qr-code" />
-            :
-            <p>No data here!</p>
-          }
-        </QrCodeContainer> */}
         <QrCodeContainer>
           {empty() ?
-            <p>No data here!</p>
+            <p>No games here!</p>
             :
             <QrCodeImg id="qr-code" />
           }
@@ -223,7 +198,7 @@ export default function EditMarker(props) {
           </Button>
         )}
 
-        <Button
+        {/* <Button
           type="button"
           onClick={createGame}
           active={true}
@@ -231,7 +206,7 @@ export default function EditMarker(props) {
           icon={faSave}
         >
           CREA GAME TEST
-        </Button>
+        </Button> */}
       </Form>
 
       <ArButtonContainer id="ArButtonContainer" />

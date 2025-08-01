@@ -1,5 +1,4 @@
-import { createSignal, onMount } from 'solid-js';
-import { useFirebase } from '../../hooks/useFirebase';
+import { createSignal, onMount, createEffect } from 'solid-js';
 
 //Components
 import Welcome from './welcome';
@@ -12,41 +11,35 @@ import { ArButtonContainer } from '../ui/ui';
 export default function Main(props) {
 
   //#region [constants]
-  const firebase = useFirebase();
   const [markerValid, setMarkerValid] = createSignal(false)
 
 
   //#region [lifeCycle]
   onMount(() => {
-    loadMarkerFromFirestore();
-  })
+    if (props.marker.games != null) {
+      if (props.marker.games.length > 0) {
+        setMarkerValid(()=>true);
 
-
-  //#region [functions]
-  const loadMarkerFromFirestore = async () => {
-    const marker = await firebase.firestore.fetchMarker(props.userId, props.markerId);
-
-    if (marker !== undefined && marker !== null) {
-      setMarkerValid(() => marker.withData);
+        setTimeout(()=>{
+          props.initScene();
+        },50)
+      }
     }
-
-    props.onCheckFinished(marker);
-  }
-
+  })
 
 
   //#region [return]
   return (
     <div>
-      {!props.loading && (
+      {
         markerValid() ?
           <div>
             <Welcome />
-            <ArButtonContainer id="ArButtonContainer"/>
+            <ArButtonContainer id="ArButtonContainer" />
           </div>
           :
           <Error />
-      )}
+      }
     </div>
   );
 }

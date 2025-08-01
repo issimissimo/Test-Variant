@@ -137,7 +137,7 @@ const Input = styled('input')`
   width: 100%;
   padding: 0.75rem 1rem;
   padding-left: 2.5rem;
-  border: 2px solid #e9ecef;
+  border: none;
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -183,9 +183,9 @@ const PasswordToggle = styled('button')`
   justify-content: center;
   transition: background-color 0.2s ease;
   
-  &:hover {
+  /* &:hover {
     background-color: rgba(0,0,0,0.05);
-  }
+  } */
 `;
 
 const PasswordToggleIcon = styled('svg')`
@@ -242,6 +242,7 @@ const Divider = styled('div')`
 `;
 
 const RegisterSection = styled('div')`
+  margin-top: 2rem;
   text-align: center;
 `;
 
@@ -427,8 +428,8 @@ export default function ARLoginScreen(props) {
           <Logo>
             {renderLogoIcon(faUser)}
           </Logo>
-          <Title>Accedi</Title>
-          <Subtitle>Benvenuto nella tua esperienza AR</Subtitle>
+          <Title>Benvenuto in AR</Title>
+          {/* <Subtitle>Benvenuto nella tua esperienza AR</Subtitle> */}
         </Header>
 
         <Form>
@@ -493,9 +494,9 @@ export default function ARLoginScreen(props) {
           </LoginButton>
         </Form>
 
-        <Divider>
+        {/* <Divider>
           <span>oppure</span>
-        </Divider>
+        </Divider> */}
 
         <RegisterSection>
           <RegisterText>Non hai ancora un account?</RegisterText>

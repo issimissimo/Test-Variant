@@ -105,7 +105,6 @@ export const addMarker = async (userId, name) => {
             {
                 name,
                 created: serverTimestamp(),
-                withData: false
             });
         return newMarkerRef.id;
     } catch (error) {
@@ -114,13 +113,12 @@ export const addMarker = async (userId, name) => {
     }
 };
 
-export const updateMarker = async (userId, markerId, name, withData) => {
+export const updateMarker = async (userId, markerId, name) => {
     try {
         const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
         await setDoc(markerRef,
             {
                 name,
-                withData: withData
             },
             { merge: true });
     } catch (error) {

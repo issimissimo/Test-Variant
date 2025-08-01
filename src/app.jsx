@@ -6,7 +6,7 @@ import { styled } from 'solid-styled-components';
 
 // Components
 import Register from './components/register';
-import Login from './components/login_new';
+import Login from './components/login';
 import MarkerList from './components/markerList';
 import EditMarker from './components/editMarker';
 import Anonymous from './components/anonymous';
@@ -120,8 +120,7 @@ export default function App() {
         }
         setUserId(() => params.get('userId'));
         const markerId = params.get('markerId');
-        setupMarker(markerId);
-        goToAnonymous();
+        setupMarker(markerId, null, () => goToAnonymous());
     }
 
 
@@ -159,19 +158,18 @@ export default function App() {
         let games = null;
 
         if (markerId) {
-            const data = await firebase.firestore.fetchGames(userId(), markerId);
-            games = data;
+            games = await firebase.firestore.fetchGames(userId(), markerId);
         }
 
         const marker = {
             id: markerId,
             name: markerName,
-            withData: false,
             games: games
         }
         setCurrentMarker(() => marker);
         console.log("current marker:", currentMarker())
 
+        if (loading()) setLoading(() => false);
         if (callback) callback();
     }
 
@@ -315,16 +313,10 @@ export default function App() {
             case VIEWS.ANONYMOUS:
                 return <Anonymous
                     userId={userId()}
+                    marker={currentMarker()}
                     markerId={currentMarker().id}
                     loading={loading()}
-                    onCheckFinished={(marker) => {
-                        setLoading(() => false);
-                        /// QUESTO E' DA RIVEDERE PERCHE' DOBBIAMO SETUPMARKER PRIMA!
-                        if (marker !== undefined && marker.withData) {
-                            setupMarker(currentMarker().id, marker.name, marker.withData);
-                            handleInitScene();
-                        }
-                    }}
+                    initScene={handleInitScene}
                 />;
 
             case VIEWS.AR_SESSION:
