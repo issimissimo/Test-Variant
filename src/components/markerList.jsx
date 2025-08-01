@@ -1,7 +1,7 @@
 import { createEffect, createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { styled } from 'solid-styled-components';
-import { Button, BUTTON_MODE } from './ui/ui';
+import { Button, BUTTON_MODE } from '@/ui';
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 

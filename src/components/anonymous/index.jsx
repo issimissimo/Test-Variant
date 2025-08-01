@@ -5,7 +5,7 @@ import Welcome from './welcome';
 import Error from './error';
 
 //UI
-import { ArButtonContainer } from '../ui/ui';
+import { ArButtonContainer } from '../../ui';
 
 
 export default function Main(props) {

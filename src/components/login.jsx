@@ -1,5 +1,5 @@
 import { createSignal, onMount } from 'solid-js';
-import { useFirebase } from '../hooks/useFirebase';
+import { useFirebase } from '@hooks/useFirebase';
 import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import {
   Container,
@@ -26,7 +26,7 @@ import {
   Button,
   BUTTON_MODE,
   renderIcon
-} from './ui/ui';
+} from '@/ui';
 
 export default function ARLoginScreen(props) {
   // Hook Firebase

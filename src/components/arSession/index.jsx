@@ -1,12 +1,12 @@
 import { createSignal, createEffect, onMount, onCleanup } from 'solid-js';
-import { useFirebase } from '../../hooks/useFirebase';
-import { AppMode } from '../../app';
-import { config } from '../../config';
+import { useFirebase } from '@hooks/useFirebase';
+import { AppMode } from '@/app';
+import { config } from '@/config';
 import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
 // UI
-import { BackButton } from '../ui/ui';
+import { BackButton } from '../../ui';
 
 // Interactables Components
 import Calibration from './interactables/calibration';

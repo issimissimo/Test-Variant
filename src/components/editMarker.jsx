@@ -1,10 +1,10 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
-import { useFirebase } from '../hooks/useFirebase';
-import { generateQRCodeForForMarker } from '../hooks/useQRCode';
+import { useFirebase } from '@hooks/useFirebase';
+import { generateQRCodeForForMarker } from '@hooks/useQRCode';
 import { styled } from 'solid-styled-components';
 
 //UI
-import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from './ui/ui';
+import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from '@/ui';
 import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
 // Interactables

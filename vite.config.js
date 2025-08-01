@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
-import solid from 'vite-plugin-solid'
+import solid from 'vite-plugin-solid';
+import { resolve } from 'path'
 
 export default defineConfig({
   base: './',
@@ -20,4 +21,14 @@ export default defineConfig({
     allowedHosts: ['.trycloudflare.com'],
   },
   plugins: [solid()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@components': resolve(__dirname, './src/components'),
+      '@xr': resolve(__dirname, './src/xr'),
+      '@utils': resolve(__dirname, './src/utils'),
+      '@hooks': resolve(__dirname, './src/hooks'),
+      '@arSession': resolve(__dirname, './src/components/arSession'),
+    }
+  }
 });

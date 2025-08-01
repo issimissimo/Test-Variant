@@ -1,21 +1,21 @@
 import { createEffect, createSignal, onMount } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { useFirebase } from './hooks/useFirebase';
-import { config } from './config';
+import { useFirebase } from '@hooks/useFirebase';
+import { config } from '@/config';
 import { styled } from 'solid-styled-components';
 
 // Components
-import Register from './components/register';
-import Login from './components/login';
-import MarkerList from './components/markerList';
-import EditMarker from './components/editMarker';
-import Anonymous from './components/anonymous';
-import ArSession from './components/arSession';
-import ArNotSupported from './components/arNotSupported';
+import Register from '@components/register';
+import Login from '@components/login';
+import MarkerList from '@components/markerList';
+import EditMarker from '@components/editMarker';
+import Anonymous from '@components/anonymous';
+import ArSession from '@components/arSession';
+import ArNotSupported from '@components/arNotSupported';
 
 // XR
-import SceneManager from './xr/sceneManager';
-import Reticle from './xr/reticle';
+import SceneManager from '@xr/sceneManager';
+import Reticle from '@xr/reticle';
 
 // Games
 import { GAMES_LISTING } from './components/arSession/interactables/common';
@@ -50,7 +50,6 @@ const VIEWS = {
     AR_SESSION: 'arSession',
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
-
 
 
 
