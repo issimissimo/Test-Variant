@@ -1,3 +1,7 @@
+import { config } from "../config";
+import { TestGameOnDesktopFallback } from "../app";
+
+
 class ARButton {
   static createButton(renderer, sessionInit = {}) {
 
@@ -20,6 +24,12 @@ class ARButton {
 
         if (supported) {
           button.textContent = "Inizia in AR";
+          button.style.pointerEvents = "auto";
+          button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
+          initializeButton();
+        }
+        else if (config.debugOnDesktop) {
+          button.textContent = "Debug su desktop";
           button.style.pointerEvents = "auto";
           button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
           initializeButton();
@@ -49,12 +59,20 @@ class ARButton {
 
 
       button.onclick = function () {
-        if (currentSession === null) {
-          navigator.xr
-            .requestSession("immersive-ar", sessionInit)
-            .then(onSessionStarted);
-        } else {
-          currentSession.end();
+        if (config.debugOnDesktop) {
+          // Function called on click when debug on desktop is enabled
+          TestGameOnDesktopFallback();
+        }
+
+        else {
+          // Regular AR session initialization
+          if (currentSession === null) {
+            navigator.xr
+              .requestSession("immersive-ar", sessionInit)
+              .then(onSessionStarted);
+          } else {
+            currentSession.end();
+          }
         }
       };
     }

@@ -8,7 +8,7 @@ import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from './ui/ui';
 import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
 // Interactables
-import { Interactables } from './arSession/interactables/common';
+import { GAMES_LISTING } from './arSession/interactables/common';
 
 
 export default function EditMarker(props) {
@@ -143,6 +143,10 @@ export default function EditMarker(props) {
         text-align: center;
     `
 
+  const GameNameContainer = styled('div')`
+        padding: 20px;
+    `
+
 
   //#region [return]
   return (
@@ -167,6 +171,16 @@ export default function EditMarker(props) {
             </button>
           ))}
         </div> */}
+
+         <div>
+          {props.marker.games && props.marker.games.map(el => (
+            <GameNameContainer
+            >
+              {el.name}
+            </GameNameContainer>
+          ))}
+        </div>
+
 
 
         <QrCodeContainer>

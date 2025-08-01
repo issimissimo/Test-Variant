@@ -17,16 +17,29 @@ import ArNotSupported from './components/arNotSupported';
 import SceneManager from './xr/sceneManager';
 import Reticle from './xr/reticle';
 
-// Interactables
-import { Interactables } from './components/arSession/interactables/common';
+// Games
+import { GAMES_LISTING } from './components/arSession/interactables/common';
 
 
+
+/*
+* This function is called by the "Enter AR" button
+* only when we have debugOnDesktop=true in the configuration file
+* - public/config.json -
+*/
+let globalGoToArSession;
+export const TestGameOnDesktopFallback = () => {
+    console.warn("We are DEBUGGING on desktop and AR session is NOT initialized! Just use for debug on desktop purpose! Please check 'config.json' file in PUBLIC FOLDER to modify the settings!")
+    globalGoToArSession();
+}
 
 
 export const AppMode = {
     SAVE: "save",
     LOAD: "load",
 }
+
+
 
 const VIEWS = {
     REGISTER: 'register',
@@ -37,6 +50,8 @@ const VIEWS = {
     AR_SESSION: 'arSession',
     AR_NOT_SUPPORTED: 'arNotSupported',
 };
+
+
 
 
 export default function App() {
@@ -65,9 +80,18 @@ export default function App() {
 
 
     onMount(() => {
+
+        // We need to copy the function outside
+        // so to be able to use it for debug on desktop purpose
+        globalGoToArSession = goToArSession;
+       
+        // Auth
         if ("xr" in navigator) {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
+                console.log("supported:", supported)
+                console.log("debugOnDesktop:", config.debugOnDesktop)
+                
                 if (!supported && !config.debugOnDesktop) {
                     goToArNotSupported();
                     setLoading(false);
@@ -187,14 +211,17 @@ export default function App() {
     function render(timestamp, frame) {
         if (SceneManager.initialized()) {
 
+            // Update Reticle
             if (frame && Reticle.initialized()) {
                 Reticle.update(frame, (surfType) => {
                 });
                 setPlaneFound(Reticle.isHitting())
             }
 
+            // Update all the animation of the games
             if (animation) animation();
 
+            // Update Scene
             SceneManager.update();
         }
     };

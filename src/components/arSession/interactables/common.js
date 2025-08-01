@@ -1,19 +1,19 @@
 import { onMount, createContext, useContext } from 'solid-js';
 
 
-// ===== INTERACTABLES LIST (calibration excluded!) =====
+// ===== GAMES LIST (calibration excluded!) =====
 // This list must be modified
-// to add (or delete) every new interactable game
-export const Interactables = [
+// to add (or delete) every new game
+export const GAMES_LISTING = [
     {
-        name: 'test1',
-        description: 'aaaa',
-        image: '/images/backgroundImages/vetro.jpg'
+        name: 'Piazza un oggetto',
+        description: 'Inserisci un oggetto 3D in AR',
+        image: '/images/games/backgrounds/vetro.jpg'
     },
     {
-        name: 'test2',
-        description: 'bbbb',
-        image: '/images/backgroundImages/vetro.jpg'
+        name: 'Evita i laser',
+        description: 'Non farti beccare dai laser nella stanza',
+        image: '/images/games/backgrounds/vetro.jpg'
     },
 ];
 
