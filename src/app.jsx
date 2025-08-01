@@ -17,7 +17,8 @@ import ArNotSupported from './components/arNotSupported';
 import SceneManager from './xr/sceneManager';
 import Reticle from './xr/reticle';
 
-
+// Interactables
+import { Interactables } from './components/arSession/interactables/common';
 
 
 
@@ -150,17 +151,28 @@ export default function App() {
 
 
     //
-    // Add a new marker on the fly to the App 
+    // Add a new marker to the App 
     // and set it as currentMarker
     //
-    const setupMarker = (markerId = null, markerName = null, withData = false) => {
+    const setupMarker = async (markerId = null, markerName = null, callback = null) => {
+
+        let games = null;
+
+        if (markerId) {
+            const data = await firebase.firestore.fetchGames(userId(), markerId);
+            games = data;
+        }
+
         const marker = {
-            id: markerId ? markerId : null,
-            name: markerName ? markerName : null,
-            withData: withData
+            id: markerId,
+            name: markerName,
+            withData: false,
+            games: games
         }
         setCurrentMarker(() => marker);
         console.log("current marker:", currentMarker())
+
+        if (callback) callback();
     }
 
 
@@ -287,8 +299,7 @@ export default function App() {
                         goToEditMarker();
                     }}
                     onMarkerClicked={(marker) => {
-                        setupMarker(marker.id, marker.name, marker.withData)
-                        goToEditMarker();
+                        setupMarker(marker.id, marker.name, () => goToEditMarker())
                     }}
                 />;
 
@@ -308,6 +319,7 @@ export default function App() {
                     loading={loading()}
                     onCheckFinished={(marker) => {
                         setLoading(() => false);
+                        /// QUESTO E' DA RIVEDERE PERCHE' DOBBIAMO SETUPMARKER PRIMA!
                         if (marker !== undefined && marker.withData) {
                             setupMarker(currentMarker().id, marker.name, marker.withData);
                             handleInitScene();
@@ -324,7 +336,7 @@ export default function App() {
                             userId={userId()}
                             marker={currentMarker()}
                             onBack={handleReset}
-                            onSaveMarker={(id, name) => setupMarker(id, name)}
+                            // onSaveMarker={(id, name) => setupMarker(id, name)}
                             planeFound={planeFound()}
                             setAnimation={(func) => handleSetAnimation(func)}
                         />

@@ -7,7 +7,8 @@ import { styled } from 'solid-styled-components';
 import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from './ui/ui';
 import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
-
+// Interactables
+import { Interactables } from './arSession/interactables/common';
 
 
 export default function EditMarker(props) {
@@ -15,23 +16,29 @@ export default function EditMarker(props) {
 
   //#region [constants]
   const firebase = useFirebase();
-  const [name, setName] = createSignal(props.marker?.name || '');
-  const [oldName, setOldName] = createSignal(props.marker?.name || '');
-  const [canSave, setCanSave] = createSignal(false);
   const [markerId, setMarkerId] = createSignal(props.marker.id)
+  const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
+  const [oldMarkerName, setOldMarkerName] = createSignal(props.marker?.name || '');
+  const [canSave, setCanSave] = createSignal(false);
+  const [empty, setEmpty] = createSignal(false);
+
 
 
   //#region [lifeCycle]
   onMount(() => {
-    if (props.marker.withData) {
-      generateQRCodeForForMarker(props.userId, props.marker.id);
+    if (props.marker.id) {
+      if (props.marker.games.length > 0) {
+        generateQRCodeForForMarker(props.userId, props.marker.id);
+        return;
+      }
     }
+    setEmpty(() => true);
   })
 
   createEffect(() => {
     // Enable save button
     // only if something changed
-    setCanSave(() => props.marker.name && name() !== "" && name() !== oldName() ?
+    setCanSave(() => props.marker.name && markerName() !== "" && markerName() !== oldMarkerName() ?
       true : false)
   })
 
@@ -50,28 +57,20 @@ export default function EditMarker(props) {
     * (JSON should be created later on)
      */
   const createMarker = async () => {
-    try {
-      const newMarkerId = await firebase.firestore.addMarker(props.userId, name());
-      setMarkerId(() => newMarkerId);
-      props.onNewMarkerCreated(newMarkerId, name);
-      console.log('Creato in Firestore il marker con ID:', newMarkerId)
-    } catch (error) {
-      console.log({ type: 'error', text: `Errore: ${error.message}` });
-    }
+    const newMarkerId = await firebase.firestore.addMarker(props.userId, markerName());
+    setMarkerId(() => newMarkerId);
+    props.onNewMarkerCreated(newMarkerId, markerName);
+    console.log('Creato in Firestore il marker con ID:', newMarkerId)
   };
 
-
-  const updateMarker = async () => {
-    try {
-      await firebase.firestore.updateMarker(props.userId, props.marker.id,
-        name(), props.marker.withData);
-      setOldName(() => name());
-    } catch (error) {
-      console.log({ type: 'error', text: `Errore: ${error.message}` });
-    }
+  /**
+    * Update marker name
+     */
+  const updateMarkerName = async () => {
+    await firebase.firestore.updateMarker(props.userId, props.marker.id,
+      markerName());
+    setOldMarkerName(() => markerName());
   }
-
-
 
   /**
     * Delete a marker,
@@ -79,18 +78,22 @@ export default function EditMarker(props) {
     * and go back to Home
      */
   const deleteMarker = async () => {
-    try {
-      await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-      if (props.marker.withData) {
-        const path = `${props.userId}/${props.marker.id}`;
-        await firebase.realtimeDb.deleteData(path);
-        goBack();
-      }
-      else goBack();
-    } catch (error) {
-      console.log({ type: 'error', text: `Errore: ${error.message}` });
+    await firebase.firestore.deleteMarker(props.userId, props.marker.id);
+    if (props.marker.withData) {
+      const path = `${props.userId}/${props.marker.id}`;
+      await firebase.realtimeDb.deleteData(path);
+      goBack();
     }
+    else goBack();
   };
+
+
+  const createGame = async () => {
+    const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
+    // setMarkerId(() => newMarkerId);
+    // props.onNewMarkerCreated(newMarkerId, markerName);
+    console.log('Creato in Firestore il game con ID:', newGameId)
+  }
 
 
   const goBack = () => {
@@ -136,7 +139,7 @@ export default function EditMarker(props) {
         width: 100%;
         align-items: center;
     `
-  
+
   const QrCodeImg = styled('img')`
         text-align: center;
     `
@@ -151,23 +154,57 @@ export default function EditMarker(props) {
       <Form>
         <Title id="title"
           type="text"
-          value={name()}
-          onInput={(e) => setName(() => e.target.value)}
+          value={markerName()}
+          onInput={(e) => setMarkerName(() => e.target.value)}
           placeholder="Nome"
           required
         />
-        
-        <QrCodeContainer>
-          {props.marker.withData ?
+
+        <div>
+          {Interactables.map(el => (
+            <button
+            // onClick={() => setSelectedMaterial(material.name)}
+            // style={{
+            //   margin: '5px',
+            //   padding: '20px',
+            //   width: '150px',
+            //   height: '100px',
+            //   border: selectedMaterial() === material.name ? '3px solid #007acc' : '2px solid #ddd',
+            //   borderRadius: '8px',
+            //   backgroundImage: `url(${material.image})`,
+            //   backgroundSize: 'cover',
+            //   backgroundPosition: 'center',
+            //   color: 'white',
+            //   fontSize: '16px',
+            //   fontWeight: 'bold',
+            //   textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+            //   cursor: 'pointer'
+            // }}
+            >
+              {el.name.charAt(0).toUpperCase() + el.name.slice(1)}
+            </button>
+          ))}
+        </div>
+
+
+        {/* <QrCodeContainer>
+          {props.marker.games.length > 0 ?
             <QrCodeImg id="qr-code" />
             :
             <p>No data here!</p>
+          }
+        </QrCodeContainer> */}
+        <QrCodeContainer>
+          {empty() ?
+            <p>No data here!</p>
+            :
+            <QrCodeImg id="qr-code" />
           }
         </QrCodeContainer>
 
         <Button
           type="button"
-          onClick={props.marker.id ? updateMarker : createMarker}
+          onClick={props.marker.id ? updateMarkerName : createMarker}
           active={canSave()}
           mode={BUTTON_MODE.HIGHLIGHT}
           icon={faSave}
@@ -177,7 +214,7 @@ export default function EditMarker(props) {
 
         {markerId() && (
           <Button
-            onClick={() => { deleteMarker() }}
+            onClick={deleteMarker}
             active={true}
             mode={BUTTON_MODE.DANGER}
             icon={faTrashAlt}
@@ -185,6 +222,16 @@ export default function EditMarker(props) {
             Elimina
           </Button>
         )}
+
+        <Button
+          type="button"
+          onClick={createGame}
+          active={true}
+          mode={BUTTON_MODE.DEFAULT}
+          icon={faSave}
+        >
+          CREA GAME TEST
+        </Button>
       </Form>
 
       <ArButtonContainer id="ArButtonContainer" />

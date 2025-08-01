@@ -13,7 +13,10 @@ import {
     addMarker,
     updateMarker,
     deleteMarker,
-    fetchMarker
+    fetchMarker,
+    addGame,
+    deleteGame,
+    fetchGames
 } from '../lib/firebase/firestore';
 
 import { saveData, loadData, useRealtimeData, deleteData } from '../lib/firebase/realtimeDb';
@@ -45,7 +48,10 @@ export const useFirebase = () => {
             fetchMarker: (userId, markerId) => fetchMarker(userId, markerId),
             addMarker: (userId, name) => addMarker(userId, name),
             updateMarker: (userId, markerId, name, withData) => updateMarker(userId, markerId, name, withData),
-            deleteMarker: (userId, markerId) => deleteMarker(userId, markerId)
+            deleteMarker: (userId, markerId) => deleteMarker(userId, markerId),
+            addGame: (userId, markerId, name) => addGame(userId, markerId, name),
+            deleteGame: (userId, markerId, gameId) => deleteGame(userId, markerId, gameId),
+            fetchGames: (userId, markerId) => fetchGames (userId, markerId)
         },
 
         realtimeDb: {

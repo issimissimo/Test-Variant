@@ -23,15 +23,11 @@ export default function MarkerList(props) {
 
   //#region [functions]
   const loadMarkers = async () => {
-    try {
       const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
       setMarkers(data);
+      
       // Hide the preloader
       props.setLoading(false);
-
-    } catch (error) {
-      console.error("Errore caricamento markers:", error);
-    }
   };
 
 

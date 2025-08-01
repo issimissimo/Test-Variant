@@ -138,3 +138,39 @@ export const deleteMarker = async (userId, markerId) => {
         throw error;
     }
 };
+
+export const addGame = async (userId, markerId, name) => {
+    try {
+        const gameRef = collection(firestore, `users/${userId}/markers/${markerId}/games`);
+        const newGameRef = await addDoc(gameRef,
+            {
+                name,
+                created: serverTimestamp(),
+            });
+        return newGameRef.id;
+    } catch (error) {
+        console.error("Errore nell'aggiunta game:", error);
+        throw error;
+    }
+};
+
+export const deleteGame = async (userId, markerId, gameId) => {
+    try {
+        const gameRef = doc(firestore, `users/${userId}/markers/${markerId}/games/${gameId}`);
+        await deleteDoc(gameRef);
+    } catch (error) {
+        console.error("Errore nella cancellazione game:", error);
+        throw error;
+    }
+};
+
+export const fetchGames = async (userId, markerId) => {
+    try {
+        const gameRef = collection(firestore, `users/${userId}/markers/${markerId}/games`);
+        const snapshot = await getDocs(gameRef);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Errore nel caricamento dei games:", error);
+        throw error;
+    }
+};
