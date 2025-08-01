@@ -1,7 +1,34 @@
 import { createSignal } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
+import { faUserPlus, faLock, faEye, faEyeSlash, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import {
+  Container,
+  BackgroundPattern,
+  Card,
+  Header,
+  Logo,
+  LogoIcon,
+  Title,
+  Subtitle,
+  Form,
+  InputGroup,
+  InputLabel,
+  InputWrapper,
+  Input,
+  InputIcon,
+  PasswordToggle,
+  PasswordToggleIcon,
+  ErrorMessage,
+  SuccessMessage,
+  Divider,
+  Section,
+  SectionText,
+  Button,
+  BUTTON_MODE,
+  renderIcon
+} from './ui/ui';
 
-export default function Register(props) {
+export default function ARRegisterScreen(props) {
   const { auth } = useFirebase();
 
   // Stato del form
@@ -10,6 +37,10 @@ export default function Register(props) {
     password: '',
     confirmPassword: ''
   });
+
+  // Segnali per la visibilità delle password
+  const [showPassword, setShowPassword] = createSignal(false);
+  const [showConfirmPassword, setShowConfirmPassword] = createSignal(false);
 
   // Stato per messaggi di errore/successo
   const [message, setMessage] = createSignal({ type: '', text: '' });
@@ -22,11 +53,16 @@ export default function Register(props) {
   };
 
   // Gestione submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setMessage({ type: '', text: '' });
 
-    // Validazione
+    // Validazione campi obbligatori
+    if (!form().email || !form().password || !form().confirmPassword) {
+      setMessage({ type: 'error', text: 'Tutti i campi sono obbligatori' });
+      return;
+    }
+
+    // Validazione password
     if (form().password !== form().confirmPassword) {
       setMessage({ type: 'error', text: 'Le password non corrispondono' });
       return;
@@ -40,8 +76,7 @@ export default function Register(props) {
     setLoading(true);
 
     try {
-      // CORREZIONE: usa form() invece di credentials
-      await auth.register(form());  // <--- Questa è la linea corretta
+      await auth.register(form());
 
       setMessage({
         type: 'success',
@@ -54,10 +89,13 @@ export default function Register(props) {
     } catch (error) {
       let errorMessage = error.message;
 
+      // Gestione errori personalizzata
       if (errorMessage.includes('email-already-in-use')) {
         errorMessage = 'Questo indirizzo email è già registrato';
       } else if (errorMessage.includes('invalid-email')) {
         errorMessage = 'Indirizzo email non valido';
+      } else if (errorMessage.includes('weak-password')) {
+        errorMessage = 'La password è troppo debole';
       }
 
       setMessage({ type: 'error', text: errorMessage });
@@ -65,77 +103,131 @@ export default function Register(props) {
     }
   };
 
+  const handleGoToLogin = () => {
+    props.onGoToLogin?.();
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword());
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword());
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
-    <div>
-      <h2>Crea un account</h2>
+    <Container>
+      <BackgroundPattern/>
 
-      {/* Messaggi di stato */}
-      {message().text && (
-        <div>
-          {message().text}
-        </div>
-      )}
+      <Card>
+        <Header>
+          <Logo>
+            {renderIcon(faUserPlus, LogoIcon)}
+          </Logo>
+          <Title>Registrati</Title>
+          {/* <Subtitle>Unisciti alla community AR</Subtitle> */}
+        </Header>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={form().email}
-            onInput={handleInput}
-            autocomplete="username"
-            required
-          />
-        </div>
+        <Form>
+          {/* Messaggio di errore o successo */}
+          {message().text && (
+            <>
+              {message().type === 'error' && (
+                <ErrorMessage>{message().text}</ErrorMessage>
+              )}
+              {message().type === 'success' && (
+                <SuccessMessage>{message().text}</SuccessMessage>
+              )}
+            </>
+          )}
 
-        <div>
-          <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={form().password}
-            onInput={handleInput}
-            autocomplete="new-password"
-            required
-          />
-          <p>Minimo 6 caratteri</p>
-        </div>
+          <InputGroup>
+            <InputLabel>Email</InputLabel>
+            <InputWrapper>
+              {renderIcon(faEnvelope)}
+              <Input
+                type="email"
+                name="email"
+                placeholder="inserisci la tua email"
+                value={form().email}
+                onInput={handleInput}
+                onKeyPress={handleKeyPress}
+                autocomplete="username"
+                required
+              />
+            </InputWrapper>
+          </InputGroup>
 
-        <div>
-          <label for="confirmPassword">Conferma Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={form().confirmPassword}
-            onInput={handleInput}
-            autocomplete="new-password"
-            required
-          />
-        </div>
+          <InputGroup>
+            <InputLabel>Password</InputLabel>
+            <InputWrapper>
+              {renderIcon(faLock)}
+              <Input
+                type={showPassword() ? 'text' : 'password'}
+                name="password"
+                placeholder="crea una password (min. 6 caratteri)"
+                value={form().password}
+                onInput={handleInput}
+                onKeyPress={handleKeyPress}
+                autocomplete="new-password"
+                required
+              />
+              <PasswordToggle
+                type="button"
+                onClick={togglePasswordVisibility}
+                aria-label={showPassword() ? 'Nascondi password' : 'Mostra password'}
+              >
+                {renderIcon(showPassword() ? faEyeSlash : faEye, PasswordToggleIcon)}
+              </PasswordToggle>
+            </InputWrapper>
+          </InputGroup>
 
-        <button
-          type="submit"
-          disabled={loading()}
-        >
-          {loading() ? 'Registrazione in corso...' : 'Registrati'}
-        </button>
-      </form>
+          <InputGroup>
+            <InputLabel>Conferma Password</InputLabel>
+            <InputWrapper>
+              {renderIcon(faLock)}
+              <Input
+                type={showConfirmPassword() ? 'text' : 'password'}
+                name="confirmPassword"
+                placeholder="conferma la tua password"
+                value={form().confirmPassword}
+                onInput={handleInput}
+                onKeyPress={handleKeyPress}
+                autocomplete="new-password"
+                required
+              />
+              <PasswordToggle
+                type="button"
+                onClick={toggleConfirmPasswordVisibility}
+                aria-label={showConfirmPassword() ? 'Nascondi password' : 'Mostra password'}
+              >
+                {renderIcon(showConfirmPassword() ? faEyeSlash : faEye, PasswordToggleIcon)}
+              </PasswordToggle>
+            </InputWrapper>
+          </InputGroup>
 
-      <div>
-        <p>
-          Hai già un account?{' '}
-          <button
-            type="button"
-            onClick={props.onGoToLogin}
+          <Button
+            onClick={handleSubmit}
+            disabled={loading() || !form().email || !form().password || !form().confirmPassword}
+            mode={BUTTON_MODE.PRIMARY}
           >
+            {loading() ? 'Registrazione in corso...' : 'Registrati'}
+          </Button>
+        </Form>
+
+        <Section>
+          <SectionText>Hai già un account?</SectionText>
+          <Button onClick={handleGoToLogin} mode={BUTTON_MODE.SECONDARY}>
             Accedi
-          </button>
-        </p>
-      </div>
-    </div>
+          </Button>
+        </Section>
+      </Card>
+    </Container>
   );
 }
