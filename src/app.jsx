@@ -62,12 +62,8 @@ export default function App() {
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [currentMarker, setCurrentMarker] = createSignal(null);
-
     const [planeFound, setPlaneFound] = createSignal(false);
-    // const [loopAnimation, setLoopAnimation] = createSignal(null);
-    // const [jsonData, setJsonData] = createSignal(null);
-
-    let animation = null; // the animation to render in the loop
+    const [gamesRunning, setGamesRunning] = createSignal([]);
 
 
 
@@ -133,11 +129,9 @@ export default function App() {
 
 
     //#region [functions]
-
-
-    //
-    // Anonymous access
-    //
+    /**
+    * Anonymous access
+    */
     const accessAnonymous = async (params) => {
         if (!firebase.auth.user()) {
             await firebase.auth.loginAnonymous();
@@ -148,9 +142,9 @@ export default function App() {
     }
 
 
-    //
-    // Check auth status
-    //
+    /**
+    * Check auth status
+    */
     const checkAuthStatus = async () => {
         if (firebase.auth.user()) {
             if (firebase.auth.user().isAnonymous) {
@@ -173,22 +167,22 @@ export default function App() {
 
 
 
-    //
-    // Add a new marker to the App 
-    // and set it as currentMarker
-    //
+    /**
+    * Add a new marker to the App 
+    * and set it as currentMarker
+    */
     const setupMarker = async (markerId = null, markerName = null, callback = null) => {
 
-        let games = null;
+        let markerGames = null;
 
         if (markerId) {
-            games = await firebase.firestore.fetchGames(userId(), markerId);
+            markerGames = await firebase.firestore.fetchGames(userId(), markerId);
         }
 
         const marker = {
             id: markerId,
             name: markerName,
-            games: games
+            games: markerGames
         }
         setCurrentMarker(() => marker);
         console.log("current marker:", currentMarker())
@@ -196,6 +190,25 @@ export default function App() {
         if (loading()) setLoading(() => false);
         if (callback) callback();
     }
+
+
+    
+    /**
+     * Navigation
+     */
+    const goToRegister = () => setCurrentView(VIEWS.REGISTER);
+    const goToLogin = () => {
+        setLoading(() => false);
+        setCurrentView(VIEWS.LOGIN);
+    }
+    const goToMarkerList = () => {
+        setUserId(() => firebase.auth.user().uid);
+        setCurrentView(VIEWS.MARKER_LIST);
+    }
+    const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
+    const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
+    const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
+    const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
 
 
 
@@ -218,8 +231,8 @@ export default function App() {
                 setPlaneFound(Reticle.isHitting())
             }
 
-            // Update all the animation of the games
-            if (animation) animation();
+            // render the animation of the running Games
+            gamesRunning().forEach((el) => el.renderLoop());
 
             // Update Scene
             SceneManager.update();
@@ -230,8 +243,6 @@ export default function App() {
 
 
     //#region [handlers]
-
-
     /**
      * Initialize Three Scene, with AR Button
      * and go to ARSession
@@ -245,14 +256,6 @@ export default function App() {
     }
 
 
-    /**
-     * Set the animation
-     * to render in the loop (from Interactables)
-     */
-    const handleSetAnimation = (func) => {
-        animation = func;
-    }
-
 
     /**
      * Clear all and
@@ -261,7 +264,7 @@ export default function App() {
     const handleReset = () => {
         setupMarker();
         SceneManager.destroy();
-        animation = null;
+        setGamesRunning(() => []);
         if (currentMode() === AppMode.SAVE) goToMarkerList();
         else if (currentMode() === AppMode.LOAD) goToAnonymous();
         else console.error("AppMode not defined!")
@@ -270,28 +273,12 @@ export default function App() {
 
 
 
-    //
-    // Navigation
-    //
-    const goToRegister = () => setCurrentView(VIEWS.REGISTER);
-    const goToLogin = () => {
-        setLoading(() => false);
-        setCurrentView(VIEWS.LOGIN);
-    }
-    const goToMarkerList = () => {
-        setUserId(() => firebase.auth.user().uid);
-        setCurrentView(VIEWS.MARKER_LIST);
-    }
-    const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
-    const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
-    const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
-    const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
+    
 
 
 
 
     //#region [style]
-
     const Container = styled('div')`
         width: 100%;
         height: 100%;
@@ -299,7 +286,6 @@ export default function App() {
 
 
     //#region [return]
-
     const renderView = () => {
 
         switch (currentView()) {
@@ -357,7 +343,8 @@ export default function App() {
                             onBack={handleReset}
                             // onSaveMarker={(id, name) => setupMarker(id, name)}
                             planeFound={planeFound()}
-                            setAnimation={(func) => handleSetAnimation(func)}
+                            games={gamesRunning()}
+                            addGame={(el) => setGamesRunning(prev => [...prev, el])}
                         />
                     </Portal>
                 );

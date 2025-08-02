@@ -24,7 +24,7 @@ export const Context = createContext();
 
 
 // ===== HOOK BASE =====
-export function useGame(type, config = {}) {
+export function useGame(gameName, config = {}) {
 
     const context = useContext(Context);
 
@@ -35,19 +35,23 @@ export function useGame(type, config = {}) {
 
     // Define base functions
     const _onTapBase = () => {
-        console.log(`${type} onTapBase`);
+        console.log(`${gameName} onTapBase`);
+    };
+    const _renderLoopBase = () => {
+        console.log(`${gameName} renderLoopBase`);
     };
 
 
     // Define overridable / super functions
     const onTap = config.onTap || _onTapBase;
-
+    const renderLoop = config.renderLoop || _renderLoopBase;
 
     // This
     const game = {
-        type,
+        name: gameName,
         onTap,
-        super: { onTap: _onTapBase }
+        super: { onTap: _onTapBase },
+        renderLoop,
     }
 
     return {

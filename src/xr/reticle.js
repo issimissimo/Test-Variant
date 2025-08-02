@@ -7,9 +7,9 @@ import {
     Mesh,
     MeshBasicMaterial,
     RingGeometry,
-    Scene,
-    Camera,
-    WebGLRenderer
+    // Scene,
+    // Camera,
+    // WebGLRenderer
 } from 'three';
 import SceneManager from "./sceneManager";
 
@@ -121,13 +121,13 @@ const Reticle = {
      */
     set(options = {}) {
         _initialized = false;
-
         _renderer = SceneManager.renderer;
         _scene = SceneManager.scene;
         _camera = SceneManager.camera;
 
-        if (!SceneManager.initialized || !_renderer || !_scene || !_camera) {
+        if (!SceneManager.initialized() || !_renderer || !_scene || !_camera) {
             console.error("XrReticle: renderer or scene not set");
+            alert("XrReticle: renderer or scene not set")
             return;
         }
 

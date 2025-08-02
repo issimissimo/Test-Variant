@@ -56,10 +56,14 @@ export default function Main(props) {
 
 
 
-    const [interactable, setInteractable] = createSignal(null);
+    // const [game, setGame] = createSignal([]);
+
+
+
+
 
     createEffect(() => {
-        console.log("Loaded Game:", interactable())
+        console.log("Loaded Games:", props.games)
     })
 
 
@@ -78,7 +82,7 @@ export default function Main(props) {
 
             // Subscribe Games that will be loaded or created
             // for this marker to the TAP event
-            interactable()?.onTap();
+            props.games.forEach((el) => el.onTap());
         });
 
 
@@ -186,7 +190,7 @@ export default function Main(props) {
     /**
      * Set the reference (initial) Matrix4
      */
-    const handleOnCalibrationCompleted = (matrix) => {
+    const handleCalibrationCompleted = (matrix) => {
         setReferenceMatrix(() => matrix);
         console.log("CALIBRATION COMPLETED! Matrix:", referenceMatrix());
     }
@@ -197,9 +201,13 @@ export default function Main(props) {
     * a new Interactable is mounted,
     * thanks to useInteractable
     */
-    const handleInteractableReady = (el) => {
-        // set the interactable that we are using
-        setInteractable(() => el);
+    const handleGameReady = (el) => {
+
+        // set the game that we are using
+        // setGame(() => el);
+        // setGame(prev => [...prev, el]);
+        props.addGame(el);
+
         // update the DOM elements that can be clicked
         updateClickableDomElements();
     };
@@ -406,7 +414,7 @@ export default function Main(props) {
                 <Calibration
                     planeFound={props.planeFound}
                     setAnimation={props.setAnimation}
-                    setReferenceMatrix={(matrix) => handleOnCalibrationCompleted(matrix)}
+                    setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
                 />
             )
         }
@@ -484,19 +492,17 @@ export default function Main(props) {
     //#region [return]
 
     return (
-        <Context.Provider value={{ onReady: handleInteractableReady }}>
+        <Context.Provider value={{ onReady: handleGameReady }}>
             <Container id="arSession">
 
                 <BackButton onClick={handleGoBack} />
 
-                {/* <Calibration
-                    // planeFound={planeFound()}
+                <Calibration
                     planeFound={props.planeFound}
-                    setAnimation={props.setAnimation}
-                    setReferenceMatrix={(matrix) => handleOnCalibrationCompleted(matrix)}
-                />; */}
+                    setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
+                />;
 
-                {renderView()}
+                {/* {renderView()} */}
             </Container>
         </Context.Provider>
     );

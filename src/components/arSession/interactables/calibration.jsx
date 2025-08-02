@@ -1,10 +1,7 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
 import { useGame } from './common';
-
 import { styled } from 'solid-styled-components';
-
-// import SceneManager from '../../xr/sceneManager';
-import Reticle from '../../../xr/reticle';
+import Reticle from '@xr/reticle';
 
 
 export default function Calibration(props) {
@@ -15,11 +12,6 @@ export default function Calibration(props) {
         Reticle.set({
             fileName: 'models/gizmo.glb'
         });
-
-        // const anim = () => {
-        //     console.log("ciao!")
-        // }
-        // props.setAnimation(anim);
     });
 
     let timeout = null;
@@ -39,9 +31,11 @@ export default function Calibration(props) {
     // })
 
 
-    // Put here derived functions
-    // from useInteractable
-    const { interactable } = useGame("calibration", {
+ 
+    /*
+    * Put here derived functions from Game
+    */
+    const { game } = useGame("Calibration", {
 
         onTap: () => {
             // // Call super
@@ -50,6 +44,10 @@ export default function Calibration(props) {
             if (props.planeFound || !Reticle.usePlaneDetection()) {
                 props.setReferenceMatrix(Reticle.getHitMatrix());
             }
+        },
+
+        renderLoop: () => {
+            console.log("Calibration anim in loop!")
         }
     });
 
