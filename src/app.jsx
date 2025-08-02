@@ -17,10 +17,6 @@ import ArNotSupported from '@components/arNotSupported';
 import SceneManager from '@xr/sceneManager';
 import Reticle from '@xr/reticle';
 
-// Games
-import { GAMES_LISTING } from './components/arSession/interactables/common';
-
-
 
 /*
 * This function is called by the "Enter AR" button
@@ -29,7 +25,7 @@ import { GAMES_LISTING } from './components/arSession/interactables/common';
 */
 let globalGoToArSession;
 export const TestGameOnDesktopFallback = () => {
-    console.warn("We are DEBUGGING on desktop and AR session is NOT initialized! Just use for debug on desktop purpose! Please check 'config.json' file in PUBLIC FOLDER to modify the settings!")
+    console.warn("We are DEBUGGING on desktop and AR session is NOT initialized! Just use for debug on desktop purpose! Please check 'appConfig.json' file in PUBLIC folder to modify the settings!")
     globalGoToArSession();
 }
 
@@ -242,8 +238,6 @@ export default function App() {
     };
 
 
-
-
     //#region [handlers]
     /**
      * Initialize Three Scene, with AR Button
@@ -258,7 +252,6 @@ export default function App() {
     }
 
 
-
     /**
      * Clear all and
      * go back to 1st screen
@@ -271,11 +264,6 @@ export default function App() {
         else if (currentAppMode() === AppMode.LOAD) goToAnonymous();
         else console.error("AppMode not defined!")
     }
-
-
-
-
-
 
 
 

@@ -6,8 +6,9 @@ import { onMount, createContext, useContext } from 'solid-js';
 // to add (or delete) every new game
 export const GAMES_LISTING = [
     {
-        name: 'Piazza un oggetto',
-        description: 'Inserisci un oggetto 3D in AR',
+        fileName: "envLight",
+        title: "Environment light",
+        description: "Inserisci un'immagine HDRI 360 come luce ambientale",
         image: '/images/games/backgrounds/vetro.jpg'
     },
     {

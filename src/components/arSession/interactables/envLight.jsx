@@ -11,9 +11,6 @@ export default function EnvLight(props) {
     const { game } = useGame("Environment light", {
 
         onTap: () => {
-            // // Call super
-            // interactable.super.onTap();
-
 
         },
 
@@ -23,7 +20,9 @@ export default function EnvLight(props) {
     });
 
 
+    const [appMode, setAppMode] = createSignal(game.appMode);
 
+    
 
 
     return (

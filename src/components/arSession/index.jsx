@@ -52,16 +52,11 @@ export default function Main(props) {
 
 
 
-    createEffect(() => {
-        console.log("Loaded Games:", props.games)
-    })
+
 
 
     //#region [lifeCycle]
-
     onMount(() => {
-
-        console.log("--- AR Session started ---")
 
         // On TAP on screen
         SceneManager.controller.addEventListener("select", () => {
@@ -83,7 +78,9 @@ export default function Main(props) {
     });
 
 
-
+    createEffect(() => {
+        console.log("Loaded Games:", props.games)
+    })
 
 
 
@@ -189,7 +186,7 @@ export default function Main(props) {
     const loadGames = () => {
         if (props.marker.games.length > 0) {
             props.marker.games.forEach((el) => {
-                
+
                 // Load the component by name on demand
                 loadComponent(el.name);
             })
