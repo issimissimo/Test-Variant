@@ -7,7 +7,7 @@ import { styled } from 'solid-styled-components';
 
 // Main components
 import Inventory from './inventory';
-import Calibration from './interactables/calibration';
+import Calibration from '@games/calibration';
 
 // UI
 import { BackButton } from '@/ui';
@@ -25,7 +25,7 @@ import SceneManager from '@xr/sceneManager';
 //     -webkit-backdrop-filter: blur(7.1px);
 //     `
 
-import { Context } from './interactables/common';
+import { Context } from '@games/common';
 
 
 
@@ -187,6 +187,7 @@ export default function Main(props) {
         if (props.marker.games.length > 0) {
             props.marker.games.forEach((el) => {
 
+                console.log("devo caricare:", el.name)
                 // Load the component by name on demand
                 loadComponent(el.name);
             })
@@ -279,7 +280,7 @@ export default function Main(props) {
     * with the function "handleGameReady")
     */
     async function loadComponent(componentName) {
-        const module = await import(`./interactables/${componentName}.jsx`);
+        const module = await import(`./games/${componentName}.jsx`);
 
         const loadedComponent = {
             name: componentName,
