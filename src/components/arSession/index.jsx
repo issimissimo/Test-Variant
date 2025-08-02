@@ -1,25 +1,21 @@
-import { createSignal, createEffect, onMount, onCleanup } from 'solid-js';
+import { createSignal, createEffect, onMount, For } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
 import { AppMode } from '@/app';
 import { config } from '@/config';
 import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
+// Main components
+import Inventory from './inventory';
+import Calibration from './interactables/calibration';
+
 // UI
 import { BackButton } from '@/ui';
-
-// Components
-import Inventory from './inventory';
-
-// Games
-import Calibration from './interactables/calibration';
-// import Game from './game';
-// import Playground from './playground'; // for DEBUG!
 
 // XR
 import SceneManager from '@xr/sceneManager';
 // import AssetManager from '../xr/assetManager';
-// import Reticle from '../../xr/reticle';
+
 
 
 // export const BlurBackground = styled('div')`
@@ -31,10 +27,6 @@ import SceneManager from '@xr/sceneManager';
 
 import { Context } from './interactables/common';
 
-// const VIEWS = {
-//     CALIBRATION: 'calibration',
-//     GAME: 'game',
-// };
 
 
 
@@ -44,19 +36,17 @@ export default function Main(props) {
 
     const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
-    // const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
+
     const [jsonData, setJsonData] = createSignal(null);
-    // const [planeFound, setPlaneFound] = createSignal(false);
+
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
-    // const [tapEnabled, setTapEnabled] = createSignal(true);
-    // const [canEdit, setCanEdit] = createSignal(props.currentMode === AppMode.SAVE ? true : false);
+    const [calibrationCompleted, setCalibrationCompleted] = createSignal(false);
+    const [componentsLoaded, setComponentsLoaded] = createSignal([]);
+
+
 
     let tapEnabled = true;
-    // let calibrationCompleted = false;
 
-
-
-    // const [game, setGame] = createSignal([]);
 
 
 
@@ -80,52 +70,13 @@ export default function Main(props) {
                 return;
             }
 
-            // Subscribe Games that will be loaded or created
-            // for this marker to the TAP event
+            // Call onTap function of all the gamesRunning
             props.games.forEach((el) => el.onTap());
         });
 
 
 
 
-
-
-
-
-        // start();
-
-        // if (props.currentMode === AppMode.SAVE) {
-
-        //     // regular mode
-        //     if (!config.usePlayGround) {
-        //         goToEditMarker();
-        //         initialize();
-        //     }
-        //     // debug mode
-        //     else {
-        //         handleLoadMarkerData();
-        //         goToPlayGround();
-        //     }
-
-        // }
-        // else if (props.currentMode === AppMode.LOAD) {
-        //     await handleLoadMarkerData();
-        //     if (jsonData()) {
-
-        //         // All good, we've loaded the JSON data and we can
-        //         // go to Welcome screen
-        //         goToWelcome();
-        //         initialize();
-        //     }
-        //     else {
-        //         console.error("You are loading a marker as anonymous, but marker has no data or does not exist!")
-        //         goToMarkerNotExist();
-        //     }
-
-        //     // Hide the preloader
-        //     props.loading(false);
-        // }
-        // else console.error("AppMode not specified")
     });
 
 
@@ -188,24 +139,25 @@ export default function Main(props) {
 
 
     /**
-     * Set the reference (initial) Matrix4
+     * Set the reference Matrix4
+     * that will be used to set the relative position
+     * of the loaded 3D objects
      */
     const handleCalibrationCompleted = (matrix) => {
         setReferenceMatrix(() => matrix);
+        setCalibrationCompleted(() => true);
         console.log("CALIBRATION COMPLETED! Matrix:", referenceMatrix());
     }
 
 
     /**
     * This function is called each time
-    * a new Interactable is mounted,
-    * thanks to useInteractable
+    * a new Game is mounted,
+    * to add it with its functions to gamesRunning of app.jsx
+    * (N.B. the gameRunning IS NOT the module that we use here in the return 
+    * to display the UI of each module!)
     */
     const handleGameReady = (el) => {
-
-        // set the game that we are using
-        // setGame(() => el);
-        // setGame(prev => [...prev, el]);
         props.addGame(el);
 
         // update the DOM elements that can be clicked
@@ -269,130 +221,6 @@ export default function Main(props) {
 
 
 
-    /**
-     * Initialize the XR scene,
-     * both as admin (SAVE mode) or user (LOAD mode)
-     * (with Three.js, xr, Reticle)
-     */
-    // const start = () => {
-
-    //     SceneManager.renderer.setAnimationLoop(render);
-    //     SceneManager.controller.addEventListener("select", () => {
-    //         if (!tapEnabled) {
-    //             tapEnabled = true;
-    //             return;
-    //         }
-    //         interactable()?.onTap();
-    //     });
-
-    //     // // only for debug, load the default gizmo to show
-    //     // // where we tap
-    //     // SceneManager.loadGizmo();
-
-
-    //     // // Init Reticle
-    //     // Reticle.set({
-    //     //     renderer: SceneManager.renderer,
-    //     //     scene: SceneManager.scene,
-    //     //     camera: SceneManager.camera,
-    //     //     color: 0x00ff00,
-    //     //     radius: 0.06,
-    //     //     innerRadius: 0.05,
-    //     //     segments: 4,
-    //     // });
-
-    //     // // Init Reticle
-    //     // Reticle.set({
-    //     //     renderer: SceneManager.renderer,
-    //     //     scene: SceneManager.scene,
-    //     //     camera: SceneManager.camera,
-    //     //     fileName: 'models/gizmo.glb'
-    //     // });
-
-    // }
-
-
-    // /**
-    //  * We do some stuff, when the user click "Enter AR" button
-    //  * and consequently 'onSessionStarted' is called
-    //  */
-    // const onARSessionStarted = () => {
-    //     if (props.currentMode === AppMode.SAVE) {
-
-    //         // Check if is a new marker
-    //         console.log('current marker:', props.marker)
-
-    //         if (props.marker.id) {
-    //             console.log('current marker is saved, with id:', props.marker.id)
-
-    //             if (props.marker.withData) {
-    //                 console.log('...and it seem to have a JSON saved too...')
-    //                 handleLoadMarkerData();
-    //             }
-    //         }
-
-    //         else {
-    //             console.log('current marker is not saved, we need to save it on Firestore...')
-    //             handleCreateMarker(markerName());
-    //         }
-    //     }
-    //     console.log("NOW GO TO CALIBRATION!")
-    //     goToCalibration();
-    // }
-
-
-
-
-
-
-    //     // if (!canEdit()) return;
-
-    //     // console.log('>> onTapOnScreen:', tapEnabled())
-
-    //     // // Stop here if it's a DOM event
-    //     // if (!tapEnabled()) {
-    //     //     setTapEnabled(() => true);
-    //     //     return;
-    //     // }
-
-    //     // if (Reticle.isHitting() || !Reticle.usePlaneDetection()) {
-    //     //     const reticleMatrix = new Matrix4().copy(Reticle.getHitMatrix());
-
-    //     //     // Set the hitMatrix signal
-    //     //     setHitMatrix(() => reticleMatrix);
-    //     //     console.log("MATRICE CAMBIATA!")
-
-    //     //     // First time...
-    //     //     if (!calibrationCompleted) {
-
-    //     //         if (config.isDebug) {
-    //     //             SceneManager.addGltfToScene(SceneManager.gizmo, hitMatrix(), "referenceGizmo");
-    //     //         }
-
-    //     //         calibrationCompleted = true;
-    //     //         goToGame();
-    //     //     }
-    //     // }
-    // }
-
-
-
-
-
-
-
-
-
-    // /**
-    //  * Navigation helpers
-    //  */
-    // const goToCalibration = () => {
-    //     setCurrentView(VIEWS.CALIBRATION)
-    // };
-    // const goToGame = () => {
-    //     setCurrentView(VIEWS.GAME)
-    // };
-    // const goToPlayGround = () => setCurrentView(VIEWS.PLAYGROUND);
 
 
 
@@ -418,62 +246,25 @@ export default function Main(props) {
                 />
             )
         }
-
-        // switch (currentView()) {
-
-        // case VIEWS.WELCOME:
-        //     return <WelcomeUser
-        //         jsonData={jsonData()}
-        //     />;
-
-        // case VIEWS.EDIT_MARKER:
-        //     return <EditMarker
-        //         userId={props.userId}
-        //         marker={props.marker}
-        //         markerName={markerName()}
-        //         setMarkerName={(name) => setMarkerName(() => name)}
-        //         onCreate={handleCreateMarker}
-        //         // onModify={handleModifyMarker}
-        //         onDelete={handleDeleteMarker}
-        //     // onCancel={handleBackToHome}
-        //     />;
-
-        // case VIEWS.CALIBRATION:
-        //     return <Calibration
-        //         planeFound={planeFound()}
-        //     />;
-
-        // case VIEWS.GAME:
-        //     return <Game
-        //         currentMode={props.currentMode}
-        //         // disableTap={setTapEnabled(() => false)}
-        //         canEdit={canEdit()}
-        //         setCanEdit={(value) => setCanEdit(() => value)}
-        //         userId={props.userId}
-        //         marker={props.marker}
-        //         saveData={(data) => handleSaveMarkerData(data)}
-        //         scene={SceneManager.scene}
-        //         data={jsonData()}
-        //         hitMatrix={hitMatrix()}
-        //     // onClose={handleBackToHome}
-        //     />;
-
-        // case VIEWS.MARKER_NOT_EXIST:
-        //     return <Unavailable
-        //     />;
-
-        // case VIEWS.PLAYGROUND:
-        //     return <Playground
-        //         jsonData={jsonData()}
-        //         setJsonData={(data) => setJsonData(() => data)}
-        //         save={handleSaveMarkerData}
-        //     />;
-        // }
     };
 
 
 
+    /**
+    * Import module (game) on-demand.
+    * The module will be added to the return of this function
+    * (N.B. the module IS NOT the "gameRunning" that we use here and in app.jsx
+    * to access its functions!)
+    */
+    async function loadComponent(componentName) {
+        const module = await import(`./components/${componentName}.jsx`);
 
+        const loadedComponent = {
+            name: componentName,
+            component: module.default
+        }
+        setComponentsLoaded((prev) => [...prev, loadedComponent]);
+    }
 
 
 
@@ -492,7 +283,10 @@ export default function Main(props) {
     //#region [return]
 
     return (
-        <Context.Provider value={{ onReady: handleGameReady }}>
+        <Context.Provider value={{
+            onReady: handleGameReady,
+            appMode: props.appMode
+        }}>
             <Container id="arSession">
 
                 <BackButton onClick={handleGoBack} />
@@ -503,6 +297,15 @@ export default function Main(props) {
                 />;
 
                 {/* {renderView()} */}
+
+
+                <For each={componentsLoaded()}>
+                    {(item) => {
+                        const Component = item.component;
+                        return <Component />;
+                    }}
+                </For>
+
             </Container>
         </Context.Provider>
     );

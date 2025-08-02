@@ -49,12 +49,13 @@ export function useGame(gameName, config = {}) {
     // This
     const game = {
         name: gameName,
+        appMode: context.appMode,
         onTap,
         super: { onTap: _onTapBase },
         renderLoop,
     }
 
     return {
-        interactable: game
+        game: game
     };
 }

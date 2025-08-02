@@ -5,10 +5,6 @@ import SceneManager from '@xr/sceneManager';
 
 export default function EnvLight(props) {
 
-
-
-
-
     /*
     * Put here derived functions from Game
     */
@@ -18,12 +14,22 @@ export default function EnvLight(props) {
             // // Call super
             // interactable.super.onTap();
 
-            
+
         },
 
         renderLoop: () => {
             console.log("Environment light anim in loop!")
         }
     });
+
+
+
+
+
+    return (
+        <div>
+            <h1>ENV LIGHT</h1>
+        </div>
+    );
 
 }

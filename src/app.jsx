@@ -57,7 +57,7 @@ export default function App() {
 
     //#region [constants]
     const firebase = useFirebase();
-    const [currentMode, setCurrentMode] = createSignal(null);
+    const [currentAppMode, setCurrentAppMode] = createSignal(null);
     const [currentView, setCurrentView] = createSignal(null);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
@@ -90,13 +90,13 @@ export default function App() {
 
                     // Access as anonymous
                     if (hasQueryParams) {
-                        setCurrentMode(() => AppMode.LOAD);
+                        setCurrentAppMode(() => AppMode.LOAD);
                         accessAnonymous(urlParams);
 
                     } else {
 
                         // Login or register
-                        setCurrentMode(() => AppMode.SAVE);
+                        setCurrentAppMode(() => AppMode.SAVE);
                         if (!firebase.auth.authLoading()) {
                             checkAuthStatus();
 
@@ -192,7 +192,7 @@ export default function App() {
     }
 
 
-    
+
     /**
      * Navigation
      */
@@ -232,7 +232,9 @@ export default function App() {
             }
 
             // render the animation of the running Games
-            gamesRunning().forEach((el) => el.renderLoop());
+            if (gamesRunning().length > 0) {
+                gamesRunning().forEach((el) => el.renderLoop());
+            }
 
             // Update Scene
             SceneManager.update();
@@ -265,15 +267,15 @@ export default function App() {
         setupMarker();
         SceneManager.destroy();
         setGamesRunning(() => []);
-        if (currentMode() === AppMode.SAVE) goToMarkerList();
-        else if (currentMode() === AppMode.LOAD) goToAnonymous();
+        if (currentAppMode() === AppMode.SAVE) goToMarkerList();
+        else if (currentAppMode() === AppMode.LOAD) goToAnonymous();
         else console.error("AppMode not defined!")
     }
 
 
 
 
-    
+
 
 
 
@@ -337,11 +339,10 @@ export default function App() {
                     <Portal mount={document.getElementById('overlay')}>
                         <ArSession
                             loading={(value) => setLoading(() => value)}
-                            currentMode={currentMode()}
+                            appMode={currentAppMode()}
                             userId={userId()}
                             marker={currentMarker()}
                             onBack={handleReset}
-                            // onSaveMarker={(id, name) => setupMarker(id, name)}
                             planeFound={planeFound()}
                             games={gamesRunning()}
                             addGame={(el) => setGamesRunning(prev => [...prev, el])}
