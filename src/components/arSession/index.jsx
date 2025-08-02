@@ -61,6 +61,8 @@ export default function Main(props) {
 
     onMount(() => {
 
+        console.log("--- AR Session started ---")
+
         // On TAP on screen
         SceneManager.controller.addEventListener("select", () => {
 
@@ -75,8 +77,9 @@ export default function Main(props) {
         });
 
 
-
-
+        // Load all the games that are saved 
+        // on the current marker
+        loadGames();
     });
 
 
@@ -183,7 +186,27 @@ export default function Main(props) {
 
 
 
+    const loadGames = () => {
+        if (props.marker.games.length > 0) {
+            props.marker.games.forEach((el) => {
+                
+                // Load the component by name on demand
+                loadComponent(el.name);
+            })
+        }
 
+        // for (const componentName of componentsToLoad) {
+        //     await loadComponent(componentName);
+        // }
+    }
+
+
+    const createGame = async () => {
+        const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
+        // setMarkerId(() => newMarkerId);
+        // props.onNewMarkerCreated(newMarkerId, markerName);
+        console.log('Creato in Firestore il game con ID:', newGameId)
+    }
 
 
 
@@ -254,10 +277,12 @@ export default function Main(props) {
     * Import module (game) on-demand.
     * The module will be added to the return of this function
     * (N.B. the module IS NOT the "gameRunning" that we use here and in app.jsx
-    * to access its functions!)
+    * to access its functions!
+    * Each "gameRunning" will be added automatically as loaded
+    * with the function "handleGameReady")
     */
     async function loadComponent(componentName) {
-        const module = await import(`./components/${componentName}.jsx`);
+        const module = await import(`./interactables/${componentName}.jsx`);
 
         const loadedComponent = {
             name: componentName,
