@@ -79,7 +79,7 @@ export default function Main(props) {
             props.marker.games.forEach((el) => {
                 console.log("GAME:", el)
                 // Load all the components by name
-                loadComponent(el.id, el.name, true);
+                if (el.enabled) loadComponent(el.id, el.name, true);
             })
         }
     });

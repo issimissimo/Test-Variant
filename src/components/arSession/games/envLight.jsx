@@ -77,6 +77,7 @@ export default function EnvLight(props) {
             const environment = envMap;
             environment.mapping = EquirectangularReflectionMapping;
             SceneManager.scene.environment = environment;
+            SceneManager.scene.environmentRotation = gameData().rotation;
         });
     }
 

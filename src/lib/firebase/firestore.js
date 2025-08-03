@@ -143,6 +143,7 @@ export const addGame = async (userId, markerId, name) => {
         const newGameRef = await addDoc(gameRef,
             {
                 name,
+                enabled: true,
                 created: serverTimestamp(),
             });
         return newGameRef.id;
