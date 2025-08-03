@@ -25,9 +25,9 @@ const SceneManager = {
         // Inizializzazione scena ThreeJS
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-        this.light = new HemisphereLight(0xffffff, 0xbbbbff, 1);
-        this.light.position.set(0.5, 1, 0.25);
-        this.scene.add(this.light);
+        // this.light = new HemisphereLight(0xffffff, 0xbbbbff, 1);
+        // this.light.position.set(0.5, 1, 0.25);
+        // this.scene.add(this.light);
 
         // Inizializzazione renderer
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
@@ -119,7 +119,7 @@ const SceneManager = {
         // 6. Reset delle proprietà
         this.scene = null;
         this.camera = null;
-        this.light = null;
+        // this.light = null;
         this.renderer = null;
         this.container = null;
         this.controller = null;

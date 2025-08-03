@@ -47,7 +47,7 @@ export default function EnvLight(props) {
         if (props.stored) {
             // Load the game data from RealtimeDB
             console.log("Load the game data from RealtimeDB");
-            game.loadData(props.id, (data) => setGameData(() => data))
+            game.loadGameData(props.id, (data) => setGameData(() => data))
         }
         else {
             // Set default gameData
@@ -118,7 +118,7 @@ export default function EnvLight(props) {
             <Title>{game.gameDetails.title}</Title>
             <Description>{game.gameDetails.description}</Description>
             <Button
-                onClick={() => game.saveData(gameData)}
+                onClick={() => game.saveGame(gameData)}
             >Test salva game e dati</Button>
             {/* <Button
                 onClick={() => game.loadData(props.id, (data) => setGameData(() => data))}

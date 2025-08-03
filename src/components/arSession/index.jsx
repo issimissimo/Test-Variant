@@ -1,6 +1,4 @@
 import { createSignal, createEffect, onMount, For } from 'solid-js';
-import { useFirebase } from '@hooks/useFirebase';
-import { AppMode } from '@/app';
 import { config } from '@/config';
 import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
@@ -9,13 +7,19 @@ import { styled } from 'solid-styled-components';
 import Inventory from './inventory';
 import Calibration from '@games/calibration';
 
+
+import BasicRotCube from './games/basicRotCube';
+
+
+
 // UI
 import { BackButton } from '@/ui';
 
 // XR
 import SceneManager from '@xr/sceneManager';
-// import AssetManager from '../xr/assetManager';
 
+// Context
+import { Context } from '@games/common';
 
 
 // export const BlurBackground = styled('div')`
@@ -25,7 +29,7 @@ import SceneManager from '@xr/sceneManager';
 //     -webkit-backdrop-filter: blur(7.1px);
 //     `
 
-import { Context } from '@games/common';
+
 
 
 
@@ -33,25 +37,11 @@ import { Context } from '@games/common';
 export default function Main(props) {
 
     //#region [constants]
-
-    const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
-
-    const [jsonData, setJsonData] = createSignal(null);
-
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
     const [calibrationCompleted, setCalibrationCompleted] = createSignal(false);
     const [componentsLoaded, setComponentsLoaded] = createSignal([]);
-
-
-
     let tapEnabled = true;
-
-
-
-
-
-
 
 
 
@@ -92,49 +82,6 @@ export default function Main(props) {
 
 
     //#region [handlers]
-
-
-
-
-    // /**
-    //  * Load JSON from Firebase Realtime DB
-    //  * and set jsonData()
-    //  */
-    // const handleLoadMarkerData = async () => {
-    //     try {
-    //         const path = `${props.userId}/${props.marker.id}/data`;
-    //         const data = await firebase.realtimeDb.loadData(path);
-    //         setJsonData(() => data);
-    //     } catch (error) {
-    //         console.error("Errore nel caricamento JSON:", error);
-    //     }
-    // }
-
-
-
-    // /**
-    //  * Save jsonData() to Firebase Realtime DB
-    //  * and, if necessary, update Firestore marker data:
-    //  * withData = true
-    //  */
-    // const handleSaveMarkerData = async (data) => {
-    //     try {
-    //         const path = `${props.userId}/${props.marker.id}/data`;
-    //         await firebase.realtimeDb.saveData(path, data);
-    //         setJsonData(() => data);
-
-    //         if (!props.marker.withData) {
-    //             firebase.firestore.updateMarker(props.userId, props.marker.id,
-    //                 props.marker.name, true);
-    //         }
-    //     } catch (error) {
-    //         console.log({ type: 'error', text: `Errore: ${error.message}` });
-    //     }
-    // }
-
-
-
-
     /**
      * Go back
      */
@@ -173,26 +120,6 @@ export default function Main(props) {
 
 
     //#region [functions]
-
-
-
-
-    // /**
-    // * Add a new game on Firestore
-    // */
-    // const addGameOnFirestore = async () => {
-    //     const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
-    //     // setMarkerId(() => newMarkerId);
-    //     // props.onNewMarkerCreated(newMarkerId, markerName);
-    //     console.log('Creato in Firestore il game con ID:', newGameId)
-    // }
-
-
-
-
-
-
-
 
 
     let _clickableDomElements = [];
@@ -305,7 +232,6 @@ export default function Main(props) {
                 />;
 
                 {/* {renderView()} */}
-
 
                 <For each={componentsLoaded()}>
                     {(item) => {

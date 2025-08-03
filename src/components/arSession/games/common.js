@@ -14,11 +14,11 @@ export const GAMES_LISTING = [
         allowed: 1
     },
     {
-        fileName: "laser",
-        name: 'Evita i laser',
-        description: 'Non farti beccare dai laser nella stanza',
+        fileName: "basicRotCube",
+        title: 'Test basico con un cubo che ruota',
+        description: 'Da eliminare, solo di test',
         image: '/images/games/backgrounds/vetro.jpg',
-        allowed: 4
+        allowed: 1
     },
 ];
 
@@ -42,35 +42,37 @@ export function useGame(gameName, config = {}) {
 
 
     // Define functions for Realtime Database
-    const loadData = async (gameId, callback) => {
+    const loadGameData = async (gameId, callback) => {
         try {
             const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
-            const data = await firebase.realtimeDb.loadData(path);
-            callback(data);
+            const gameData = await firebase.realtimeDb.loadData(path);
+            callback(gameData);
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
         }
     }
 
-    const saveData = async (data) => {
+    const saveGame = async (gameData = null) => {
         // const jsonData = JSON.stringify(data);
         // console.log(jsonData)
 
         const gameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
         console.log('Creato in Firestore il game con ID:', gameId)
 
-        try {
-            const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
-            await firebase.realtimeDb.saveData(path, data);
-            console.log('Creato in RealtimeDB il JSON con ID:', gameId)
+        if (gameData) {
+            try {
+                const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
+                await firebase.realtimeDb.saveData(path, gameData);
+                console.log('Creato in RealtimeDB il JSON con ID:', gameId)
 
-        } catch (error) {
-            console.log("Errore nel salvataggio JSON:", error);
+            } catch (error) {
+                console.log("Errore nel salvataggio JSON:", error);
+            }
         }
     }
 
 
-    
+
 
 
     // Define base functions
@@ -93,8 +95,8 @@ export function useGame(gameName, config = {}) {
         onTap,
         super: { onTap: _onTapBase },
         renderLoop,
-        loadData,
-        saveData,
+        loadGameData: loadGameData,
+        saveGame: saveGame,
         gameDetails
     }
 
