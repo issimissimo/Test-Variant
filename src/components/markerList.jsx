@@ -22,6 +22,9 @@ export default function MarkerList(props) {
 
 
   //#region [functions]
+  /**
+  * Load all markers from Firestore
+  */
   const loadMarkers = async () => {
       const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
       setMarkers(data);

@@ -5,12 +5,13 @@ import Reticle from '@xr/reticle';
 
 
 export default function Calibration(props) {
+
     const [difficult, setDifficult] = createSignal(false)
 
     /*
     * Put here derived functions from Game
     */
-    const { game  } = useGame("Calibration", {
+    const { game } = useGame("calibration", {
 
         onTap: () => {
             // // Call super
@@ -22,7 +23,7 @@ export default function Calibration(props) {
         },
 
         renderLoop: () => {
-            console.log("Calibration anim in loop!")
+            // console.log("Calibration anim in loop!")
         }
     });
 
@@ -37,7 +38,7 @@ export default function Calibration(props) {
         console.log("App MODE:", game.appMode);
     });
 
-   
+
 
 
     let timeout = null;

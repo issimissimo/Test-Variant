@@ -59,6 +59,7 @@ export default function Main(props) {
     onMount(() => {
 
         // On TAP on screen
+        // event listener
         SceneManager.controller.addEventListener("select", () => {
 
             // Avoid TAP on DOM elements
@@ -74,7 +75,13 @@ export default function Main(props) {
 
         // Load all the games that are saved 
         // on the current marker
-        loadGames();
+        if (props.marker.games.length > 0) {
+            props.marker.games.forEach((el) => {
+
+                // Load all the components by name
+                loadComponent(el.name, true);
+            })
+        }
     });
 
 
@@ -169,37 +176,11 @@ export default function Main(props) {
 
 
 
-    const init = () => {
-        if (props.currentMode === AppMode.SAVE) {
-
-        }
-        else if (props.currentMode === AppMode.LOAD) {
-
-        }
-        else {
-
-        }
-    }
-
-
-
-    const loadGames = () => {
-        if (props.marker.games.length > 0) {
-            props.marker.games.forEach((el) => {
-
-                console.log("devo caricare:", el.name)
-                // Load the component by name on demand
-                loadComponent(el.name);
-            })
-        }
-
-        // for (const componentName of componentsToLoad) {
-        //     await loadComponent(componentName);
-        // }
-    }
-
-
-    const createGame = async () => {
+   // TODO forse questo lo spostiamo anche lui in useGame ???
+    /**
+    * Add a new game on Firestore
+    */
+    const addGameOnFirestore = async () => {
         const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
         // setMarkerId(() => newMarkerId);
         // props.onNewMarkerCreated(newMarkerId, markerName);
@@ -279,12 +260,12 @@ export default function Main(props) {
     * Each "gameRunning" will be added automatically as loaded
     * with the function "handleGameReady")
     */
-    async function loadComponent(componentName) {
+    async function loadComponent(componentName, storedOnDatabase) {
         const module = await import(`./games/${componentName}.jsx`);
-
         const loadedComponent = {
             name: componentName,
-            component: module.default
+            stored: storedOnDatabase,
+            component: module.default,
         }
         setComponentsLoaded((prev) => [...prev, loadedComponent]);
     }
@@ -308,7 +289,9 @@ export default function Main(props) {
     return (
         <Context.Provider value={{
             onReady: handleGameReady,
-            appMode: props.appMode
+            appMode: props.appMode,
+            markerId: props.marker.id,
+            userId: props.userId
         }}>
             <Container id="arSession">
 
@@ -325,7 +308,7 @@ export default function Main(props) {
                 <For each={componentsLoaded()}>
                     {(item) => {
                         const Component = item.component;
-                        return <Component />;
+                        return <Component stored={item.stored} />;
                     }}
                 </For>
 

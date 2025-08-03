@@ -1,4 +1,5 @@
 import { onMount, createContext, useContext } from 'solid-js';
+import { useFirebase } from '@hooks/useFirebase';
 
 
 // ===== GAMES LIST (calibration excluded!) =====
@@ -9,12 +10,15 @@ export const GAMES_LISTING = [
         fileName: "envLight",
         title: "Environment light",
         description: "Inserisci un'immagine HDRI 360 come luce ambientale",
-        image: '/images/games/backgrounds/vetro.jpg'
+        image: '/images/games/backgrounds/vetro.jpg',
+        allowed: 1
     },
     {
+        fileName: "laser",
         name: 'Evita i laser',
         description: 'Non farti beccare dai laser nella stanza',
-        image: '/images/games/backgrounds/vetro.jpg'
+        image: '/images/games/backgrounds/vetro.jpg',
+        allowed: 4
     },
 ];
 
@@ -28,10 +32,42 @@ export const Context = createContext();
 export function useGame(gameName, config = {}) {
 
     const context = useContext(Context);
+    const firebase = useFirebase();
 
     onMount(() => {
         context.onReady(game);
-    })
+    });
+
+
+    // Define functions for Realtime Database
+    const loadData = async (gameId) => {
+        try {
+            const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
+            const data = await firebase.realtimeDb.loadData(path);
+            return data;
+
+        } catch (error) {
+            console.error("Errore nel caricamento JSON:", error);
+        }
+    }
+
+    const saveData = async (data) => {
+
+        const gameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
+        console.log('Creato in Firestore il game con ID:', gameId)
+
+        try {
+            const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
+            await firebase.realtimeDb.saveData(path, data);
+            console.log('Creato in RealtimeDB il JSON con ID:', gameId)
+
+        } catch (error) {
+            console.log("Errore nel salvataggio JSON:", error);
+        }
+    }
+
+    
+    const gameDetails = GAMES_LISTING.find(g => g.fileName === gameName);
 
 
     // Define base functions
@@ -54,6 +90,9 @@ export function useGame(gameName, config = {}) {
         onTap,
         super: { onTap: _onTapBase },
         renderLoop,
+        loadData,
+        saveData,
+        gameDetails
     }
 
     return {

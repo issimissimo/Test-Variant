@@ -117,7 +117,6 @@ export default function App() {
 
 
     createEffect(() => {
-
         // Hide the preloader
         if (!loading()) document.getElementById("loading").style.display = "none";
     })
@@ -171,10 +170,13 @@ export default function App() {
 
         let markerGames = null;
 
+        // Load the all the Games basic properties
+        // from firestore for this marker
         if (markerId) {
             markerGames = await firebase.firestore.fetchGames(userId(), markerId);
         }
 
+        // Setup this marker
         const marker = {
             id: markerId,
             name: markerName,

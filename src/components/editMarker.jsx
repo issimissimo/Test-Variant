@@ -7,8 +7,8 @@ import { styled } from 'solid-styled-components';
 import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from '@/ui';
 import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 
-// Interactables
-// import { GAMES_LISTING } from './arSession/interactables/common';
+// Games
+import { GAMES_LISTING } from '@games/common';
 
 
 export default function EditMarker(props) {
@@ -29,6 +29,39 @@ export default function EditMarker(props) {
     if (props.marker.id) {
       if (props.marker.games.length > 0) {
         generateQRCodeForForMarker(props.userId, props.marker.id);
+
+
+
+        console.log("--------------")
+        console.log("Questo marker ha i seguenti games:")
+
+        props.marker.games.forEach((el) => {
+
+          console.log(el)
+
+          const created = el.created;
+          const createdDate = created.toDate();
+          const formattedDate = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
+          console.log("CREATED AT:", formattedDate);
+
+          const fileName = el.name;
+
+          const game = GAMES_LISTING.find(g => g.fileName === fileName);
+          const title = game?.title || '';
+          const description = game?.description || '';
+          const allowed = game?.allowed;
+
+          console.log("TITLE:", title, "DESCRIPTION:", description, "ALLOWED:", allowed)
+          
+
+        })
+
+        console.log("--------------")
+
+
+
+
+
         return;
       }
     }
@@ -36,8 +69,7 @@ export default function EditMarker(props) {
   })
 
   createEffect(() => {
-    // Enable save button
-    // only if the name change
+    // Enable save button only if the name change
     setCanSave(() => markerName() !== "" && markerName() !== oldMarkerName() ? true : false);
   })
 
@@ -48,12 +80,14 @@ export default function EditMarker(props) {
     if (markerId() !== null) props.initScene();
   })
 
-  //#region [functions]
 
+
+
+  //#region [functions]
   /**
-    * Create a new empty marker, only in firebase
-    * (games should be created later on)
-     */
+  * Create a new empty marker, only in firebase
+  * (games should be created later on)
+  */
   const createMarker = async () => {
     const newMarkerId = await firebase.firestore.addMarker(props.userId, markerName());
     setMarkerId(() => newMarkerId);
@@ -62,20 +96,22 @@ export default function EditMarker(props) {
     console.log('Creato in Firestore il marker con ID:', newMarkerId)
   };
 
+
   /**
-    * Update marker name
-     */
+  * Update marker name
+  */
   const updateMarkerName = async () => {
     await firebase.firestore.updateMarker(props.userId, props.marker.id,
       markerName());
     setOldMarkerName(() => markerName());
   }
 
+
   /**
-    * Delete a marker,
-    * both from firebase and its JSON from RealTime DB,
-    * and go back to Home
-     */
+  * Delete a marker,
+  * both from firebase and its JSON from RealTime DB,
+  * and go back to Home
+  */
   const deleteMarker = async () => {
     await firebase.firestore.deleteMarker(props.userId, props.marker.id);
     if (!empty()) {
@@ -87,17 +123,14 @@ export default function EditMarker(props) {
   };
 
 
-  // const createGame = async () => {
-  //   const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
-  //   // setMarkerId(() => newMarkerId);
-  //   // props.onNewMarkerCreated(newMarkerId, markerName);
-  //   console.log('Creato in Firestore il game con ID:', newGameId)
-  // }
-
-
+  /**
+  * Return to marker list
+  */
   const goBack = () => {
     props.onBack();
   }
+
+
 
 
   //#region [style]
@@ -172,7 +205,7 @@ export default function EditMarker(props) {
           ))}
         </div> */}
 
-         <div>
+        <div>
           {props.marker.games && props.marker.games.map(el => (
             <GameNameContainer
             >
@@ -211,16 +244,6 @@ export default function EditMarker(props) {
             Elimina
           </Button>
         )}
-
-        {/* <Button
-          type="button"
-          onClick={createGame}
-          active={true}
-          mode={BUTTON_MODE.DEFAULT}
-          icon={faSave}
-        >
-          CREA GAME TEST
-        </Button> */}
       </Form>
 
       <ArButtonContainer id="ArButtonContainer" />
