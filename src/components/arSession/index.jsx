@@ -77,9 +77,9 @@ export default function Main(props) {
         // on the current marker
         if (props.marker.games.length > 0) {
             props.marker.games.forEach((el) => {
-
+                console.log("GAME:", el)
                 // Load all the components by name
-                loadComponent(el.name, true);
+                loadComponent(el.id, el.name, true);
             })
         }
     });
@@ -176,16 +176,16 @@ export default function Main(props) {
 
 
 
-   // TODO forse questo lo spostiamo anche lui in useGame ???
-    /**
-    * Add a new game on Firestore
-    */
-    const addGameOnFirestore = async () => {
-        const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
-        // setMarkerId(() => newMarkerId);
-        // props.onNewMarkerCreated(newMarkerId, markerName);
-        console.log('Creato in Firestore il game con ID:', newGameId)
-    }
+
+    // /**
+    // * Add a new game on Firestore
+    // */
+    // const addGameOnFirestore = async () => {
+    //     const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, "testGame");
+    //     // setMarkerId(() => newMarkerId);
+    //     // props.onNewMarkerCreated(newMarkerId, markerName);
+    //     console.log('Creato in Firestore il game con ID:', newGameId)
+    // }
 
 
 
@@ -260,9 +260,10 @@ export default function Main(props) {
     * Each "gameRunning" will be added automatically as loaded
     * with the function "handleGameReady")
     */
-    async function loadComponent(componentName, storedOnDatabase) {
+    async function loadComponent(componentId, componentName, storedOnDatabase) {
         const module = await import(`./games/${componentName}.jsx`);
         const loadedComponent = {
+            id: componentId,
             name: componentName,
             stored: storedOnDatabase,
             component: module.default,
@@ -290,8 +291,9 @@ export default function Main(props) {
         <Context.Provider value={{
             onReady: handleGameReady,
             appMode: props.appMode,
+            userId: props.userId,
             markerId: props.marker.id,
-            userId: props.userId
+
         }}>
             <Container id="arSession">
 
@@ -308,7 +310,7 @@ export default function Main(props) {
                 <For each={componentsLoaded()}>
                     {(item) => {
                         const Component = item.component;
-                        return <Component stored={item.stored} />;
+                        return <Component id={item.id} stored={item.stored} />;
                     }}
                 </For>
 

@@ -3,6 +3,9 @@ import { useGame } from './common';
 import { styled } from 'solid-styled-components';
 import SceneManager from '@xr/sceneManager';
 
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
+import { EquirectangularReflectionMapping } from 'three';
+
 export default function EnvLight(props) {
 
     /*
@@ -20,6 +23,20 @@ export default function EnvLight(props) {
     });
 
 
+    /*
+    * DATA
+    */
+    const [gameData, setGameData] = createSignal(null)
+
+    const defaultGameData = {
+        fileName: "images/hdr/studio.hdr",
+        rotation: 0
+    }
+
+
+    /*
+    * On mount
+    */
     onMount(() => {
 
         // console.log("App MODE:", game.appMode);
@@ -28,12 +45,47 @@ export default function EnvLight(props) {
 
 
         if (props.stored) {
-            // Todo: load the data from Realtime DB
-
+            // Load the game data from RealtimeDB
+            console.log("Load the game data from RealtimeDB");
+            game.loadData(props.id, (data) => setGameData(() => data))
+        }
+        else {
+            // Set default gameData
+            console.log("Set default gameData");
+            setGameData(() => defaultGameData)
         }
     });
 
 
+    createEffect(() => {
+        if (gameData()) {
+            console.log("gameData:", gameData());
+            setupScene();
+        }
+    })
+
+
+
+    /*
+    * SETUP SCENE
+    */
+    function setupScene() {
+
+        // initialize environment
+        const rgbeLoader = new RGBELoader()
+        rgbeLoader.load(gameData().fileName, (envMap) => {
+            const environment = envMap;
+            environment.mapping = EquirectangularReflectionMapping;
+            SceneManager.scene.environment = environment;
+        });
+    }
+
+
+
+
+    /*
+    * STYLE
+    */
     const Container = styled('div')`
         width: 100%;
         height: 100vh;
@@ -56,12 +108,20 @@ export default function EnvLight(props) {
         margin: 1em;
     `
 
+
+    /*
+    * RENDER
+    */
     return (
         <Container>
             <Title>{game.gameDetails.title}</Title>
             <Description>{game.gameDetails.description}</Description>
-            <Button>Test salva game e dati</Button>
-            <Button>Test carica dati</Button>
+            <Button
+                onClick={() => game.saveData(gameData)}
+            >Test salva game e dati</Button>
+            {/* <Button
+                onClick={() => game.loadData(props.id, (data) => setGameData(() => data))}
+            >Test carica dati</Button> */}
         </Container>
     );
 

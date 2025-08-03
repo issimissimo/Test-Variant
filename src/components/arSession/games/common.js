@@ -34,24 +34,27 @@ export function useGame(gameName, config = {}) {
     const context = useContext(Context);
     const firebase = useFirebase();
 
+    const gameDetails = GAMES_LISTING.find(g => g.fileName === gameName);
+
     onMount(() => {
         context.onReady(game);
     });
 
 
     // Define functions for Realtime Database
-    const loadData = async (gameId) => {
+    const loadData = async (gameId, callback) => {
         try {
             const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
             const data = await firebase.realtimeDb.loadData(path);
-            return data;
-
+            callback(data);
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
         }
     }
 
     const saveData = async (data) => {
+        // const jsonData = JSON.stringify(data);
+        // console.log(jsonData)
 
         const gameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
         console.log('Creato in Firestore il game con ID:', gameId)
@@ -66,8 +69,8 @@ export function useGame(gameName, config = {}) {
         }
     }
 
+
     
-    const gameDetails = GAMES_LISTING.find(g => g.fileName === gameName);
 
 
     // Define base functions
