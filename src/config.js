@@ -14,6 +14,7 @@ export async function loadConfig() {
     const response = await fetch('/appConfig.json');
     const externalConfig = await response.json();
     appConfig = { ...appConfig, ...externalConfig };
+    console.log("config:", appConfig)
   } catch (error) {
     console.error('Failed to load config, using defaults', error);
   }

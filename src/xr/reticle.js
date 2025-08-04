@@ -7,9 +7,6 @@ import {
     Mesh,
     MeshBasicMaterial,
     RingGeometry,
-    // Scene,
-    // Camera,
-    // WebGLRenderer
 } from 'three';
 import SceneManager from "./sceneManager";
 

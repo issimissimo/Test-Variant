@@ -42,7 +42,7 @@ export default function BasicRotCube(props) {
     */
     let cube;
     function setupScene() {
-        const geometry = new BoxGeometry(1, 1, 1);
+        const geometry = new BoxGeometry(0.5, 0.5, 0.5);
         const material = new MeshBasicMaterial({ color: 0x00ff00 });
         const material2 = new MeshPhysicalMaterial({ color: 0x00ff00, metalness: 0, roughness: 0.1 });
         cube = new Mesh(geometry, material2);
