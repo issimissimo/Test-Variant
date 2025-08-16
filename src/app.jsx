@@ -200,6 +200,7 @@ export default function App() {
         setCurrentView(VIEWS.LOGIN);
     }
     const goToMarkerList = () => {
+        setLoading(() => false); // TODO - better handle the initial spinner of the app, and the loading spinner of the markers from firebase
         setUserId(() => firebase.auth.user().uid);
         setCurrentView(VIEWS.MARKER_LIST);
     }
