@@ -98,10 +98,6 @@ const EditButtonContainer = styled('div')`
 
 const Marker = (props) => {
 
-  const handleModifyMarker = () => {
-    console.log("MODIFY MARKER")
-  };
-
   return (
     <MarkerContainer
       animate={{ opacity: [0, 1] }}
@@ -109,13 +105,12 @@ const Marker = (props) => {
     >
 
       <TimestampContainer>
-        <Timestamp>{props.timestamp}</Timestamp>
+        <Timestamp>{`${props.marker.created.toDate().toLocaleDateString()} ${props.marker.created.toDate().toLocaleTimeString()}`}</Timestamp>
       </TimestampContainer>
 
       <NameContainer class='glass'>
-        <Name>{props.name}</Name>
+        <Name>{props.marker.name}</Name>
       </NameContainer>
-
 
       <BottomContainer>
         <Statistic icon={faEye}>10</Statistic>
@@ -124,12 +119,13 @@ const Marker = (props) => {
           <Button
             active={true}
             small={true}
-            onClick={handleModifyMarker}
+            onClick={props.onClick}
           >Modifica
             <Fa icon={faEdit} size="1x" translateX={1} class="icon" />
           </Button>
         </EditButtonContainer>
       </BottomContainer>
+      
     </MarkerContainer>
   )
 };
@@ -159,18 +155,34 @@ const MarkersListContainer = styled('div')`
 
 const MarkersList = (props) => {
 
-  const [empty, setEmpty] = createSignal(false);
+  const firebase = useFirebase();
+  const [markers, setMarkers] = createSignal([]);
   const [loading, setLoading] = createSignal(false);
 
 
-  const handleCreateNewMarker = () => {
-    console.log("CREATE NEW MARKER")
-  }
+  createEffect(() => {
+    if (firebase.auth.authLoading() || !firebase.auth.user()) return;
+
+    setLoading(() => true);
+    loadMarkers();
+  });
+
+
+  /**
+  * Load all markers from Firestore
+  */
+  const loadMarkers = async () => {
+    const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
+    setMarkers(data);
+
+    // props.setLoading(false);
+    setLoading(() => false); // TODO - Better handle initial loadinf of the app and this loading
+  };
 
 
   return (
     <AnimatedBackground>
-      <Container alignLeft={true}>
+      <Container>
 
         {/* HEADER */}
         <Header />
@@ -187,8 +199,6 @@ const MarkersList = (props) => {
         </TitleContainer>
 
         {/* CONTENT */}
-
-
         {loading() ?
 
           <Spinner> Carico... </Spinner>
@@ -199,7 +209,7 @@ const MarkersList = (props) => {
             animate={{ opacity: [0, 1] }}
             transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
           >
-            {empty() ?
+            {markers().length === 0 ?
 
               <Message>
                 Non hai ancora nessun ambiente.<br></br> Inizia creandone uno<br></br><br></br>
@@ -209,17 +219,15 @@ const MarkersList = (props) => {
 
               :
 
-              <MarkersListContainer id="MarkersListContainer">
-                <Marker
-                  timestamp={'11/12/22 - 15.11'}
-                  name={'Primo marker di prova'}
-                  delay={0.25}
-                />
-                <Marker
-                  timestamp={'11/12/22 - 15.11'}
-                  name={'Primo marker di prova'}
-                  delay={0.25}
-                />
+              <MarkersListContainer>
+                {
+                  markers().map(marker => (
+                    <Marker
+                      marker={marker}
+                      onClick={() => props.onMarkerClicked(marker)}
+                    />
+                  ))
+                }
               </MarkersListContainer>
             }
 
@@ -227,8 +235,8 @@ const MarkersList = (props) => {
             <Button
               active={true}
               icon={faPlus}
-              border={empty() ? true : false}
-              onClick={handleCreateNewMarker}
+              border={markers().length === 0 ? true : false}
+              onClick={() => props.onCreateNewMarker()}
             >Crea nuovo
             </Button>
           </FitHeightScrollable>
@@ -239,165 +247,4 @@ const MarkersList = (props) => {
   );
 };
 
-export default MarkersList;
-
-
-// export default function MarkerList(props) {
-
-
-//   //#region [constants]
-//   const firebase = useFirebase();
-//   const [markers, setMarkers] = createSignal([]);
-
-
-//   //#region [lifeCycle]
-//   createEffect(() => {
-//     if (firebase.auth.authLoading() || !firebase.auth.user()) return;
-//     loadMarkers();
-//   });
-
-
-//   //#region [functions]
-//   /**
-//   * Load all markers from Firestore
-//   */
-//   const loadMarkers = async () => {
-//       const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
-//       setMarkers(data);
-      
-//       // Hide the preloader
-//       props.setLoading(false);
-//   };
-
-
-//   const handleLogout = async () => {
-//     try {
-//       await firebase.auth.logout();
-//       if (props.onLogout) props.onLogout();
-//     } catch (error) {
-//       console.error("Logout failed:", error);
-//     }
-//   };
-
-
-//   //#region [style]
-//   const Container = styled('div')`
-//         max-width: 28rem;
-//         margin: 0 auto;
-//         box-sizing: border-box;
-//         padding: 1.5rem;
-//         display: flex;
-//         flex-direction: column;
-//         margin: 0 auto;
-//         border-radius: 0.5rem;
-//         height: 100%;
-//     `
-
-//   const Item = styled('div')`
-//         padding: 0.75rem;
-//         background-color: #f9fafb;
-//         border: 1px solid #e5e7eb;
-//         border-radius: 0.375rem;
-//         margin-bottom: 0.5rem;
-//         cursor: pointer;
-//         transition: background-color 0.2s;
-//         color: black;
-        
-//         &:hover {
-//           background-color: #f3f4f6;
-//   }
-//     `
-
-//   const AddNewContainer = styled('div')`
-//         position: absolute;
-//         bottom: 50px;
-//         left: 40px;
-//         right: 40px;
-//         /* width: 100%; */
-//     `
-
-
-
-
-//   //#region [return]
-//   return (
-//     <Container id="markerList">
-
-//       {firebase.auth.authLoading() ? (
-//         <div>
-//           <p>Verifica autenticazione in corso...</p>
-//         </div>
-//       ) : !firebase.auth.user() ? (
-//         <div>
-//           <p>Non sei autenticato.</p>
-//           <div>
-//             <button
-//               onClick={props.onGoToLogin}
-
-//             >
-//               Accedi
-//             </button>
-//             <button
-//               onClick={props.onGoToRegister}
-
-//             >
-//               Registrati
-//             </button>
-//           </div>
-//         </div>
-//       ) : (
-//         <div>
-//           <div>
-//             <p><strong>Email:</strong> {firebase.auth.user().email}</p>
-//             {/* {userData() && userData().lastLogin && (
-//               <p>
-//                 <strong>Ultimo accesso:</strong> {userData().lastLogin.toLocaleString()}
-//               </p>
-//             )}
-//             {userData() && userData().created && (
-//               <p>
-//                 <strong>Account creato:</strong> {userData().created.toLocaleString()}
-//               </p>
-//             )} */}
-//             <button
-//               onClick={handleLogout}
-
-//             >
-//               Logout
-//             </button>
-//           </div>
-
-//           <div>
-
-
-//             <div>
-//               <h3>I tuoi marker</h3>
-//               {markers().length === 0 ? (
-//                 <p>Nessun elemento presente</p>
-//               ) : (
-//                 markers().map(marker => (
-//                   <Item
-//                     onClick={() => {
-//                       props.onMarkerClicked(marker)
-//                     }}
-//                   >
-//                     {marker.name}
-//                   </Item>
-//                 ))
-//               )}
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//       <AddNewContainer>
-//         <Button
-//           onClick={() => props.onCreateNewMarker()}
-//           icon={faPlus}
-//           mode={BUTTON_MODE.HIGHLIGHT}
-//         >
-//           Crea nuovo
-//         </Button>
-//       </AddNewContainer>
-//     </Container>
-//   );
-// }
+export default MarkersList
