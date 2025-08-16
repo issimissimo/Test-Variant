@@ -41,8 +41,9 @@ export default function Main(props) {
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
     const [calibrationCompleted, setCalibrationCompleted] = createSignal(false);
     const [componentsLoaded, setComponentsLoaded] = createSignal([]);
-    let tapEnabled = true;
-
+    const [componentsInitializing, setComponentsInitializing] = createSignal(false);
+    let _tapEnabled = true;
+    let _componentsInitialized = 0;
 
 
     //#region [lifeCycle]
@@ -53,8 +54,8 @@ export default function Main(props) {
         SceneManager.controller.addEventListener("select", () => {
 
             // Avoid TAP on DOM elements
-            if (!tapEnabled) {
-                tapEnabled = true;
+            if (!_tapEnabled) {
+                _tapEnabled = true;
                 return;
             }
 
@@ -101,6 +102,7 @@ export default function Main(props) {
         setReferenceMatrix(() => matrix);
         setCalibrationCompleted(() => true);
         console.log("CALIBRATION COMPLETED! Matrix:", referenceMatrix());
+        setComponentsInitializing(() => true);
     }
 
 
@@ -119,13 +121,28 @@ export default function Main(props) {
     };
 
 
+    /**
+    * This function is called each time
+    * a new Game is totally initialized
+    * (so, everything in the game has been loaded and created)
+    * to hide the initializing component message
+    */
+    const handleGameInitialized = () => {
+        _componentsInitialized++;
+        if (_componentsInitialized === componentsLoaded().length) {
+            console.log("all games initialized!")
+            setComponentsInitializing(() => false);
+        }
+    }
+
+
     //#region [functions]
 
 
     let _clickableDomElements = [];
 
     function disableTap(e) {
-        tapEnabled = false;
+        _tapEnabled = false;
         e.stopPropagation();
     };
 
@@ -217,6 +234,7 @@ export default function Main(props) {
     return (
         <Context.Provider value={{
             onReady: handleGameReady,
+            onInitialized: handleGameInitialized,
             appMode: props.appMode,
             userId: props.userId,
             markerId: props.marker.id,
@@ -226,19 +244,39 @@ export default function Main(props) {
 
                 <BackButton onClick={handleGoBack} />
 
-                <Calibration
+                {/* {componentsInitializing() && <h2>LOADING...</h2>} */}
+
+                {/* <Calibration
                     planeFound={props.planeFound}
                     setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
-                />;
+                />; */}
 
                 {/* {renderView()} */}
 
-                <For each={componentsLoaded()}>
+                {/* <For each={componentsLoaded()}>
                     {(item) => {
                         const Component = item.component;
                         return <Component id={item.id} stored={item.stored} />;
                     }}
-                </For>
+                </For> */}
+
+                { !calibrationCompleted() ? (
+                    <Calibration
+                        planeFound={props.planeFound}
+                        setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
+                    />
+                ) : (
+                    <>
+                        {componentsInitializing() && <h2>LOADING...</h2>}
+                        
+                        <For each={componentsLoaded()}>
+                            {(item) => {
+                                const Component = item.component;
+                                return <Component id={item.id} stored={item.stored} />;
+                            }}
+                        </For>
+                    </>
+                )}
 
             </Container>
         </Context.Provider>

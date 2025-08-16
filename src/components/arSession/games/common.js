@@ -41,6 +41,10 @@ export function useGame(gameName, config = {}) {
     });
 
 
+    const initialized = () => {
+        context.onInitialized();
+    }
+
     // Define functions for Realtime Database
     const loadGameData = async (gameId, callback) => {
         try {
@@ -92,6 +96,7 @@ export function useGame(gameName, config = {}) {
     const game = {
         name: gameName,
         appMode: context.appMode,
+        initialized,
         onTap,
         super: { onTap: _onTapBase },
         renderLoop,

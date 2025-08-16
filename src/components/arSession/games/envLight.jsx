@@ -79,6 +79,11 @@ export default function EnvLight(props) {
             SceneManager.scene.environment = environment;
             SceneManager.scene.environmentRotation = gameData().rotation;
             SceneManager.scene.remove(SceneManager.light);
+
+            /*
+            * Don't forget to call "game.initialized()" at finish 
+            */
+            game.initialized();
         });
     }
 

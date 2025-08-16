@@ -328,7 +328,6 @@ export default function App() {
                 return (
                     <Portal mount={document.getElementById('overlay')}>
                         <ArSession
-                            loading={(value) => setLoading(() => value)}
                             appMode={currentAppMode()}
                             userId={userId()}
                             marker={currentMarker()}

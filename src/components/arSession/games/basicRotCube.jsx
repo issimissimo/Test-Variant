@@ -48,6 +48,11 @@ export default function BasicRotCube(props) {
         cube = new Mesh(geometry, material2);
         cube.position.z = -5;
         SceneManager.scene.add(cube);
+
+        /*
+        * Don't forget to call "game.initialized()" at finish 
+        */
+        game.initialized();
     }
 
 
