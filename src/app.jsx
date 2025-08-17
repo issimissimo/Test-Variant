@@ -312,6 +312,7 @@ export default function App() {
                     userId={userId()}
                     marker={currentMarker()}
                     onNewMarkerCreated={(id, name) => setupMarker(id, name)}
+                    // onMarkerUpdated={(name) => setupMarker(currentMarker().id, name)}
                     initScene={handleInitScene}
                     onBack={handleReset}
                 />;

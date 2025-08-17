@@ -6,6 +6,7 @@ import {
     doc,
     setDoc,
     getDoc,
+    updateDoc,
     serverTimestamp
 } from "firebase/firestore";
 import { firestore } from "./init";
@@ -116,11 +117,10 @@ export const addMarker = async (userId, name) => {
 export const updateMarker = async (userId, markerId, name) => {
     try {
         const markerRef = doc(firestore, `users/${userId}/markers/${markerId}`);
-        await setDoc(markerRef,
+        await updateDoc(markerRef,
             {
                 name,
-            },
-            { merge: true });
+            });
     } catch (error) {
         console.error("Errore nell'aggiornamento marker:", error);
         throw error;
@@ -149,6 +149,19 @@ export const addGame = async (userId, markerId, name) => {
         return newGameRef.id;
     } catch (error) {
         console.error("Errore nell'aggiunta game:", error);
+        throw error;
+    }
+};
+
+export const updateGame = async (userId, markerId, gameId, enabled) => {
+    try {
+        const gameRef = doc(firestore, `users/${userId}/markers/${markerId}/games/${gameId}`);
+        await updateDoc(gameRef,
+            {
+                enabled: enabled,
+            });
+    } catch (error) {
+        console.error("Errore nella modifica del game:", error);
         throw error;
     }
 };

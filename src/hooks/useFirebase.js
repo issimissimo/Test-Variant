@@ -15,6 +15,7 @@ import {
     deleteMarker,
     fetchMarker,
     addGame,
+    updateGame,
     deleteGame,
     fetchGames
 } from '../lib/firebase/firestore';
@@ -50,6 +51,7 @@ export const useFirebase = () => {
             updateMarker: (userId, markerId, name) => updateMarker(userId, markerId, name),
             deleteMarker: (userId, markerId) => deleteMarker(userId, markerId),
             addGame: (userId, markerId, name) => addGame(userId, markerId, name),
+            updateGame: (userId, markerId, gameId, enabled) => updateGame(userId, markerId, gameId, enabled),
             deleteGame: (userId, markerId, gameId) => deleteGame(userId, markerId, gameId),
             fetchGames: (userId, markerId) => fetchGames (userId, markerId)
         },

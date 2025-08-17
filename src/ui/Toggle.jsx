@@ -7,9 +7,9 @@ import { Motion } from 'solid-motionone';
 const ToggleWrapper = styled("div")`
   width: 39px;
   height: 21px;
-  background-color: ${(props) => (props.checked ? "var(--color-secondary-dark-dark)" : "var(--color-background)")};
+  background-color: ${(props) => (props.checked ? "var(--color-secondary-dark-dark)" : "var(--color-secondary-dark-dark)")};
   border-radius: 50px;
-  color: ${(props) => (props.checked ? "var(--color-background)" : "var(--color-secondary-dark-dark)")};
+  color: ${(props) => (props.checked ? "var(--color-secondary-dark-dark)" : "var(--color-secondary-dark-dark)")};
   /* border: 1px solid; */
   display: flex;
   align-items: center;
@@ -22,7 +22,7 @@ const ToggleWrapper = styled("div")`
 const Knob = styled(Motion.div)`
   width: 16px;
   height: 16px;
-  background-color: var(--color-secondary);
+  background-color: ${(props) => (props.checked ? "var(--color-secondary)" : "var(--color-secondary-dark)")};
   border-radius: 50%;
   display: flex;
   align-items: center;
