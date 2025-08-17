@@ -5,7 +5,7 @@ import { Motion } from 'solid-motionone';
 
 import Header from '@components/Header';
 
-import { Container, FitHeightScrollable, Title2 } from '@ui/smallElements'
+import { Container, FitHeightScrollable, Title } from '@ui/smallElements'
 import AnimatedBackground from '@ui/AnimatedBackground';
 import Button from '@ui/button';
 import Message from '@ui/Message';
@@ -125,7 +125,7 @@ const Marker = (props) => {
           </Button>
         </EditButtonContainer>
       </BottomContainer>
-      
+
     </MarkerContainer>
   )
 };
@@ -139,11 +139,6 @@ const Marker = (props) => {
 // MARKERLIST
 //
 
-
-const TitleContainer = styled('div')`
-    margin-top: 1em;
-    margin-bottom: 1em;
-  `;
 
 const MarkersListContainer = styled('div')`
     width: 100%;
@@ -188,15 +183,13 @@ const MarkersList = (props) => {
         <Header />
 
         {/* TITLE */}
-        <TitleContainer>
-          <Title2
-            animate={{ opacity: [0, 1] }}
-            transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
-          >
-            <span style={{ color: 'var(--color-secondary)' }}>I tuoi </span>
-            <span style={{ color: 'var(--color-white)' }}>ambienti AR</span>
-          </Title2>
-        </TitleContainer>
+        <Title
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+        >
+          <span style={{ color: 'var(--color-secondary)' }}>I tuoi </span>
+          <span style={{ color: 'var(--color-white)' }}>ambienti AR</span>
+        </Title>
 
         {/* CONTENT */}
         {loading() ?

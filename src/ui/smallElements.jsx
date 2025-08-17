@@ -8,7 +8,6 @@ export const Container = styled('div')`
     max-width: 500px;
     display: flex;
     flex-direction: column;
-    /* align-items: ${props => props.alignLeft ? 'normal' : 'center'}; */
     height: 100dvh;
   `;
 
@@ -23,46 +22,13 @@ export const FitHeightScrollable = styled(FitHeight)`
     overflow-y: auto;
   `;
 
-// TITLE
-
-const TitleContainer = styled(Motion.div)`
-    margin-top: 1em;
-    margin-bottom: 2em;
-  `;
-
-const TitleStyled = styled('p')`
-    font-size: 1.8rem;
-    font-family: "Montessori";
-    /* line-height: 100%; */
-    color: ${props => props.color ?? props.color};
-    margin: 0;
-  `;
-
 
 export const Title = styled(Motion.p)`
-    font-size: 2.6rem;
-    font-family: "Montessori";
-    line-height: 100%;
-    color: ${props => props.color ?? props.color};
-    margin: 0;
-  `;
-
-export const Title2 = styled(Motion.p)`
     font-size: 1.8rem;
     font-family: "Montessori";
     line-height: 100%;
     color: ${props => props.color ?? props.color};
-    margin: 0;
+    /* margin: 0; */
+    margin-bottom: 1rem;
   `;
 
-export const NewTitle = (props) => {
-  return (
-    <TitleContainer
-      animate={{ opacity: [0, 1] }}
-      transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
-    >
-      <TitleStyled>{props.children}</TitleStyled>
-    </TitleContainer>
-  )
-
-}

@@ -1,252 +1,315 @@
-import { createSignal, createEffect, onMount } from 'solid-js';
-import { useFirebase } from '@hooks/useFirebase';
-import { generateQRCodeForForMarker } from '@hooks/useQRCode';
+import { createSignal, createEffect } from 'solid-js';
 import { styled } from 'solid-styled-components';
+import { Motion } from 'solid-motionone';
 
-//UI
-import { Button, BUTTON_MODE, ArButtonContainer, BackButton } from '@/ui';
-import { faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
+import Header from '@components/Header';
 
-// Games
-import { GAMES_LISTING } from '@games/common';
+import { Container, FitHeight, FitHeightScrollable, Title } from '@ui/smallElements'
+import AnimatedBackground from "@ui/AnimatedBackground";
+import InputField from '@ui/inputField';
+import Button from '@ui/button';
+import ButtonSecondary from '@ui/ButtonSecondary';
+import Toggle from '@ui/toggle';
+import Message from '@ui/Message';
+
+import Fa from 'solid-fa';
+import { faSave, faQrcode, faPuzzlePiece, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 
-export default function EditMarker(props) {
 
 
-  //#region [constants]
-  const firebase = useFirebase();
-  const [markerId, setMarkerId] = createSignal(props.marker.id)
-  const [markerName, setMarkerName] = createSignal(props.marker?.name || '');
-  const [oldMarkerName, setOldMarkerName] = createSignal(props.marker?.name || '');
-  const [canSave, setCanSave] = createSignal(false);
+const VIEW_MODE = {
+  QRCODE: "qrCode",
+  GAMES: "games",
+}
+
+const NavigationContainer = styled(Motion.div)`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 35px;
+    color: var(--color-primary);
+  `;
+
+const NavigationButtonContainer = styled('div')`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  `;
+
+const NavigationButton = styled(Motion.div)`
+    width: 50px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    position: relative;
+`;
+
+const BorderBottomBar = styled(Motion.div)`
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-primary);
+    transform-origin: left;
+`;
+
+
+
+
+
+const EditMarker = (props) => {
+
+  const [saved, setSaved] = createSignal(true);
+  const [name, setName] = createSignal(props.name ?? null);
+  const [currentViewMode, setCurrentViewMode] = createSignal(VIEW_MODE.GAMES);
   const [empty, setEmpty] = createSignal(false);
 
 
+  const handleDeleteMarker = () => {
+    console.log("DELETE MARKER")
+  }
 
-  //#region [lifeCycle]
-  onMount(() => {
-    if (props.marker.id) {
-      if (props.marker.games.length > 0) {
-        generateQRCodeForForMarker(props.userId, props.marker.id);
-
-
-
-        console.log("--------------")
-        console.log("Questo marker ha i seguenti games:")
-
-        props.marker.games.forEach((el) => {
-
-          console.log(el)
-
-          const created = el.created;
-          const createdDate = created.toDate();
-          const formattedDate = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
-          console.log("CREATED AT:", formattedDate);
-
-          const fileName = el.name;
-
-          const game = GAMES_LISTING.find(g => g.fileName === fileName);
-          const title = game?.title || '';
-          const description = game?.description || '';
-          const allowed = game?.allowed;
-
-          console.log("TITLE:", title, "DESCRIPTION:", description, "ALLOWED:", allowed)
-          
-
-        })
-
-        console.log("--------------")
-
-
-
-
-
-        return;
-      }
-    }
-    setEmpty(() => true);
-  })
-
-  createEffect(() => {
-    // Enable save button only if the name change
-    setCanSave(() => markerName() !== "" && markerName() !== oldMarkerName() ? true : false);
-  })
-
-
-  createEffect(() => {
-    // Create AR Button
-    // only if it's not a new marker
-    if (markerId() !== null) props.initScene();
-  })
-
-
-
-
-  //#region [functions]
-  /**
-  * Create a new empty marker, only in firebase
-  * (games should be created later on)
-  */
-  const createMarker = async () => {
-    const newMarkerId = await firebase.firestore.addMarker(props.userId, markerName());
-    setMarkerId(() => newMarkerId);
-    props.onNewMarkerCreated(newMarkerId, markerName);
-    setOldMarkerName(() => markerName());
-    console.log('Creato in Firestore il marker con ID:', newMarkerId)
-  };
-
-
-  /**
-  * Update marker name
-  */
-  const updateMarkerName = async () => {
-    await firebase.firestore.updateMarker(props.userId, props.marker.id,
-      markerName());
-    setOldMarkerName(() => markerName());
+  const handleSaveMarker = () => {
+    setSaved(() => true);
+    console.log("SAVE MARKER")
   }
 
 
-  /**
-  * Delete a marker,
-  * both from firebase and its JSON from RealTime DB,
-  * and go back to Home
-  */
-  const deleteMarker = async () => {
-    await firebase.firestore.deleteMarker(props.userId, props.marker.id);
-    if (!empty()) {
-      const path = `${props.userId}/${props.marker.id}`;
-      await firebase.realtimeDb.deleteData(path);
-      goBack();
-    }
-    else goBack();
-  };
-
-
-  /**
-  * Return to marker list
-  */
-  const goBack = () => {
-    props.onBack();
-  }
-
-
-
-
-  //#region [style]
-  const Container = styled('div')`
-        max-width: 28rem;
-        margin: 0 auto;
-        padding: 1.5rem;
-        display: flex;
-        /* flex-direction: column; */
-        /* max-width: 28rem; */
-        margin: 0 auto;
-        /* padding: 1.5rem; */
-        
-        border-radius: 0.5rem;
-        
-        min-height: 500px;
-        margin-top: 50px;
-        justify-content: center;
-    `
-
-  const Form = styled('form')`
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        align-items: center;
-    `
-
-  const Title = styled('input')`
-        width: 90%;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-        border-radius: 12px;
-        font-size: 1rem;
-        text-align: center;
-    `
-
-  const QrCodeContainer = styled('div')`
-        width: 60%;
-        display: flex;
-    `
-
-  const QrCodeImg = styled('img')`
-        text-align: center;
-    `
-
-  const GameNameContainer = styled('div')`
-        padding: 20px;
-    `
-
-
-  //#region [return]
-  return (
-    <Container id="editMarker">
-
-      <BackButton onClick={() => goBack()} />
-
-      <Form>
-        <Title id="title"
-          type="text"
-          value={markerName()}
-          onInput={(e) => setMarkerName(() => e.target.value)}
-          placeholder="Nome"
-          required
-        />
-
-        {/* <div>
-          {Interactables.map(el => (
-            <button
-            >
-              {el.name.charAt(0).toUpperCase() + el.name.slice(1)}
-            </button>
-          ))}
-        </div> */}
-
-        <div>
-          {props.marker.games && props.marker.games.map(el => (
-            <GameNameContainer
-            >
-              {el.name}
-            </GameNameContainer>
-          ))}
-        </div>
-
-
-
-        <QrCodeContainer>
-          {empty() ?
-            <p>No games here!</p>
-            :
-            <QrCodeImg id="qr-code" />
-          }
-        </QrCodeContainer>
-
-        <Button
-          type="button"
-          onClick={props.marker.id ? updateMarkerName : createMarker}
-          active={canSave()}
-          mode={BUTTON_MODE.HIGHLIGHT}
-          icon={faSave}
-        >
-          Salva
-        </Button>
-
-        {markerId() && (
-          <Button
-            onClick={deleteMarker}
-            active={true}
-            mode={BUTTON_MODE.DANGER}
-            icon={faTrashAlt}
+  const Navigation = () => {
+    return (
+      <NavigationContainer
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+      >
+        <NavigationButtonContainer>
+          <NavigationButton
+            selected={currentViewMode() === VIEW_MODE.GAMES ? true : false}
+            onClick={() => setCurrentViewMode(VIEW_MODE.GAMES)}
+            animate={{ scale: currentViewMode() === VIEW_MODE.GAMES ? 1.1 : 0.9 }}
+            transition={{ duration: 0.3, easing: "ease-in-out" }}
           >
+            <Fa icon={faPuzzlePiece} size="1.4x" class="icon" />
+            <BorderBottomBar
+              animate={{ scaleX: currentViewMode() === VIEW_MODE.GAMES ? 1 : 0 }}
+              transition={{ duration: 0.3, easing: "ease-in-out" }}
+              initial={false}
+            />
+          </NavigationButton>
+        </NavigationButtonContainer>
+        <NavigationButtonContainer>
+          <NavigationButton
+            selected={currentViewMode() === VIEW_MODE.QRCODE ? true : false}
+            onClick={() => setCurrentViewMode(VIEW_MODE.QRCODE)}
+            animate={{ scale: currentViewMode() === VIEW_MODE.QRCODE ? 1.1 : 0.9 }}
+            transition={{ duration: 0.3, easing: "ease-in-out" }}
+          >
+            <Fa icon={faQrcode} size="1.4x" class="icon" />
+            <BorderBottomBar
+              animate={{ scaleX: currentViewMode() === VIEW_MODE.QRCODE ? 1 : 0 }}
+              transition={{ duration: 0.3, easing: "ease-in-out" }}
+              initial={false}
+            />
+          </NavigationButton>
+        </NavigationButtonContainer>
+        <NavigationButtonContainer>
+          <ButtonSecondary onClick={handleDeleteMarker}>
             Elimina
-          </Button>
-        )}
-      </Form>
+            <Fa icon={faTrash} size="1x" translateX={0.5} class="icon" />
+          </ButtonSecondary>
+        </NavigationButtonContainer>
+      </NavigationContainer>
+    )
+  }
 
-      <ArButtonContainer id="ArButtonContainer" />
-    </Container>
-  );
+
+  const GameItem = (props) => {
+
+    const [enabled, setEnabled] = createSignal(props.enabled ?? true);
+
+    const handleEnableGame = (value) => {
+      setEnabled(() => !value);
+    };
+
+
+    const GameItemContainer = styled(Motion.div)`
+            width: 100%;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            background-color: ${props => props.enabled ? "var(--color-dark-transparent)" : "var(--color-dark-transparent-dark)"};
+            box-sizing: border-box;
+            padding: 0.3rem;
+            margin-bottom: 1rem;
+            border-radius: 20px;
+        `;
+
+
+    const GameName = styled('p')`
+            font-size: small;
+            padding-left: 1rem;
+            margin: 0;
+            color: ${props => props.enabled ? "var(--color-white)" : "var(--color-grey-dark)"};
+            flex: 1;
+        `;
+
+
+
+    return (
+      <GameItemContainer
+        class="glass"
+        enabled={enabled()}
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
+      >
+        <ButtonSecondary>
+          <Fa icon={faTrash} size="1x" class="icon" />
+        </ButtonSecondary>
+        <GameName
+          enabled={enabled()}>
+          {props.name}
+        </GameName>
+        <Toggle
+          checked={props.enabled}
+          onChange={handleEnableGame}
+        >
+        </Toggle>
+      </GameItemContainer>
+    )
+  }
+
+
+  const dynamicView = () => {
+    switch (currentViewMode()) {
+      case VIEW_MODE.GAMES:
+        return (
+          empty() ?
+            <Message>
+              Entra in AR e aggiungi dei componenti a questo ambiente. <br></br> <br></br>
+              I componenti sono elementi 3D che scegli per costruire l'ambiente AR a tuo piacimento. Una volta ggiunti li vedrai elencati qui!
+            </Message>
+            :
+            // TODO - here the list of the games (and the "ENTER AR button")
+            <FitHeightScrollable
+              style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}
+            >
+
+              <GameItem
+                name={"Pippolo"}
+                enabled={true}
+              />
+              <GameItem
+                name={"Pippolo"}
+                enabled={true}
+              />
+              <GameItem
+                name={"Pippolo"}
+                enabled={true}
+              />
+            </FitHeightScrollable>
+
+
+        )
+
+      case VIEW_MODE.QRCODE:
+        return (
+          empty() ?
+            <Message>
+              Non posso darti un QR Code per questo ambiente perchè non hai ancora aggiunto nulla in AR.<br></br> Entra in AR e aggiungi qualcosa!
+            </Message>
+            :
+            // TODO - here the QR Code (and the "Download button")
+            <FitHeight>
+
+            </FitHeight>
+
+        )
+    }
+  }
+
+
+
+
+
+  return (
+    <AnimatedBackground>
+      <Container alignLeft={true}>
+
+        {/* HEADER */}
+        <Header showBack={true} />
+
+        {/* TITLE */}
+        <Title
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+        >
+          <span style={{ color: 'var(--color-secondary)' }}>Nuovo </span>
+          <span style={{ color: 'var(--color-white)' }}>ambiente AR </span>
+        </Title>
+
+
+        <FitHeightScrollable
+          style={{ "padding-top": "3rem" }}
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
+        >
+
+          {/* INPUT NAME */}
+          <InputField
+            type="none"
+            name="none"
+            label="Nome"
+            value={name()}
+            onInput={e => setName(e.target.value)}
+            required
+          />
+
+          {
+            saved() ?
+
+              <FitHeightScrollable>
+
+                {/* NAVIGATION */}
+                <Navigation />
+
+                {/* DYNAMIC VIEW */}
+                {dynamicView()}
+
+                {/* ENTER AR BUTTON */}
+                <Button active={true}>Enter AR</Button>
+
+              </FitHeightScrollable>
+
+              :
+
+              <FitHeight>
+                <Message>
+                  Dai un nome al tuo ambiente in AR che si riferisca al luogo in cui lo creerai, ad esempio 'salotto',
+                  o alla scena in AR che implementarai, ad esempio 'ping pong da tavolo'.<br></br><br></br>
+                  Il nome è totalmente arbitrario, ma ti auiterà a ricordare a cosa si riferisce.
+                </Message>
+                <Button
+                  animate={{ opacity: [0, 1] }}
+                  transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+                  active={name() ? true : false}
+                  icon={faSave}
+                  onClick={handleSaveMarker}
+                >Salva</Button>
+              </FitHeight>
+          }
+
+
+
+
+
+        </FitHeightScrollable>
+
+      </Container>
+    </AnimatedBackground>
+  )
 }
+
+export default EditMarker
