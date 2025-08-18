@@ -419,7 +419,7 @@ const EditMarker = (props) => {
         {/* HEADER */}
         <Header
           onClickBack={props.onBack}
-          onClickUser={() => console.log("USER!!!")} // TODO - open user page
+          onClickUser={props.goToUserProfile}
         />
 
         {/* TITLE */}

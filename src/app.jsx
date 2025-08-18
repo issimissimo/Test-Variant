@@ -5,6 +5,7 @@ import { config } from '@/config';
 import { styled } from 'solid-styled-components';
 
 // Components
+import UserProfile from '@components/UserProfile';
 import Register from '@components/register';
 import Login from '@components/login';
 import MarkerList from '@components/markerList';
@@ -38,6 +39,7 @@ export const AppMode = {
 
 
 const VIEWS = {
+    USER_PROFILE: 'userProfile',
     REGISTER: 'register',
     LOGIN: 'login',
     MARKER_LIST: 'markerList',
@@ -55,6 +57,7 @@ export default function App() {
     const firebase = useFirebase();
     const [currentAppMode, setCurrentAppMode] = createSignal(null);
     const [currentView, setCurrentView] = createSignal(null);
+    const [previousView, setPreviousView] = createSignal(null);
     const [loading, setLoading] = createSignal(true);
     const [userId, setUserId] = createSignal(null);
     const [currentMarker, setCurrentMarker] = createSignal(null);
@@ -181,7 +184,7 @@ export default function App() {
             name: markerName,
             games: markerGames
         }
-        
+
         setCurrentMarker(() => marker);
         console.log("current marker:", currentMarker())
 
@@ -194,6 +197,10 @@ export default function App() {
     /**
      * Navigation
      */
+    const goToUserProfile = () => {
+        setPreviousView(() => currentView());
+        setCurrentView(VIEWS.USER_PROFILE);
+    }
     const goToRegister = () => setCurrentView(VIEWS.REGISTER);
     const goToLogin = () => {
         setLoading(() => false);
@@ -208,6 +215,7 @@ export default function App() {
     const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
     const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
+    const goToPreviousView = () => setCurrentView(previousView());
 
 
 
@@ -291,6 +299,13 @@ export default function App() {
     const renderView = () => {
 
         switch (currentView()) {
+
+            case VIEWS.USER_PROFILE:
+                return <UserProfile
+                    user={firebase.auth.user()}
+                    onBack={goToPreviousView}
+                />;
+
             case VIEWS.REGISTER:
                 return <Register
                     onSuccess={goToMarkerList}
@@ -314,6 +329,7 @@ export default function App() {
                     onMarkerClicked={(marker) => {
                         setupMarker(marker.id, marker.name, null, () => goToEditMarker())
                     }}
+                    goToUserProfile={goToUserProfile()}
                 />;
 
             case VIEWS.EDIT_MARKER:
@@ -325,6 +341,7 @@ export default function App() {
                     initScene={handleInitScene}
                     destroyScene={handleDestroyScene}
                     onBack={handleReset}
+                    goToUserProfile={goToUserProfile()}
                 />;
 
             case VIEWS.ANONYMOUS:

@@ -1,3 +1,4 @@
+import { onMount } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
 import Fa from 'solid-fa';
@@ -34,6 +35,7 @@ const StyledButton = styled(Motion.button)`
 
 const ButtonCircle = (props) => {
 
+  
   const handleOnClick = () => {
     setTimeout(() => {
       props.onClick();

@@ -182,7 +182,7 @@ const MarkersList = (props) => {
         {/* HEADER */}
         <Header
           showBack={false} 
-          onClickUser={()=> console.log("USER!!!")} // TODO - open user page
+          onClickUser={props.goToUserProfile}
           />
 
         {/* TITLE */}
