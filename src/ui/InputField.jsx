@@ -152,7 +152,10 @@ const InputField = (props) => {
             setIsFocused(true);
             props.onFocus && props.onFocus(e);
           }}
-          onBlur={() => setIsFocused(false)}
+          onBlur={() => {
+            props.onBlur;
+            setIsFocused(false)
+          }}
           autoComplete={props.autoComplete}
           required={props.required}
           placeholder={props.placeholder}

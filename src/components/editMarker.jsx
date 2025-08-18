@@ -19,6 +19,7 @@ import { faSave, faQrcode, faPuzzlePiece, faTrash } from "@fortawesome/free-soli
 
 
 
+
 const VIEW_MODE = {
   QRCODE: "qrCode",
   GAMES: "games",
@@ -86,9 +87,13 @@ const EditMarker = (props) => {
   }
 
   const handleUpdateMarker = async () => {
-    await firebase.firestore.updateMarker(props.userId, props.marker.id,
-      markerName());
-    setOldMarkerName(() => markerName());
+
+    // update marker name on firestore
+    if (name() !== props.marker.name) {
+      await firebase.firestore.updateMarker(props.userId, props.marker.id, name());
+    }
+
+    refreshPage();
   }
 
   const handleDeleteMarker = () => {
@@ -202,7 +207,6 @@ const EditMarker = (props) => {
             display: flex;
             align-items: center;
             box-sizing: border-box;
-            /* background-color: ${props => props.enabled ? "var(--color-dark-transparent)" : "var(--color-dark-transparent-dark)"}; */
             box-sizing: border-box;
             padding: 0.3rem;
             margin-bottom: 1rem;
@@ -250,13 +254,6 @@ const EditMarker = (props) => {
 
 
   const dynamicView = () => {
-
-
-
-    onMount(() => {
-      console.log("onMount: dynamicView")
-    })
-
     switch (currentViewMode()) {
       case VIEW_MODE.GAMES:
         return (
@@ -334,6 +331,7 @@ const EditMarker = (props) => {
             label="Nome"
             value={name()}
             onInput={e => setName(e.target.value)}
+            onBlur={handleUpdateMarker()}
             required
           />
 
@@ -370,10 +368,6 @@ const EditMarker = (props) => {
                 >Salva</Button>
               </FitHeight>
           }
-
-
-
-
 
         </FitHeightScrollable>
 
