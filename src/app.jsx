@@ -304,6 +304,7 @@ export default function App() {
                 return <UserProfile
                     user={firebase.auth.user()}
                     onBack={goToPreviousView}
+                    onLogout={goToLogin}
                 />;
 
             case VIEWS.REGISTER:
@@ -321,7 +322,6 @@ export default function App() {
             case VIEWS.MARKER_LIST:
                 return <MarkerList
                     setLoading={(value) => setLoading(() => value)}
-                    onLogout={goToLogin}
                     onCreateNewMarker={() => {
                         setupMarker();
                         goToEditMarker();

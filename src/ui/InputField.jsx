@@ -97,7 +97,7 @@ const ErrorContainer = styled('div')`
 `;
 
 const ErrorMsg = styled('span')`
-  color: var(--color-primary);
+  color: var(--color-secondary);
   font-size: 0.75rem;
 `;
 

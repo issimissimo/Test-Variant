@@ -35,11 +35,12 @@ const StyledButton = styled(Motion.button)`
 
 const ButtonCircle = (props) => {
 
-  
   const handleOnClick = () => {
     setTimeout(() => {
-      props.onClick();
-    }, 250)
+      if (typeof props.onClick === "function") {
+        props.onClick();
+      }
+    }, 250);
   }
 
   const Icon = () => (

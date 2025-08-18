@@ -1,197 +1,135 @@
-import { createSignal, onMount } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
-import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import {
-  Container,
-  BackgroundPattern,
-  Card,
-  Header,
-  Logo,
-  LogoIcon,
-  Title,
-  Subtitle,
-  Form,
-  InputGroup,
-  InputLabel,
-  InputWrapper,
-  Input,
-  InputIcon,
-  PasswordToggle,
-  PasswordToggleIcon,
-  ErrorMessage,
-  SuccessMessage,
-  Divider,
-  Section,
-  SectionText,
-  Button,
-  BUTTON_MODE,
-  renderIcon
-} from '@/ui';
+import { styled } from 'solid-styled-components';
+import { Motion } from 'solid-motionone';
+import { Container, Title } from '@ui/smallElements'
+import InputField from '@ui/inputField';
+import Button from '@ui/button';
+import AnimatedBackground from "@ui/AnimatedBackground";
 
-export default function ARLoginScreen(props) {
-  // Hook Firebase
+import Header from '@components/Header';
+
+import Fa from 'solid-fa';
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+
+
+const Login = () => {
+
   const { auth } = useFirebase();
 
-  // Segnali per i form (strutturati come nel backup)
-  const [form, setForm] = createSignal({
-    email: '',
-    password: ''
-  });
-
-  const [showPassword, setShowPassword] = createSignal(false);
+  const [email, setEmail] = createSignal("");
+  const [password, setPassword] = createSignal("");
+  const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
-  const [message, setMessage] = createSignal({ type: '', text: '' });
 
-  // Handler per l'input (adattato dal backup)
-  const handleInput = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
+  // Simulate error (replace with real logic)
+  // const handleLogin = (e) => {
+  //   e.preventDefault();
+  //   if (!email() || !password()) {
+  //     setError("Email e/o password non validi.");
+  //   } else {
+  //     setError("");
+  //     // ...login logic...
+  //   }
+  // };
 
-  // Handler per il login (adattato dal backup)
-  const handleLogin = async () => {
-    const currentForm = form();
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!email() || !password()) {
+      setError("Email e/o password non validi.");
+    } else {
+      setError("");
 
-    if (!currentForm.email || !currentForm.password) {
-      setMessage({ type: 'error', text: 'Tutti i campi sono obbligatori' });
-      return;
-    }
 
-    setMessage({ type: '', text: '' });
-    setLoading(true);
+      setLoading(true);
 
-    try {
-      // Login usando la stessa logica del backup
-      await auth.login(currentForm);
 
-      // Notifica l'App di navigare verso la home (come nel backup)
-      if (props.onSuccess) {
-        props.onSuccess();
-      }
-    } catch (error) {
-      let errorMessage = error.message;
-
-      // Gestione errori personalizzata (dal backup)
-      if (errorMessage.includes('user-not-found')) {
-        errorMessage = 'Utente non trovato';
-      } else if (errorMessage.includes('wrong-password')) {
-        errorMessage = 'Password errata';
-      } else if (errorMessage.includes('too-many-requests')) {
-        errorMessage = 'Troppi tentativi falliti. Riprova più tardi';
-      } else if (errorMessage.includes('invalid-email')) {
-        errorMessage = 'Formato email non valido';
-      } else if (errorMessage.includes('user-disabled')) {
-        errorMessage = 'Account disabilitato';
-      }
-
-      setMessage({ type: 'error', text: errorMessage });
-      setLoading(false);
     }
   };
 
-  const handleRegister = () => {
-    // Passa alla schermata di registrazione
-    props.onGoToRegister?.();
-  };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword());
-  };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleLogin();
-    }
-  };
+
+  const Form = styled(Motion.Form)`
+    width: 100%;
+    margin: 2rem auto;
+    flex: 1;
+  `;
+
+
+  // Clear error on any input focus
+  const handleInputFocus = () => setError("");
+
 
   return (
-    <Container>
-      <BackgroundPattern/>
+    <AnimatedBackground>
+      <Container>
 
-      <Card>
-        <Header>
-          <Logo>
-            {renderIcon(faUser, LogoIcon)}
-          </Logo>
-          <Title>Benvenuto in AR</Title>
-          {/* <Subtitle>Benvenuto nella tua esperienza AR</Subtitle> */}
-        </Header>
+        {/* HEADER */}
+        <Header
+          showBack={false}
+          showUser={false}
+        />
 
-        <Form>
-          {/* Messaggio di errore o successo */}
-          {message().text && (
-            <>
-              {message().type === 'error' && (
-                <ErrorMessage>{message().text}</ErrorMessage>
-              )}
-              {message().type === 'success' && (
-                <SuccessMessage>{message().text}</SuccessMessage>
-              )}
-            </>
-          )}
+        {/* TITLE */}
+        <Title
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+        >
+          <span style={{ color: 'var(--color-secondary)' }}>Accedi </span>
+          <span style={{ color: 'var(--color-white)' }}>al tuo spazio AR</span>
+        </Title>
 
-          <InputGroup>
-            <InputLabel>Email</InputLabel>
-            <InputWrapper>
-              {renderIcon(faUser)}
-              <Input
-                type="email"
-                name="email"
-                placeholder="inserisci la tua email"
-                value={form().email}
-                onInput={handleInput}
-                onKeyPress={handleKeyPress}
-                autocomplete="email"
-                required
-              />
-            </InputWrapper>
-          </InputGroup>
-
-          <InputGroup>
-            <InputLabel>Password</InputLabel>
-            <InputWrapper>
-              {renderIcon(faLock)}
-              <Input
-                type={showPassword() ? 'text' : 'password'}
-                name="password"
-                placeholder="inserisci la tua password"
-                value={form().password}
-                onInput={handleInput}
-                onKeyPress={handleKeyPress}
-                autocomplete="current-password"
-                required
-              />
-              <PasswordToggle
-                type="button"
-                onClick={togglePasswordVisibility}
-                aria-label={showPassword() ? 'Nascondi password' : 'Mostra password'}
-              >
-                {renderIcon(showPassword() ? faEyeSlash : faEye, PasswordToggleIcon)}
-              </PasswordToggle>
-            </InputWrapper>
-          </InputGroup>
-
-          <Button
-            id="loginButton"
-            onClick={handleLogin}
-            disabled={loading() || !form().email || !form().password}
-            mode={BUTTON_MODE.PRIMARY}
-          >
-            {loading() ? 'Accesso in corso...' : 'Accedi'}
-          </Button>
+        <Form
+          onSubmit={handleLogin}
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
+        >
+          <InputField
+            style={{ 'margin-top': '1rem' }}
+            type="email"
+            name="email"
+            label="Email"
+            value={email()}
+            onInput={e => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+            error={error()}
+            data-error={!!error()}
+            onFocus={handleInputFocus}
+          />
+          <InputField
+            style={{ 'margin-top': '2rem' }}
+            type="password"
+            name="password"
+            label="Password"
+            value={password()}
+            onInput={e => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+            error={error()}
+            data-error={!!error()}
+            onFocus={handleInputFocus}
+          />
         </Form>
 
-        {/* <Divider>
-          <span>oppure</span>
-        </Divider> */}
+        <Button
+          onClick={() => setError(() => "fanculo")}
+          style={{ "margin-top": "2em" }}
+          active={true}
+        >Accedi
+        </Button>
 
-        <Section>
-          <SectionText>Non hai ancora un account?</SectionText>
-          <Button onClick={handleRegister} mode={BUTTON_MODE.SECONDARY}>
-            Registrati
-          </Button>
-        </Section>
-      </Card>
-    </Container>
+        <Button
+          onClick={() => setError(() => "fanculo")}
+          style={{ "margin-top": "30px" }}
+          grey={true}
+          icon={faChevronRight}
+          border={false}
+        >Oppure registrati
+        </Button>
+      </Container>
+    </AnimatedBackground>
   );
 }
+export default Login;

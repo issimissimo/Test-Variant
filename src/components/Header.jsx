@@ -11,6 +11,7 @@ const HeaderContainer = styled('div')`
     margin-bottom: 0;
     display: flex;
     justify-content: space-between;
+    height: 40px;
   `;
 
 

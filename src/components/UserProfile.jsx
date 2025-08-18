@@ -1,22 +1,43 @@
 import { onMount, createSignal } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
+import { useFirebase } from '../hooks/useFirebase';
 import Button from '@ui/Button';
+import { Container, FitHeight, Title } from '@ui/smallElements'
+import AnimatedBackground from "@ui/AnimatedBackground";
+
 import Fa from 'solid-fa';
 import { faUser, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 import Header from '@components/Header';
 
-import { Container, FitHeight, FitHeightScrollable, Title } from '@ui/smallElements'
-import AnimatedBackground from "@ui/AnimatedBackground";
+
+const EmailContainer = styled('div')`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  `;
+
+const Email = styled('p')`
+    font-size: 1rem;
+  `;
 
 
 const UserProfile = (props) => {
+
+    const firebase = useFirebase();
 
     onMount(() => {
         console.log(props.user)
     })
 
+
+    const handleLogout = async () => {
+        await firebase.auth.logout();
+        props.onLogout();
+    };
+
+    
     return (
         <AnimatedBackground>
             <Container>
@@ -37,18 +58,26 @@ const UserProfile = (props) => {
                     <span style={{ color: 'var(--color-white)' }}>account</span>
                 </Title>
 
-                <FitHeight>
-                    <FitHeight style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}>
-                        <Fa icon={faUser} size="2x" class="icon" />
+                {props.user ?
+                    <FitHeight>
+                        <FitHeight style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}>
+                            <Fa icon={faUser} size="2x" class="icon" />
+                            <EmailContainer>
+                                <Email>{props.user.email}</Email>
+                            </EmailContainer>
+                        </FitHeight>
+
+                        <Button
+                            active={true}
+                            icon={faArrowRightFromBracket}
+                            onClick={handleLogout}
+                        >Logout</Button>
                     </FitHeight>
 
-                    <Button
-                        active={true}
-                        icon={faArrowRightFromBracket}
-                    >Logout</Button>
-                </FitHeight>
+                    :
 
-
+                    <div />
+                }
 
             </Container>
         </AnimatedBackground>
