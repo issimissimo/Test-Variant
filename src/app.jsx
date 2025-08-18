@@ -133,7 +133,7 @@ export default function App() {
         }
         setUserId(() => params.get('userId'));
         const markerId = params.get('markerId');
-        setupMarker(markerId, null, () => goToAnonymous());
+        setupMarker(markerId, null, null, () => goToAnonymous());
     }
 
 
@@ -166,13 +166,12 @@ export default function App() {
     * Add a new marker to the App 
     * and set it as currentMarker
     */
-    const setupMarker = async (markerId = null, markerName = null, callback = null) => {
+    const setupMarker = async (markerId = null, markerName = null, markerGames = null, callback = null) => {
 
-        let markerGames = null;
-
-        // Load the all the Games basic properties
+        // If no Games are provided, load the all the Games basic properties
         // from firestore for this marker
-        if (markerId) {
+        if (markerId && !markerGames) {
+            console.log("carico games da Firestore...")
             markerGames = await firebase.firestore.fetchGames(userId(), markerId);
         }
 
@@ -182,6 +181,7 @@ export default function App() {
             name: markerName,
             games: markerGames
         }
+        
         setCurrentMarker(() => marker);
         console.log("current marker:", currentMarker())
 
@@ -303,7 +303,7 @@ export default function App() {
                         goToEditMarker();
                     }}
                     onMarkerClicked={(marker) => {
-                        setupMarker(marker.id, marker.name, () => goToEditMarker())
+                        setupMarker(marker.id, marker.name, null, () => goToEditMarker())
                     }}
                 />;
 
@@ -312,7 +312,7 @@ export default function App() {
                     userId={userId()}
                     marker={currentMarker()}
                     onNewMarkerCreated={(id, name) => setupMarker(id, name)}
-                    // onMarkerUpdated={(name) => setupMarker(currentMarker().id, name)}
+                    onMarkerUpdated={(name, games) => setupMarker(currentMarker().id, name, games)}
                     initScene={handleInitScene}
                     onBack={handleReset}
                 />;

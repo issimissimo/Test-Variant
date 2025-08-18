@@ -71,9 +71,19 @@ const EditMarker = (props) => {
   const [games, setGames] = createSignal(props.marker.games ?? []);
   const [currentViewMode, setCurrentViewMode] = createSignal(VIEW_MODE.GAMES);
 
-  onMount(() => {
-    console.log(games())
-  })
+  let animateOnMount = true;
+
+  // update current marker (app.jsx)
+  // --> it will cause a refresh of the page!
+  // some tricky "animateOnMount" false/true to disable
+  // the enter animations of the games
+  const refreshPage = () => {
+    animateOnMount = false;
+    props.onMarkerUpdated(name(), games());
+    setTimeout(() => {
+      animateOnMount = true;
+    }, 500)
+  }
 
   const handleUpdateMarker = async () => {
     await firebase.firestore.updateMarker(props.userId, props.marker.id,
@@ -91,11 +101,11 @@ const EditMarker = (props) => {
   }
 
   const handleUpdateGame = async (game) => {
-    // await firebase.firestore.updateGame(props.userId, props.marker.id, game.id, game.enabled);
 
-    // props.onMarkerUpdated(name()); NOOOO PERCHE' FORZA IL RELOAD!!
-   
-   
+    // update game on Firestore
+    await firebase.firestore.updateGame(props.userId, props.marker.id, game.id, game.enabled);
+
+    // refresh games()
     const updatedGames = [];
     for (let i = 0; i < games().length; i++) {
       if (games()[i].id === game.id) {
@@ -106,17 +116,22 @@ const EditMarker = (props) => {
     }
     setGames(updatedGames);
 
-
-   
-
-
+    refreshPage();
   }
 
   const handleDeleteGame = async (game) => {
 
-    // await firebase.firestore.deleteGame(props.userId, props.marker.id, game.id);
+    // delete game on Firestore
+    await firebase.firestore.deleteGame(props.userId, props.marker.id, game.id);
+
+    // refresh games()
     setGames(prevGames => prevGames.filter(g => g.id !== game.id));
+
+    refreshPage();
   }
+
+
+
 
 
   const Navigation = () => {
@@ -167,20 +182,19 @@ const EditMarker = (props) => {
 
 
   const GameItem = (props) => {
-
     const [game, setGame] = createSignal(props.game);
 
-    onMount(() => {
-      console.log("-------------")
-      console.log("name: ", game().name)
-      console.log("enabled: ", game().enabled)
-    })
-
     const handleToggleGameEnabled = (value) => {
+
+      // update game()
       setGame(prev => ({ ...prev, enabled: !value }));
 
-      // Update on Firestore
-      handleUpdateGame(game());
+      // wait for the animation of the toggle
+      setTimeout(() => {
+
+        // call handleUpdateGame
+        handleUpdateGame(game());
+      }, 250)
     };
 
     const GameItemContainer = styled(Motion.div)`
@@ -188,7 +202,7 @@ const EditMarker = (props) => {
             display: flex;
             align-items: center;
             box-sizing: border-box;
-            background-color: ${props => props.enabled ? "var(--color-dark-transparent)" : "var(--color-dark-transparent-dark)"};
+            /* background-color: ${props => props.enabled ? "var(--color-dark-transparent)" : "var(--color-dark-transparent-dark)"}; */
             box-sizing: border-box;
             padding: 0.3rem;
             margin-bottom: 1rem;
@@ -206,9 +220,14 @@ const EditMarker = (props) => {
     return (
       <GameItemContainer
         class="glass"
-        enabled={game().enabled}
-        animate={{ opacity: [0, 1] }}
-        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
+        animate={{
+          backgroundColor: game().enabled
+            ? "var(--color-dark-transparent)"
+            : "var(--color-dark-transparent-dark)"
+        }}
+        transition={{
+          backgroundColor: { duration: animateOnMount ? 0.25 : 0, easing: "ease-in-out" }
+        }}
       >
         <ButtonSecondary
           onClick={() => handleDeleteGame(game())}
@@ -216,7 +235,8 @@ const EditMarker = (props) => {
           <Fa icon={faTrash} size="1x" class="icon" />
         </ButtonSecondary>
         <GameName
-          enabled={game().enabled}>
+          enabled={game().enabled}
+        >
           {game().name}
         </GameName>
         <Toggle
@@ -230,10 +250,17 @@ const EditMarker = (props) => {
 
 
   const dynamicView = () => {
+
+
+
+    onMount(() => {
+      console.log("onMount: dynamicView")
+    })
+
     switch (currentViewMode()) {
       case VIEW_MODE.GAMES:
         return (
-          games().length === 0 ?
+          props.marker.games.length === 0 ?
             <Message>
               Entra in AR e aggiungi dei componenti a questo ambiente. <br></br> <br></br>
               I componenti sono elementi 3D che scegli per costruire l'ambiente AR a tuo piacimento. Una volta ggiunti li vedrai elencati qui!
@@ -244,9 +271,11 @@ const EditMarker = (props) => {
             // TODO - here the list of the games (and the "ENTER AR button")
             <FitHeightScrollable
               style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}
+              animate={{ opacity: [0, 1] }}
+              transition={{ duration: animateOnMount ? 0.5 : 0, easing: "ease-in-out", delay: 0 }}
             >
               {
-                games().map(game => (
+                props.marker.games.map(game => (
                   <GameItem
                     game={game}
                   />
@@ -257,7 +286,7 @@ const EditMarker = (props) => {
 
       case VIEW_MODE.QRCODE:
         return (
-          games().length === 0 ?
+          props.marker.games.length === 0 ?
             <Message>
               Non posso darti un QR Code per questo ambiente perchè non hai ancora aggiunto nulla in AR.<br></br> Entra in AR e aggiungi qualcosa!
             </Message>

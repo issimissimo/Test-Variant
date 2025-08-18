@@ -22,7 +22,6 @@ export const FitHeightScrollable = styled(FitHeight)`
     overflow-y: auto;
   `;
 
-
 export const Title = styled(Motion.p)`
     font-size: 1.8rem;
     font-family: "Montessori";
