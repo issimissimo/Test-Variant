@@ -66,16 +66,18 @@ const ArButtonContainer = styled('div')`
 `;
 
 const QrCodeContainer = styled(Motion.div)`
-    height: 300px;
+    /* height: 300px; */
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 2rem;
 `;
 
 const QrCodeImg = styled('img')`
         text-align: center;
         z-index: 99;
+        width: 150px;
     `
 
 const EditMarker = (props) => {
@@ -397,6 +399,9 @@ const EditMarker = (props) => {
               >
                 <QrCodeImg id="qr-code" />
               </QrCodeContainer>
+              <Message>
+                Stampa il QR Code e fissalo su una superficie, per poter essere successivamente scansionato.
+              </Message>
             </FitHeight>
 
         )
@@ -412,7 +417,10 @@ const EditMarker = (props) => {
       <Container alignLeft={true}>
 
         {/* HEADER */}
-        <Header showBack={true} />
+        <Header
+          onClickBack={props.onBack}
+          onClickUser={() => console.log("USER!!!")} // TODO - open user page
+        />
 
         {/* TITLE */}
         <Title

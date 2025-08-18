@@ -28,6 +28,7 @@ export const Title = styled(Motion.p)`
     line-height: 100%;
     color: ${props => props.color ?? props.color};
     /* margin: 0; */
+    margin-top: 1rem;
     margin-bottom: 1rem;
   `;
 

@@ -180,7 +180,10 @@ const MarkersList = (props) => {
       <Container>
 
         {/* HEADER */}
-        <Header />
+        <Header
+          showBack={false} 
+          onClickUser={()=> console.log("USER!!!")} // TODO - open user page
+          />
 
         {/* TITLE */}
         <Title

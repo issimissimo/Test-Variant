@@ -1,6 +1,7 @@
 import { onMount, createSignal } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
+import ButtonCircle from '@ui/ButtonCircle';
 import Fa from 'solid-fa';
 import { faUser, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
@@ -13,37 +14,56 @@ const HeaderContainer = styled('div')`
   `;
 
 
-const Button = styled('button')`
-    background: none;
-    color: white;
-    border: none;
+
+const LeftButtonContainer = styled('div')`
+    display: flex;
+    justify-content: flex-start;
   `;
 
-
+const RightButtonContainer = styled('div')`
+    display: flex;
+    justify-content: flex-end;
+  `;
 
 
 const Header = (props) => {
 
-    const [showUser, setShowUser] = createSignal(true);
+    const [showUser, setShowUser] = createSignal(props.showUser ?? true);
+    const [showBack, setShowBack] = createSignal(props.showBack ?? true);
 
     return (
         <HeaderContainer>
-            <div style="flex: 1; text-align: left;">
+
+            <div style="flex: 1;">
                 {
-                    props.showBack && <Button>
-                        <Fa icon={faChevronLeft} size="1x" class="icon" />
-                    </Button>
+                    showBack() &&
+                    <LeftButtonContainer >
+                        <ButtonCircle
+                            onClick={props.onClickBack}
+                            border={false}
+                        >
+                            <Fa icon={faChevronLeft} size="1x" class="icon" />
+                        </ButtonCircle>
+                    </LeftButtonContainer>
                 }
 
             </div>
-            <div style="flex: 1; text-align: right;">
+
+            <div style="flex: 1;">
                 {
-                    showUser() && <Button>
-                        <Fa icon={faUser} size="1x" class="icon" />
-                    </Button>
+                    showUser() &&
+                    <RightButtonContainer>
+                        <ButtonCircle
+                            onClick={props.onClickUser}
+                            border={false}
+                        >
+                            <Fa icon={faUser} size="1x" class="icon" />
+                        </ButtonCircle>
+                    </RightButtonContainer>
                 }
 
             </div>
+
         </HeaderContainer>
     )
 }

@@ -5,18 +5,15 @@ import Fa from 'solid-fa';
 const StyledButton = styled(Motion.button)`
   position: relative;
   display: ${props => props.visible ? 'block' : 'none'};
-  width: 100%;
-  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   padding: ${props => props.small ? "0" : "0.7rem"};
-  font-size: ${props => props.small ? "small" : "1rem"};
-  font-weight: 500;
-  font-family: inherit;
-  border-radius: 90px;
+  border-radius: 50%;
   background: var(--color-background);
-  border: ${props => props.border ? (props.small ? "1px solid" : "2px solid") : "none"};
-  border-color: ${props => props.grey ? 'var(--color-grey)' : 'var(--color-primary)'};
+  border: ${props => props.border ? "1px solid" : "none"};
+  border-color: var(--color-white);
   pointer-events: ${props => props.active ? 'auto' : 'none'};
-  color: ${props => props.grey ? 'var(--color-grey)' : 'var(--color-primary)'};
+  color: var(--color-white);
   box-shadow: none;
   outline: none;
   z-index: 1;
@@ -24,18 +21,18 @@ const StyledButton = styled(Motion.button)`
   transition: background 0.05s, color 0.05s;
   &:focus {
     outline: none;
-    border-color: ${props => props.grey ? 'var(--color-grey)' : 'var(--color-primary)'};
+    border-color: var(--color-white);
     background: transparent;
   }
   &:active {
-    background: ${props => props.grey ? 'var(--color-grey-dark)' : 'var(--color-primary-dark)'};
+    background: var(--color-grey-dark);
     color: var(--color-background);
-    border-color: ${props => props.grey ? 'var(--color-grey)' : 'var(--color-primary)'};
+    border-color: var(--color-white);
   }
   `;
 
 
-const Button = (props) => {
+const ButtonCircle = (props) => {
 
   const handleOnClick = () => {
     setTimeout(() => {
@@ -44,7 +41,7 @@ const Button = (props) => {
   }
 
   const Icon = () => (
-    <Fa icon={props.icon} size="1x" translateX={1} class="icon" />
+    <Fa icon={props.icon} size="1x" class="icon" />
   );
 
   return (
@@ -52,13 +49,9 @@ const Button = (props) => {
       onClick={handleOnClick}
       active={props.active ?? true}
       visible={props.visible ?? true}
-      grey={props.grey}
       border={props.border ?? true}
-      small={props.small ?? false}
       class={props.class}
       style={props.style}
-      animate={{ opacity: props.active ? 1 : 0.4 }}
-      transition={{ duration: 0.25 }}
     >
       {props.children}
       {props.icon && <Icon />}
@@ -66,4 +59,4 @@ const Button = (props) => {
   );
 };
 
-export default Button
+export default ButtonCircle
