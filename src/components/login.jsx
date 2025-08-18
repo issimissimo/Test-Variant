@@ -13,7 +13,7 @@ import Fa from 'solid-fa';
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 
-const Login = () => {
+const Login = (props) => {
 
   const { auth } = useFirebase();
 
@@ -22,28 +22,36 @@ const Login = () => {
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
 
-  // Simulate error (replace with real logic)
-  // const handleLogin = (e) => {
-  //   e.preventDefault();
-  //   if (!email() || !password()) {
-  //     setError("Email e/o password non validi.");
-  //   } else {
-  //     setError("");
-  //     // ...login logic...
-  //   }
-  // };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+    // e.preventDefault();
     if (!email() || !password()) {
       setError("Email e/o password non validi.");
-    } else {
-      setError("");
+      return;
+    }
+    setError("");
+    setLoading(true);
 
+    try {
+      await auth.login({ email: email(), password: password() });
+      setLoading(false);
+      props.onSuccess();
 
-      setLoading(true);
-
-
+    } catch (error) {
+      let errorMessage = error.message;
+      if (errorMessage.includes('invalid-credential')) {
+        errorMessage = 'Email o password non validi';
+      } else if (errorMessage.includes('wrong-password')) {
+        errorMessage = 'Password errata';
+      } else if (errorMessage.includes('too-many-requests')) {
+        errorMessage = 'Troppi tentativi falliti. Riprova più tardi';
+      } else if (errorMessage.includes('invalid-email')) {
+        errorMessage = 'Formato email non valido';
+      } else if (errorMessage.includes('user-disabled')) {
+        errorMessage = 'Account disabilitato';
+      }
+      setError(errorMessage);
+      setLoading(false);
     }
   };
 
@@ -114,14 +122,15 @@ const Login = () => {
         </Form>
 
         <Button
-          onClick={() => setError(() => "fanculo")}
+          onClick={handleLogin}
           style={{ "margin-top": "2em" }}
           active={true}
-        >Accedi
+        >
+          {loading() ? 'Accesso in corso...' : 'Accedi'}
         </Button>
 
         <Button
-          onClick={() => setError(() => "fanculo")}
+          onClick={props.onGoToRegister}
           style={{ "margin-top": "30px" }}
           grey={true}
           icon={faChevronRight}

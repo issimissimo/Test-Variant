@@ -69,6 +69,7 @@ const UserProfile = (props) => {
 
                         <Button
                             active={true}
+                            border={false}
                             icon={faArrowRightFromBracket}
                             onClick={handleLogout}
                         >Logout</Button>

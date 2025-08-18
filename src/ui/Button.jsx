@@ -25,7 +25,7 @@ const StyledButton = styled(Motion.button)`
   &:focus {
     outline: none;
     border-color: ${props => props.grey ? 'var(--color-grey)' : 'var(--color-primary)'};
-    background: transparent;
+    background: var(--color-background);
   }
   &:active {
     background: ${props => props.grey ? 'var(--color-grey-dark)' : 'var(--color-primary-dark)'};
