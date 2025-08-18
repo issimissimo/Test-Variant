@@ -4,6 +4,7 @@ import Fa from 'solid-fa';
 
 const StyledButton = styled(Motion.button)`
   position: relative;
+  display: ${props => props.visible ? 'block' : 'none'};
   width: 100%;
   flex-shrink: 0;
   padding: ${props => props.small ? "0" : "0.7rem"};
@@ -42,6 +43,7 @@ const Button = (props) => {
     <StyledButton
       onClick={props.onClick}
       active={props.active ?? true}
+      visible={props.visible ?? true}
       grey={props.grey}
       border={props.border ?? true}
       small={props.small ?? false}

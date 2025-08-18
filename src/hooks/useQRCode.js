@@ -11,6 +11,17 @@ async function generateQRCode(text) {
     });
 }
 
+// async function generateQRCodeObject(text) {
+//     qrObj = await QRCode.toDataURL(text, {
+//         margin: 2,
+//         color: {
+//             dark: "#000000",
+//             light: "#FFFFFF",
+//         },
+//     });
+//     return qrObj;
+// }
+
 async function generateLaunchCode() {
     let url = await VLaunch.getLaunchUrl(window.location.href);
     generateQRCode(url);

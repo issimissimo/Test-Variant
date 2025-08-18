@@ -8,14 +8,21 @@ class ARButton {
     const button = document.createElement("button");
     button.id = "ARButton";
     button.style.width = "100%";
-    button.style.height = "40px";
+    // button.style.height = "40px";
     button.style.borderRadius = "90px";
-    button.style.border = "none";
-    button.style.outline = "none";
+    button.style.border = "2px solid";
+    // button.style.outline = "none";
     // margin-top: 15px;
     button.style.display = "flex";
     button.style.alignItems = "center";
     button.style.justifyContent = "center";
+
+    button.style.fontWeight = 500;
+    button.style.fontFamily = "inherit";
+    button.style.background = "var(--color-background)";
+    button.style.padding = "0.7rem";
+    button.style.fontSize = "1rem";
+    button.style.color = "var(--color-primary)";
 
 
     navigator.xr
@@ -25,19 +32,19 @@ class ARButton {
         if (supported) {
           button.textContent = "Inizia in AR";
           button.style.pointerEvents = "auto";
-          button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
+          // button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
           initializeButton();
         }
         else if (config.debugOnDesktop) {
           button.textContent = "Debug su desktop";
           button.style.pointerEvents = "auto";
-          button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
+          // button.style.backgroundColor = "rgba(0, 123, 255, 0.8)";
           initializeButton();
         }
         else {
           button.textContent = "AR non supportata :(";
           button.style.pointerEvents = "none";
-          button.style.backgroundColor = "rgb(83, 83, 83)"
+          // button.style.backgroundColor = "rgb(83, 83, 83)"
         }
       })
 

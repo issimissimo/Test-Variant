@@ -256,6 +256,15 @@ export default function App() {
 
 
     /**
+     * Destroy scene
+     * (mainly used by EditMarker)
+     */
+    const handleDestroyScene = () => {
+        SceneManager.destroy();
+    }
+
+
+    /**
      * Clear all and
      * go back to 1st screen
      */
@@ -314,6 +323,7 @@ export default function App() {
                     onNewMarkerCreated={(id, name) => setupMarker(id, name, [])}
                     onMarkerUpdated={(name, games) => setupMarker(currentMarker().id, name, games)}
                     initScene={handleInitScene}
+                    destroyScene={handleDestroyScene}
                     onBack={handleReset}
                 />;
 

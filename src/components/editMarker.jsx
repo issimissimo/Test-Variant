@@ -15,7 +15,7 @@ import Toggle from '@ui/toggle';
 import Message from '@ui/Message';
 
 import Fa from 'solid-fa';
-import { faSave, faQrcode, faPuzzlePiece, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faQrcode, faPuzzlePiece, faTrash, faDownload } from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -60,9 +60,23 @@ const BorderBottomBar = styled(Motion.div)`
     transform-origin: left;
 `;
 
+const ArButtonContainer = styled('div')`
+    z-index: 1000;
+    display: ${props => props.viewMode === VIEW_MODE.GAMES ? 'flex' : 'none'};
+`;
 
+const QrCodeContainer = styled(Motion.div)`
+    height: 300px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
 
-
+const QrCodeImg = styled('img')`
+        text-align: center;
+        z-index: 99;
+    `
 
 const EditMarker = (props) => {
 
@@ -80,8 +94,10 @@ const EditMarker = (props) => {
     onMount(() => {
       console.log("ON MOUNT: EditMarker", props.marker);
     })
-    // console.log(props.marker.id, props.marker.name)
   })
+
+
+
 
   // update current marker (app.jsx)
   // --> it will cause a refresh of the page!
@@ -136,7 +152,7 @@ const EditMarker = (props) => {
  */
   const handleDeleteMarker = async () => {
 
-    if (!id()){
+    if (!id()) {
       return;
     }
 
@@ -195,7 +211,12 @@ const EditMarker = (props) => {
   }
 
 
-
+  /**
+  * download Qr Code
+  */
+  const handleDownloadQrCode = () => {
+    console.log("download qr code") // TODO - download
+  }
 
 
   const Navigation = () => {
@@ -318,6 +339,19 @@ const EditMarker = (props) => {
   const dynamicView = () => {
     onMount(() => {
       console.log("ON MOUNT: dynamicView");
+
+      if (id()) {
+
+        // initialize 3D scene and AR button
+        props.initScene();
+
+        if (currentViewMode() === VIEW_MODE.QRCODE && games().length > 0) {
+
+          // create qr code
+          console.log("genero QR Code....")
+          generateQRCodeForForMarker(props.userId, id());
+        }
+      }
     })
 
     switch (currentViewMode()) {
@@ -331,7 +365,7 @@ const EditMarker = (props) => {
 
             :
 
-            // TODO - here the list of the games (and the "ENTER AR button")
+            // THE LIST OF THE GAMES
             <FitHeightScrollable
               style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}
               animate={{ opacity: [0, 1] }}
@@ -356,7 +390,13 @@ const EditMarker = (props) => {
             :
             // TODO - here the QR Code (and the "Download button")
             <FitHeight>
+              <QrCodeContainer
 
+                animate={{ opacity: [0, 1] }}
+                transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+              >
+                <QrCodeImg id="qr-code" />
+              </QrCodeContainer>
             </FitHeight>
 
         )
@@ -413,7 +453,18 @@ const EditMarker = (props) => {
                 {dynamicView()}
 
                 {/* ENTER AR BUTTON */}
-                <Button active={true}>Enter AR</Button>
+                <ArButtonContainer
+                  id="ArButtonContainer"
+                  viewMode={currentViewMode()}
+                />
+
+                {/* DOWNLOAD QR CODE BUTTON */}
+                <Button
+                  active={props.marker.games?.length > 0 ? true : false}
+                  visible={currentViewMode() === VIEW_MODE.QRCODE ? true : false}
+                  icon={faDownload}
+                  onClick={handleDownloadQrCode}
+                >Scarica QR Code</Button>
 
               </FitHeightScrollable>
 
