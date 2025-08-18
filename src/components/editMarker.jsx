@@ -2,6 +2,7 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
+import { generateQRCodeForForMarker } from '@hooks/useQRCode';
 
 import Header from '@components/Header';
 
@@ -67,12 +68,20 @@ const EditMarker = (props) => {
 
   const firebase = useFirebase();
 
-  const [saved, setSaved] = createSignal(props.marker.name ? true : false);
+  // const [saved, setSaved] = createSignal(props.marker.id ? true : false);
+  const [id, setId] = createSignal(props.marker.id ?? null);
   const [name, setName] = createSignal(props.marker.name ?? null);
   const [games, setGames] = createSignal(props.marker.games ?? []);
   const [currentViewMode, setCurrentViewMode] = createSignal(VIEW_MODE.GAMES);
 
   let animateOnMount = true;
+
+  onMount(() => {
+    onMount(() => {
+      console.log("ON MOUNT: EditMarker", props.marker);
+    })
+    // console.log(props.marker.id, props.marker.name)
+  })
 
   // update current marker (app.jsx)
   // --> it will cause a refresh of the page!
@@ -86,25 +95,71 @@ const EditMarker = (props) => {
     }, 500)
   }
 
+
+  /**
+  * update marker name
+  */
   const handleUpdateMarker = async () => {
+
+    if (!id()) return;
 
     // update marker name on firestore
     if (name() !== props.marker.name) {
       await firebase.firestore.updateMarker(props.userId, props.marker.id, name());
+      console.log("marker name updated")
     }
 
     refreshPage();
   }
 
-  const handleDeleteMarker = () => {
-    console.log("DELETE MARKER")
+
+  /**
+  * save new marker
+  */
+  const handleSaveMarker = async () => {
+
+    // create new marker on Firestore
+    const newMarkerId = await firebase.firestore.addMarker(props.userId, name());
+
+    // update current marker (app.jsx)
+    props.onNewMarkerCreated(newMarkerId, name());
+
+    // setSaved(true);
+    setId(() => newMarkerId);
   }
 
-  const handleSaveMarker = () => {
-    setSaved(() => true);
-    console.log("SAVE MARKER")
-  }
 
+  /**
+ * Delete a marker,
+ * both from firebase and its JSON from RealTime DB,
+ * and go back to Home
+ */
+  const handleDeleteMarker = async () => {
+
+    if (!id()){
+      return;
+    }
+
+    console.log("cancello da Firestore...")
+    await firebase.firestore.deleteMarker(props.userId, id());
+
+    if (props.marker.games.length > 0) {
+      console.log("cancello dati realtime DB...")
+      const path = `${props.userId}/${props.marker.id}`;
+      await firebase.realtimeDb.deleteData(path);
+
+      // return to Marker List
+      props.onBack();
+    }
+
+    // return to Marker List
+    else props.onBack();
+  };
+
+
+  /**
+  * update game (enabled = true / false)
+  */
   const handleUpdateGame = async (game) => {
 
     // update game on Firestore
@@ -124,6 +179,10 @@ const EditMarker = (props) => {
     refreshPage();
   }
 
+
+  /**
+  * delete game
+  */
   const handleDeleteGame = async (game) => {
 
     // delete game on Firestore
@@ -187,6 +246,9 @@ const EditMarker = (props) => {
 
 
   const GameItem = (props) => {
+    onMount(() => {
+      console.log("ON MOUNT: GameItem");
+    })
     const [game, setGame] = createSignal(props.game);
 
     const handleToggleGameEnabled = (value) => {
@@ -254,10 +316,14 @@ const EditMarker = (props) => {
 
 
   const dynamicView = () => {
+    onMount(() => {
+      console.log("ON MOUNT: dynamicView");
+    })
+
     switch (currentViewMode()) {
       case VIEW_MODE.GAMES:
         return (
-          props.marker.games.length === 0 ?
+          props.marker.games?.length === 0 ?
             <Message>
               Entra in AR e aggiungi dei componenti a questo ambiente. <br></br> <br></br>
               I componenti sono elementi 3D che scegli per costruire l'ambiente AR a tuo piacimento. Una volta ggiunti li vedrai elencati qui!
@@ -272,7 +338,7 @@ const EditMarker = (props) => {
               transition={{ duration: animateOnMount ? 0.5 : 0, easing: "ease-in-out", delay: 0 }}
             >
               {
-                props.marker.games.map(game => (
+                props.marker.games?.map(game => (
                   <GameItem
                     game={game}
                   />
@@ -283,7 +349,7 @@ const EditMarker = (props) => {
 
       case VIEW_MODE.QRCODE:
         return (
-          props.marker.games.length === 0 ?
+          props.marker.games?.length === 0 ?
             <Message>
               Non posso darti un QR Code per questo ambiente perchè non hai ancora aggiunto nulla in AR.<br></br> Entra in AR e aggiungi qualcosa!
             </Message>
@@ -313,7 +379,7 @@ const EditMarker = (props) => {
           animate={{ opacity: [0, 1] }}
           transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
         >
-          <span style={{ color: 'var(--color-secondary)' }}>{saved() ? 'Modifica' : 'Nuovo'} </span>
+          <span style={{ color: 'var(--color-secondary)' }}>{id() ? 'Modifica' : 'Nuovo'} </span>
           <span style={{ color: 'var(--color-white)' }}>ambiente AR </span>
         </Title>
 
@@ -336,7 +402,7 @@ const EditMarker = (props) => {
           />
 
           {
-            saved() ?
+            id() ?
 
               <FitHeightScrollable>
 

@@ -311,7 +311,7 @@ export default function App() {
                 return <EditMarker
                     userId={userId()}
                     marker={currentMarker()}
-                    onNewMarkerCreated={(id, name) => setupMarker(id, name)}
+                    onNewMarkerCreated={(id, name) => setupMarker(id, name, [])}
                     onMarkerUpdated={(name, games) => setupMarker(currentMarker().id, name, games)}
                     initScene={handleInitScene}
                     onBack={handleReset}
