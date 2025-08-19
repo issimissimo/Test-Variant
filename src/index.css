@@ -50,4 +50,28 @@ html, body {
   -webkit-backdrop-filter: blur(4px);
 }
 
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
 
+#overlay {
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* width: 100%; */
+  /* height: 100vh; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  z-index: 999;
+  position: relative;
+}
+
+.xr-button-overlay {
+  z-index: 100 !important;
+}

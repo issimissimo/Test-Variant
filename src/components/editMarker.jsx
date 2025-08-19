@@ -460,6 +460,7 @@ const EditMarker = (props) => {
                 {/* DYNAMIC VIEW */}
                 {dynamicView()}
 
+
                 {/* ENTER AR BUTTON */}
                 <ArButtonContainer
                   id="ArButtonContainer"
