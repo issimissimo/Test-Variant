@@ -12,22 +12,67 @@ import Header from '@components/Header';
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 
-// --- Example Usage ---
-function Register() {
-  // State for email and password
+const Register = (props) => {
+  // State for email, password, confirmPassword
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
+  const [confirmPassword, setConfirmPassword] = createSignal("");
   const [error, setError] = createSignal("");
+  const [loading, setLoading] = createSignal(false);
 
-  // Simulate error (replace with real logic)
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!email() || !password()) {
-      setError("Email e/o password non validi.");
-    } else {
-      setError("");
-      // ...login logic...
+  const { auth } = useFirebase();
+
+  // Funzione di validazione email
+  const isValidEmail = (value) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  // Funzione per validare il form
+  const isFormValid = () => {
+    return isValidEmail(email()) && password().length >= 6 && password() === confirmPassword();
+  };
+
+  // Logica di registrazione Firebase
+  const handleSubmit = async (e) => {
+    // e.preventDefault();
+    setError("");
+
+    if (!email() || !password() || !confirmPassword()) {
+      setError("Tutti i campi sono obbligatori");
+      return;
     }
+    if (!isValidEmail(email())) {
+      setError("Indirizzo email non valido");
+      return;
+    }
+    if (password() !== confirmPassword()) {
+      setError("Le password non corrispondono");
+      return;
+    }
+    if (password().length < 6) {
+      setError("La password deve essere di almeno 6 caratteri");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await auth.register({ email: email(), password: password() });
+      setError("");
+      props.onSuccess();
+      
+    } catch (error) {
+      let errorMessage = error.message;
+      if (errorMessage.includes('email-already-in-use')) {
+        errorMessage = 'Questo indirizzo email è già registrato';
+      } else if (errorMessage.includes('invalid-email')) {
+        errorMessage = 'Indirizzo email non valido';
+      } else if (errorMessage.includes('weak-password')) {
+        errorMessage = 'La password è troppo debole';
+      }
+      setError(errorMessage);
+      setLoading(false);
+    }
+    setLoading(false);
   };
 
 
@@ -49,13 +94,18 @@ function Register() {
           transition={{ duration: 1, easing: "ease-in-out", delay: 0 }}
         > Registrazione </Title>
 
+        {/* Messaggio di errore */}
+        {error() && (
+          <div style={{ color: 'var(--color-error)', margin: '1em 0' }}>{error()}</div>
+        )}
 
         <Form
-          onSubmit={handleLogin}
+          onSubmit={handleSubmit}
           animate={{ opacity: [0, 1] }}
           transition={{ duration: 1, easing: "ease-in-out", delay: 0.5 }}
         >
           <InputField
+            style={{ 'margin-top': '1rem' }}
             type="email"
             name="email"
             label="Email"
@@ -68,24 +118,26 @@ function Register() {
             onFocus={handleInputFocus}
           />
           <InputField
+            style={{ 'margin-top': '1rem' }}
             type="password"
             name="password"
             label="Password"
             value={password()}
             onInput={e => setPassword(e.target.value)}
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
             error={error()}
             data-error={!!error()}
             onFocus={handleInputFocus}
           />
           <InputField
+            style={{ 'margin-top': '1rem' }}
             type="password"
-            name="password"
+            name="confirmPassword"
             label="Ripeti password"
-            value={password()}
-            onInput={e => setPassword(e.target.value)}
-            autoComplete="current-password"
+            value={confirmPassword()}
+            onInput={e => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
             required
             error={error()}
             data-error={!!error()}
@@ -94,11 +146,14 @@ function Register() {
 
           <Button
             style={{ "margin-top": "2em" }}
-            active={true}
-          >Registrati
+            active={isFormValid()}
+            disabled={loading()}
+          >
+            {loading() ? 'Registrazione in corso...' : 'Registrati'}
           </Button>
 
           <Button
+            onClick={props.onGoToLogin}
             style={{ "margin-top": "30px" }}
             grey={true}
             icon={faChevronRight}
