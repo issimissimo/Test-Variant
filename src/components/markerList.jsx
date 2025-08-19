@@ -6,7 +6,6 @@ import { Motion } from 'solid-motionone';
 import Header from '@components/Header';
 
 import { Container, FitHeightScrollable, Title } from '@ui/smallElements'
-import AnimatedBackground from '@ui/AnimatedBackground';
 import Button from '@ui/button';
 import Message from '@ui/Message';
 import Spinner from '@ui/Spinner';
@@ -176,70 +175,68 @@ const MarkersList = (props) => {
 
 
   return (
-    <AnimatedBackground>
-      <Container>
+    <Container>
 
-        {/* HEADER */}
-        <Header
-          showBack={false} 
-          onClickUser={props.goToUserProfile}
-          />
+      {/* HEADER */}
+      <Header
+        showBack={false}
+        onClickUser={props.goToUserProfile}
+      />
 
-        {/* TITLE */}
-        <Title
+      {/* TITLE */}
+      <Title
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+      >
+        <span style={{ color: 'var(--color-secondary)' }}>I tuoi </span>
+        <span style={{ color: 'var(--color-white)' }}>ambienti AR</span>
+      </Title>
+
+      {/* CONTENT */}
+      {loading() ?
+
+        <Spinner> Carico... </Spinner>
+
+        :
+
+        <FitHeightScrollable id="FitHeight"
           animate={{ opacity: [0, 1] }}
-          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
         >
-          <span style={{ color: 'var(--color-secondary)' }}>I tuoi </span>
-          <span style={{ color: 'var(--color-white)' }}>ambienti AR</span>
-        </Title>
+          {markers().length === 0 ?
 
-        {/* CONTENT */}
-        {loading() ?
+            <Message>
+              Non hai ancora nessun ambiente.<br></br> Inizia creandone uno<br></br><br></br>
+              Un ambiente AR è uno spazio fisico intorno a te in cui inserirai oggetti virtuali in realtà aumentata,<br></br>
+              per essere visualizzati da altri nello stesso luogo.
+            </Message>
 
-          <Spinner> Carico... </Spinner>
+            :
 
-          :
+            <MarkersListContainer>
+              {
+                markers().map(marker => (
+                  <Marker
+                    marker={marker}
+                    onClick={() => props.onMarkerClicked(marker)}
+                  />
+                ))
+              }
+            </MarkersListContainer>
+          }
 
-          <FitHeightScrollable id="FitHeight"
-            animate={{ opacity: [0, 1] }}
-            transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
-          >
-            {markers().length === 0 ?
+          {/* CREATE BUTTON */}
+          <Button
+            active={true}
+            icon={faPlus}
+            border={markers().length === 0 ? true : false}
+            onClick={() => props.onCreateNewMarker()}
+          >Crea nuovo
+          </Button>
+        </FitHeightScrollable>
 
-              <Message>
-                Non hai ancora nessun ambiente.<br></br> Inizia creandone uno<br></br><br></br>
-                Un ambiente AR è uno spazio fisico intorno a te in cui inserirai oggetti virtuali in realtà aumentata,<br></br>
-                per essere visualizzati da altri nello stesso luogo.
-              </Message>
-
-              :
-
-              <MarkersListContainer>
-                {
-                  markers().map(marker => (
-                    <Marker
-                      marker={marker}
-                      onClick={() => props.onMarkerClicked(marker)}
-                    />
-                  ))
-                }
-              </MarkersListContainer>
-            }
-
-            {/* CREATE BUTTON */}
-            <Button
-              active={true}
-              icon={faPlus}
-              border={markers().length === 0 ? true : false}
-              onClick={() => props.onCreateNewMarker()}
-            >Crea nuovo
-            </Button>
-          </FitHeightScrollable>
-
-        }
-      </Container>
-    </AnimatedBackground>
+      }
+    </Container>
   );
 };
 

@@ -4,6 +4,8 @@ import { useFirebase } from '@hooks/useFirebase';
 import { config } from '@/config';
 import { styled } from 'solid-styled-components';
 
+import { Container } from '@ui/smallElements'
+
 // Components
 import UserProfile from '@components/UserProfile';
 import Register from '@components/register';
@@ -121,7 +123,7 @@ export default function App() {
 
     createEffect(() => {
         // Hide the preloader
-        if (!loading()) document.getElementById("loading").style.display = "none";
+        if (!loading()) document.getElementById("loaderContainer").style.display = "none";
     })
 
 
@@ -288,11 +290,11 @@ export default function App() {
 
 
 
-    //#region [style]
-    const Container = styled('div')`
-        width: 100%;
-        height: 100%;
-    `
+    // //#region [style]
+    // const Container = styled('div')`
+    //     width: 100%;
+    //     height: 100%;
+    // `
 
 
     //#region [return]
@@ -380,7 +382,7 @@ export default function App() {
 
 
     return (
-        <Container>
+        <Container id="AAAA">
             {renderView()}
         </Container>
     );

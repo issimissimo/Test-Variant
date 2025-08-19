@@ -22,14 +22,29 @@
 </head>
 
 <body>
-  <div class="full-screen" style="z-index: 1000" id="loading"></div>
+  <div id="loaderContainer">
+    <span class="loader"></span>
+    <span class="loader2"></span>
+    <div class="loader-text">Caricamento...</div>
+  </div>
+
+  <div id="backgroundContainer">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+    <div class="circle circle-4"></div>
+    <div class="circle circle-5"></div>
+    <div class="circle circle-6"></div>
+  </div>
+
   <div id="app"></div>
+
   <div id="overlay"></div>
 
 
 
-  <!-- SPINNER -->
-  <script type="module">
+
+  <!-- <script type="module">
     import { Spinner } from 'spin.js';
     const opts = {
       lines: 5, // The number of lines to draw
@@ -53,7 +68,7 @@
     };
     const target = document.getElementById('loading');
     new Spinner(opts).spin(target);
-  </script>
+  </script> -->
 
   <script>
     var iOS = null;
@@ -70,7 +85,7 @@
     })
   </script>
 
-  <script type="module" src="/index.jsx"></script>
+  <!-- <script type="module" src="/index.jsx"></script> -->
 </body>
 
 </html>

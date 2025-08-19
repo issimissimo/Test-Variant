@@ -4,7 +4,6 @@ import { Motion } from 'solid-motionone';
 import { useFirebase } from '../hooks/useFirebase';
 import Button from '@ui/Button';
 import { Container, FitHeight, Title } from '@ui/smallElements'
-import AnimatedBackground from "@ui/AnimatedBackground";
 
 import Fa from 'solid-fa';
 import { faUser, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
@@ -37,51 +36,49 @@ const UserProfile = (props) => {
         props.onLogout();
     };
 
-    
+
     return (
-        <AnimatedBackground>
-            <Container>
+        <Container>
 
-                {/* HEADER */}
-                <Header
-                    showUser={false}
-                    showBack={true}
-                    onClickBack={props.onBack}
-                />
+            {/* HEADER */}
+            <Header
+                showUser={false}
+                showBack={true}
+                onClickBack={props.onBack}
+            />
 
-                {/* TITLE */}
-                <Title
-                    animate={{ opacity: [0, 1] }}
-                    transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
-                >
-                    <span style={{ color: 'var(--color-secondary)' }}>Il tuo </span>
-                    <span style={{ color: 'var(--color-white)' }}>account</span>
-                </Title>
+            {/* TITLE */}
+            <Title
+                animate={{ opacity: [0, 1] }}
+                transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+            >
+                <span style={{ color: 'var(--color-secondary)' }}>Il tuo </span>
+                <span style={{ color: 'var(--color-white)' }}>account</span>
+            </Title>
 
-                {props.user ?
-                    <FitHeight>
-                        <FitHeight style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}>
-                            <Fa icon={faUser} size="2x" class="icon" />
-                            <EmailContainer>
-                                <Email>{props.user.email}</Email>
-                            </EmailContainer>
-                        </FitHeight>
-
-                        <Button
-                            active={true}
-                            border={false}
-                            icon={faArrowRightFromBracket}
-                            onClick={handleLogout}
-                        >Logout</Button>
+            {props.user ?
+                <FitHeight>
+                    <FitHeight style={{ "margin-top": "2rem", "margin-bottom": "1rem" }}>
+                        <Fa icon={faUser} size="2x" class="icon" />
+                        <EmailContainer>
+                            <Email>{props.user.email}</Email>
+                        </EmailContainer>
                     </FitHeight>
 
-                    :
+                    <Button
+                        active={true}
+                        border={false}
+                        icon={faArrowRightFromBracket}
+                        onClick={handleLogout}
+                    >Logout</Button>
+                </FitHeight>
 
-                    <div />
-                }
+                :
 
-            </Container>
-        </AnimatedBackground>
+                <div />
+            }
+
+        </Container>
     )
 }
 

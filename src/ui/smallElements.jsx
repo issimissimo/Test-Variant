@@ -2,13 +2,13 @@ import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
 
 export const Container = styled('div')`
-    padding: 1.5em;
+    /* padding: 1.5em; */
     box-sizing: border-box;
     width: 100%;
     max-width: 500px;
     display: flex;
     flex-direction: column;
-    height: 100dvh;
+    height: 100%;
     z-index: 1;
   `;
 

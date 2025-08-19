@@ -31,19 +31,44 @@
   background-color: var(--color-background);
 }
 
-html, body {
+body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100dvh;
+  position: relative;
   color: var(--color-white);
 }
 
-#main {
+#backgroundContainer {
+  position: relative;
+  min-height: 100dvh;
+  background-color: var(--color-background);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 1.5em;
+}
+
+/* #main {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-}
+} */
 
 .glass {
   backdrop-filter: blur(4px);
@@ -74,4 +99,216 @@ canvas {
 
 .xr-button-overlay {
   z-index: 100 !important;
+}
+
+
+
+/* CIRCLES */
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  border: 2px solid;
+  background: transparent;
+  animation: expand 12s ease-in-out infinite;
+}
+
+.circle-1 {
+  border-color: var(--color-primary-dark);
+  width: 80vw;
+  height: 80vw;
+  top: 5%;
+  left: -20%;
+  animation-delay: 0s;
+}
+
+.circle-2 {
+  border-color: var(--color-secondary-dark);
+  width: 90vw;
+  height: 90vw;
+  top: 25%;
+  right: -25%;
+  animation-delay: -4s;
+}
+
+.circle-3 {
+  border-color: var(--color-grey-dark);
+  width: 100vw;
+  height: 100vw;
+  bottom: 15%;
+  left: -10%;
+  animation-delay: -8s;
+}
+
+.circle-4 {
+  border-color: var(--color-primary-dark);
+  width: 70vw;
+  height: 70vw;
+  top: 45%;
+  right: -15%;
+  animation-delay: -2s;
+}
+
+.circle-5 {
+  border-color: var(--color-secondary-dark);
+  width: 85vw;
+  height: 85vw;
+  bottom: 35%;
+  left: -30%;
+  animation-delay: -6s;
+}
+
+.circle-6 {
+  border-color: #adb5bdad;
+  width: 75vw;
+  height: 75vw;
+  top: 60%;
+  right: -20%;
+  animation-delay: -10s;
+}
+
+/* Ottimizzazioni per tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .circle-1 {
+    width: 60vw;
+    height: 60vw;
+  }
+
+  .circle-2 {
+    width: 70vw;
+    height: 70vw;
+  }
+
+  .circle-3 {
+    width: 80vw;
+    height: 80vw;
+  }
+
+  .circle-4 {
+    width: 50vw;
+    height: 50vw;
+  }
+
+  .circle-5 {
+    width: 65vw;
+    height: 65vw;
+  }
+
+  .circle-6 {
+    width: 55vw;
+    height: 55vw;
+  }
+}
+
+/* Ottimizzazioni per schermi molto piccoli */
+@media (max-width: 320px) {
+  .circle {
+    border-width: 1px;
+  }
+
+  .circle-1 {
+    width: 85vw;
+    height: 85vw;
+  }
+
+  .circle-2 {
+    width: 95vw;
+    height: 95vw;
+  }
+
+  .circle-3 {
+    width: 105vw;
+    height: 105vw;
+  }
+}
+
+@keyframes expand {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  80% {
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* LOADER */
+
+#loaderContainer {
+  position: absolute;
+  /* Invece di relative */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+  background-color: transparent;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 35px;
+  height: 35px;
+  border: 3px solid white;
+  background: transparent;
+  border-radius: 50%;
+  animation: pulse 1.5s cubic-bezier(0.15, 0.62, 0.28, 0.97) infinite;
+}
+
+.loader2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 35px;
+  height: 35px;
+  border: 3px solid white;
+  background: transparent;
+  border-radius: 50%;
+  animation: pulse 1.5s cubic-bezier(0.15, 0.62, 0.28, 0.97) infinite;
+  animation-delay: 0.7s;
+}
+
+.loader-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% + 40px));
+  color: white;
+  font-size: small;
+  font-weight: 300;
+  opacity: 0.8;
+  text-align: center;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
 }

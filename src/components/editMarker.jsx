@@ -7,7 +7,6 @@ import { generateQRCodeForForMarker } from '@hooks/useQRCode';
 import Header from '@components/Header';
 
 import { Container, FitHeight, FitHeightScrollable, Title } from '@ui/smallElements'
-import AnimatedBackground from "@ui/AnimatedBackground";
 import InputField from '@ui/inputField';
 import Button from '@ui/button';
 import ButtonSecondary from '@ui/ButtonSecondary';
@@ -92,14 +91,6 @@ const EditMarker = (props) => {
 
   let animateOnMount = true;
 
-  onMount(() => {
-    onMount(() => {
-      console.log("ON MOUNT: EditMarker", props.marker);
-    })
-  })
-
-
-
 
   // update current marker (app.jsx)
   // --> it will cause a refresh of the page!
@@ -124,7 +115,6 @@ const EditMarker = (props) => {
     // update marker name on firestore
     if (name() !== props.marker.name) {
       await firebase.firestore.updateMarker(props.userId, props.marker.id, name());
-      console.log("marker name updated")
     }
 
     refreshPage();
@@ -158,7 +148,6 @@ const EditMarker = (props) => {
       return;
     }
 
-    console.log("cancello da Firestore...")
     await firebase.firestore.deleteMarker(props.userId, id());
 
     if (props.marker.games.length > 0) {
@@ -413,92 +402,90 @@ const EditMarker = (props) => {
 
 
   return (
-    <AnimatedBackground>
-      <Container alignLeft={true}>
+    <Container>
 
-        {/* HEADER */}
-        <Header
-          onClickBack={props.onBack}
-          onClickUser={props.goToUserProfile}
+      {/* HEADER */}
+      <Header
+        onClickBack={props.onBack}
+        onClickUser={props.goToUserProfile}
+      />
+
+      {/* TITLE */}
+      <Title
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+      >
+        <span style={{ color: 'var(--color-secondary)' }}>{id() ? 'Modifica' : 'Nuovo'} </span>
+        <span style={{ color: 'var(--color-white)' }}>ambiente AR </span>
+      </Title>
+
+
+      <FitHeightScrollable
+        style={{ "padding-top": "3rem" }}
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
+      >
+
+        {/* INPUT NAME */}
+        <InputField
+          type="none"
+          name="none"
+          label="Nome"
+          value={name()}
+          onInput={e => setName(e.target.value)}
+          onBlur={handleUpdateMarker()}
+          required
         />
 
-        {/* TITLE */}
-        <Title
-          animate={{ opacity: [0, 1] }}
-          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
-        >
-          <span style={{ color: 'var(--color-secondary)' }}>{id() ? 'Modifica' : 'Nuovo'} </span>
-          <span style={{ color: 'var(--color-white)' }}>ambiente AR </span>
-        </Title>
+        {
+          id() ?
+
+            <FitHeightScrollable>
+
+              {/* NAVIGATION */}
+              <Navigation />
+
+              {/* DYNAMIC VIEW */}
+              {dynamicView()}
 
 
-        <FitHeightScrollable
-          style={{ "padding-top": "3rem" }}
-          animate={{ opacity: [0, 1] }}
-          transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
-        >
+              {/* ENTER AR BUTTON */}
+              <ArButtonContainer
+                id="ArButtonContainer"
+                viewMode={currentViewMode()}
+              />
 
-          {/* INPUT NAME */}
-          <InputField
-            type="none"
-            name="none"
-            label="Nome"
-            value={name()}
-            onInput={e => setName(e.target.value)}
-            onBlur={handleUpdateMarker()}
-            required
-          />
+              {/* DOWNLOAD QR CODE BUTTON */}
+              <Button
+                active={props.marker.games?.length > 0 ? true : false}
+                visible={currentViewMode() === VIEW_MODE.QRCODE ? true : false}
+                icon={faDownload}
+                onClick={handleDownloadQrCode}
+              >Scarica QR Code</Button>
 
-          {
-            id() ?
+            </FitHeightScrollable>
 
-              <FitHeightScrollable>
+            :
 
-                {/* NAVIGATION */}
-                <Navigation />
+            <FitHeight>
+              <Message>
+                Dai un nome al tuo ambiente in AR che si riferisca al luogo in cui lo creerai, ad esempio 'salotto',
+                o alla scena in AR che implementarai, ad esempio 'ping pong da tavolo'.<br></br><br></br>
+                Il nome è totalmente arbitrario, ma ti auiterà a ricordare a cosa si riferisce.
+              </Message>
+              <Button
+                animate={{ opacity: [0, 1] }}
+                transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+                active={name() ? true : false}
+                icon={faSave}
+                onClick={handleSaveMarker}
+              >Salva</Button>
+            </FitHeight>
+        }
 
-                {/* DYNAMIC VIEW */}
-                {dynamicView()}
+      </FitHeightScrollable>
 
-
-                {/* ENTER AR BUTTON */}
-                <ArButtonContainer
-                  id="ArButtonContainer"
-                  viewMode={currentViewMode()}
-                />
-
-                {/* DOWNLOAD QR CODE BUTTON */}
-                <Button
-                  active={props.marker.games?.length > 0 ? true : false}
-                  visible={currentViewMode() === VIEW_MODE.QRCODE ? true : false}
-                  icon={faDownload}
-                  onClick={handleDownloadQrCode}
-                >Scarica QR Code</Button>
-
-              </FitHeightScrollable>
-
-              :
-
-              <FitHeight>
-                <Message>
-                  Dai un nome al tuo ambiente in AR che si riferisca al luogo in cui lo creerai, ad esempio 'salotto',
-                  o alla scena in AR che implementarai, ad esempio 'ping pong da tavolo'.<br></br><br></br>
-                  Il nome è totalmente arbitrario, ma ti auiterà a ricordare a cosa si riferisce.
-                </Message>
-                <Button
-                  animate={{ opacity: [0, 1] }}
-                  transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
-                  active={name() ? true : false}
-                  icon={faSave}
-                  onClick={handleSaveMarker}
-                >Salva</Button>
-              </FitHeight>
-          }
-
-        </FitHeightScrollable>
-
-      </Container>
-    </AnimatedBackground>
+    </Container>
   )
 }
 
