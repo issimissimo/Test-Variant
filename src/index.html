@@ -40,17 +40,14 @@
   <div id="overlay"></div>
 
 
-
+  <!-- loader -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const loader = new Loader();
-      loader.show();
+    document.addEventListener('DOMContentLoaded', () => {
+      window.Loader.show();
     });
   </script>
 
-
-
-
+  <!-- variant -->
   <script>
     var iOS = null;
     window.addEventListener('vlaunch-initialized', (event) => {

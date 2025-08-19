@@ -123,10 +123,8 @@ export default function App() {
 
     createEffect(() => {
         // Hide the preloader
-        // if (!loading()) document.getElementById("loaderContainer").style.display = "none";
-
         if (!loading()) {
-            window.LoaderManager.hide(0);
+            window.Loader.hide();
         }
     })
 

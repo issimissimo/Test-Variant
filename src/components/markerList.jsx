@@ -8,7 +8,6 @@ import Header from '@components/Header';
 import { Container, FitHeightScrollable, Title } from '@ui/smallElements'
 import Button from '@ui/button';
 import Message from '@ui/Message';
-import Spinner from '@ui/Spinner';
 
 import Fa from 'solid-fa';
 import { faPlus, faEdit, faEye, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
@@ -195,7 +194,7 @@ const MarkersList = (props) => {
       {/* CONTENT */}
       {loading() ?
 
-        <Spinner> Carico... </Spinner>
+        <div/>
 
         :
 

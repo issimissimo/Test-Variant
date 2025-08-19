@@ -20,14 +20,11 @@
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@stitches/core": "^1.2.8",
     "firebase": "^11.8.1",
     "qrcode": "^1.5.3",
     "solid-fa": "^0.2.0",
     "solid-motionone": "^1.0.4",
-    "solid-spinner": "^0.2.0",
     "solid-styled-components": "^0.28.5",
-    "spin.js": "^4.1.2",
     "three": "^0.153.0"
   },
   "coloredRegions": {

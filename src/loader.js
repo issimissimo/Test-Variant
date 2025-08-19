@@ -2,9 +2,22 @@ class Loader {
   constructor(containerId = 'loaderContainer') {
     this.containerId = containerId;
     this.isVisible = false;
+    this.container = null;
     
-    // Crea il loader dinamicamente
-    this.createLoader();
+    // Inizializza il loader
+    this.init();
+  }
+
+  init() {
+    // Inizializza quando il DOM è pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        this.createLoader();
+      });
+    } else {
+      // DOM già pronto
+      this.createLoader();
+    }
   }
 
   createLoader() {
@@ -49,6 +62,12 @@ class Loader {
   }
 
   show(delay = 0) {
+    // Se il loader non è ancora stato creato, aspetta e riprova
+    if (!this.container) {
+      setTimeout(() => this.show(delay), 100);
+      return;
+    }
+    
     setTimeout(() => {
       this.container.classList.add('fade-in');
       this.container.classList.remove('fade-out');
@@ -57,6 +76,12 @@ class Loader {
   }
 
   hide(delay = 0) {
+    // Se il loader non è ancora stato creato, aspetta e riprova
+    if (!this.container) {
+      setTimeout(() => this.hide(delay), 100);
+      return;
+    }
+    
     setTimeout(() => {
       this.container.classList.add('fade-out');
       this.container.classList.remove('fade-in');
@@ -73,41 +98,5 @@ class Loader {
   }
 }
 
-class LoaderManager {
-  constructor() {
-    this.loader = null;
-    this.init();
-  }
-  
-  init() {
-    // Inizializza il loader quando il DOM è pronto
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        this.loader = new Loader();
-      });
-    } else {
-      // DOM già pronto
-      this.loader = new Loader();
-    }
-  }
-  
-  show(delay = 0) {
-    if (this.loader) {
-      this.loader.show(delay);
-    } else {
-      // Se il loader non è ancora inizializzato, aspetta e riprova
-      setTimeout(() => this.show(delay), 100);
-    }
-  }
-  
-  hide(delay = 0) {
-    if (this.loader) {
-      this.loader.hide(delay);
-    } else {
-      setTimeout(() => this.hide(delay), 100);
-    }
-  }
-}
-
-// Crea un'istanza globale di LoaderManager
-window.LoaderManager = new LoaderManager();
+// Crea un'istanza globale di Loader
+window.Loader = new Loader();
