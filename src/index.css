@@ -42,15 +42,7 @@ body {
   color: var(--color-white);
 }
 
-#backgroundContainer {
-  position: relative;
-  min-height: 100dvh;
-  background-color: var(--color-background);
-  overflow: hidden;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
+
 
 #app {
   position: absolute;
@@ -103,7 +95,17 @@ canvas {
 
 
 
-/* CIRCLES */
+/* BACKGROUND */
+
+#backgroundContainer {
+  position: relative;
+  min-height: 100dvh;
+  background-color: var(--color-background);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 
 .circle {
   position: absolute;
@@ -249,17 +251,28 @@ canvas {
   }
 }
 
+
+
 /* LOADER */
 
 #loaderContainer {
   position: absolute;
-  /* Invece di relative */
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 99;
   background-color: transparent;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+#loaderContainer.fade-in {
+  opacity: 1;
+}
+
+#loaderContainer.fade-out {
+  opacity: 0;
 }
 
 .loader {

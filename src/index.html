@@ -8,7 +8,7 @@
 
   <link rel="icon" href="/favicon.ico" />
   <link href="index.css" rel="stylesheet">
-  <link href="spin.css" rel="stylesheet">
+  <!-- <link href="spin.css" rel="stylesheet"> -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +18,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <script src="/loader.js"></script>
 
 </head>
 
@@ -42,6 +43,16 @@
   <div id="overlay"></div>
 
 
+
+  <script>
+    const loader = new Loader();
+    loader.show(1);
+    
+    setTimeout(()=>{
+      loader.hide();
+    }, 10000)
+
+  </script>
 
 
   <!-- <script type="module">
