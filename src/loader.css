@@ -11,6 +11,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
 }
 
 #loaderContainer.fade-in {
@@ -21,25 +22,32 @@
   opacity: 0;
 }
 
-.loader {
-  position: absolute;
+.loader-container {
+  position: relative;
   width: 35px;
   height: 35px;
-  border: 3px solid white;
-  background: transparent;
+}
+
+.loader, .loader2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
   border-radius: 50%;
-  animation: pulse 1.5s cubic-bezier(0.15, 0.62, 0.28, 0.97) infinite;
+  box-sizing: border-box;
+}
+
+.loader {
+  border-top-color: white;
+  animation: spin 1.5s cubic-bezier(0.15, 0.62, 0.28, 0.97) infinite;
 }
 
 .loader2 {
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  border: 3px solid white;
-  background: transparent;
-  border-radius: 50%;
-  animation: pulse 1.5s cubic-bezier(0.15, 0.62, 0.28, 0.97) infinite;
-  animation-delay: 0.7s;
+  border-bottom-color: white;
+  animation: spin-reverse 1.5s cubic-bezier(0.15, 0.62, 0.28, 0.97) infinite;
+  animation-delay: 0.75s;
 }
 
 .loader-text {
@@ -50,16 +58,39 @@
   font-weight: 300;
   opacity: 0.8;
   text-align: center;
+  width: 100%;
 }
 
-@keyframes pulse {
+@keyframes spin {
   0% {
-    transform: scale(0.2);
+    transform: rotate(0deg);
     opacity: 1;
+    border-width: 3px;
   }
-
+  50% {
+    opacity: 0.5;
+    border-width: 1px;
+  }
   100% {
-    transform: scale(1);
+    transform: rotate(360deg);
     opacity: 0;
+    border-width: 3px;
+  }
+}
+
+@keyframes spin-reverse {
+  0% {
+    transform: rotate(0deg);
+    opacity: 1;
+    border-width: 3px;
+  }
+  50% {
+    opacity: 0.5;
+    border-width: 1px;
+  }
+  100% {
+    transform: rotate(-360deg);
+    opacity: 0;
+    border-width: 3px;
   }
 }
