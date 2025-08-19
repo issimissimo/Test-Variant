@@ -9,7 +9,6 @@ import AnimatedBackground from "@ui/AnimatedBackground";
 
 import Header from '@components/Header';
 
-import Fa from 'solid-fa';
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 
@@ -21,6 +20,16 @@ const Login = (props) => {
   const [password, setPassword] = createSignal("");
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
+
+  // Funzione di validazione email
+  const isValidEmail = (value) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  // Funzione per validare il form
+  const isFormValid = () => {
+    return isValidEmail(email()) && password().length > 0;
+  };
 
 
   const handleLogin = async (e) => {
@@ -124,7 +133,7 @@ const Login = (props) => {
         <Button
           onClick={handleLogin}
           style={{ "margin-top": "2em" }}
-          active={true}
+          active={isFormValid()}
         >
           {loading() ? 'Accesso in corso...' : 'Accedi'}
         </Button>

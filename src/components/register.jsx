@@ -1,233 +1,114 @@
 import { createSignal } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
-import { faUserPlus, faLock, faEye, faEyeSlash, faEnvelope } from '@fortawesome/free-solid-svg-icons';
-import {
-  Container,
-  BackgroundPattern,
-  Card,
-  Header,
-  Logo,
-  LogoIcon,
-  Title,
-  Subtitle,
-  Form,
-  InputGroup,
-  InputLabel,
-  InputWrapper,
-  Input,
-  InputIcon,
-  PasswordToggle,
-  PasswordToggleIcon,
-  ErrorMessage,
-  SuccessMessage,
-  Divider,
-  Section,
-  SectionText,
-  Button,
-  BUTTON_MODE,
-  renderIcon
-} from '@/ui';
+import { styled } from 'solid-styled-components';
+import { Motion } from 'solid-motionone';
+import { Container, Title } from '@ui/smallElements'
+import InputField from '@ui/inputField';
+import Button from '@ui/button';
+import AnimatedBackground from "@ui/AnimatedBackground";
 
-export default function ARRegisterScreen(props) {
-  const { auth } = useFirebase();
+import Header from '@components/Header';
 
-  // Stato del form
-  const [form, setForm] = createSignal({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-  // Segnali per la visibilità delle password
-  const [showPassword, setShowPassword] = createSignal(false);
-  const [showConfirmPassword, setShowConfirmPassword] = createSignal(false);
 
-  // Stato per messaggi di errore/successo
-  const [message, setMessage] = createSignal({ type: '', text: '' });
-  const [loading, setLoading] = createSignal(false);
+// --- Example Usage ---
+function Register() {
+  // State for email and password
+  const [email, setEmail] = createSignal("");
+  const [password, setPassword] = createSignal("");
+  const [error, setError] = createSignal("");
 
-  // Gestione input
-  const handleInput = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Gestione submit
-  const handleSubmit = async () => {
-    setMessage({ type: '', text: '' });
-
-    // Validazione campi obbligatori
-    if (!form().email || !form().password || !form().confirmPassword) {
-      setMessage({ type: 'error', text: 'Tutti i campi sono obbligatori' });
-      return;
-    }
-
-    // Validazione password
-    if (form().password !== form().confirmPassword) {
-      setMessage({ type: 'error', text: 'Le password non corrispondono' });
-      return;
-    }
-
-    if (form().password.length < 6) {
-      setMessage({ type: 'error', text: 'La password deve essere di almeno 6 caratteri' });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await auth.register(form());
-
-      setMessage({
-        type: 'success',
-        text: 'Registrazione completata!'
-      });
-
-      setTimeout(() => {
-        if (props.onSuccess) props.onSuccess();
-      }, 2000);
-    } catch (error) {
-      let errorMessage = error.message;
-
-      // Gestione errori personalizzata
-      if (errorMessage.includes('email-already-in-use')) {
-        errorMessage = 'Questo indirizzo email è già registrato';
-      } else if (errorMessage.includes('invalid-email')) {
-        errorMessage = 'Indirizzo email non valido';
-      } else if (errorMessage.includes('weak-password')) {
-        errorMessage = 'La password è troppo debole';
-      }
-
-      setMessage({ type: 'error', text: errorMessage });
-      setLoading(false);
+  // Simulate error (replace with real logic)
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!email() || !password()) {
+      setError("Email e/o password non validi.");
+    } else {
+      setError("");
+      // ...login logic...
     }
   };
 
-  const handleGoToLogin = () => {
-    props.onGoToLogin?.();
-  };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword());
-  };
+  const Form = styled(Motion.Form)`
+    width: 100%;
+    margin: 2rem auto;
+  `;
 
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword());
-  };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSubmit();
-    }
-  };
+  // Clear error on any input focus
+  const handleInputFocus = () => setError("");
 
   return (
-    <Container>
-      <BackgroundPattern/>
+    <AnimatedBackground>
+      <Container>
+        <Title
+          color={'var(--color-secondary)'}
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 1, easing: "ease-in-out", delay: 0 }}
+        > Registrazione </Title>
 
-      <Card>
-        <Header>
-          <Logo>
-            {renderIcon(faUserPlus, LogoIcon)}
-          </Logo>
-          <Title>Registrati</Title>
-          {/* <Subtitle>Unisciti alla community AR</Subtitle> */}
-        </Header>
 
-        <Form>
-          {/* Messaggio di errore o successo */}
-          {message().text && (
-            <>
-              {message().type === 'error' && (
-                <ErrorMessage>{message().text}</ErrorMessage>
-              )}
-              {message().type === 'success' && (
-                <SuccessMessage>{message().text}</SuccessMessage>
-              )}
-            </>
-          )}
-
-          <InputGroup>
-            <InputLabel>Email</InputLabel>
-            <InputWrapper>
-              {renderIcon(faEnvelope)}
-              <Input
-                type="email"
-                name="email"
-                placeholder="inserisci la tua email"
-                value={form().email}
-                onInput={handleInput}
-                onKeyPress={handleKeyPress}
-                autocomplete="username"
-                required
-              />
-            </InputWrapper>
-          </InputGroup>
-
-          <InputGroup>
-            <InputLabel>Password</InputLabel>
-            <InputWrapper>
-              {renderIcon(faLock)}
-              <Input
-                type={showPassword() ? 'text' : 'password'}
-                name="password"
-                placeholder="crea una password (min. 6 caratteri)"
-                value={form().password}
-                onInput={handleInput}
-                onKeyPress={handleKeyPress}
-                autocomplete="new-password"
-                required
-              />
-              <PasswordToggle
-                type="button"
-                onClick={togglePasswordVisibility}
-                aria-label={showPassword() ? 'Nascondi password' : 'Mostra password'}
-              >
-                {renderIcon(showPassword() ? faEyeSlash : faEye, PasswordToggleIcon)}
-              </PasswordToggle>
-            </InputWrapper>
-          </InputGroup>
-
-          <InputGroup>
-            <InputLabel>Conferma Password</InputLabel>
-            <InputWrapper>
-              {renderIcon(faLock)}
-              <Input
-                type={showConfirmPassword() ? 'text' : 'password'}
-                name="confirmPassword"
-                placeholder="conferma la tua password"
-                value={form().confirmPassword}
-                onInput={handleInput}
-                onKeyPress={handleKeyPress}
-                autocomplete="new-password"
-                required
-              />
-              <PasswordToggle
-                type="button"
-                onClick={toggleConfirmPasswordVisibility}
-                aria-label={showConfirmPassword() ? 'Nascondi password' : 'Mostra password'}
-              >
-                {renderIcon(showConfirmPassword() ? faEyeSlash : faEye, PasswordToggleIcon)}
-              </PasswordToggle>
-            </InputWrapper>
-          </InputGroup>
+        <Form
+          onSubmit={handleLogin}
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 1, easing: "ease-in-out", delay: 0.5 }}
+        >
+          <InputField
+            type="email"
+            name="email"
+            label="Email"
+            value={email()}
+            onInput={e => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+            error={error()}
+            data-error={!!error()}
+            onFocus={handleInputFocus}
+          />
+          <InputField
+            type="password"
+            name="password"
+            label="Password"
+            value={password()}
+            onInput={e => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+            error={error()}
+            data-error={!!error()}
+            onFocus={handleInputFocus}
+          />
+          <InputField
+            type="password"
+            name="password"
+            label="Ripeti password"
+            value={password()}
+            onInput={e => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+            error={error()}
+            data-error={!!error()}
+            onFocus={handleInputFocus}
+          />
 
           <Button
-            onClick={handleSubmit}
-            disabled={loading() || !form().email || !form().password || !form().confirmPassword}
-            mode={BUTTON_MODE.PRIMARY}
-          >
-            {loading() ? 'Registrazione in corso...' : 'Registrati'}
+            style={{ "margin-top": "2em" }}
+            active={true}
+          >Registrati
           </Button>
-        </Form>
 
-        <Section>
-          <SectionText>Hai già un account?</SectionText>
-          <Button onClick={handleGoToLogin} mode={BUTTON_MODE.SECONDARY}>
-            Accedi
+          <Button
+            style={{ "margin-top": "30px" }}
+            grey={true}
+            icon={faChevronRight}
+            border={false}
+          >Oppure accedi
           </Button>
-        </Section>
-      </Card>
-    </Container>
+
+        </Form>
+      </Container>
+    </AnimatedBackground>
   );
 }
+export default Register;
