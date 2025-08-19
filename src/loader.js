@@ -73,4 +73,41 @@ class Loader {
   }
 }
 
-window.Loader = Loader;
+class LoaderManager {
+  constructor() {
+    this.loader = null;
+    this.init();
+  }
+  
+  init() {
+    // Inizializza il loader quando il DOM è pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        this.loader = new Loader();
+      });
+    } else {
+      // DOM già pronto
+      this.loader = new Loader();
+    }
+  }
+  
+  show(delay = 0) {
+    if (this.loader) {
+      this.loader.show(delay);
+    } else {
+      // Se il loader non è ancora inizializzato, aspetta e riprova
+      setTimeout(() => this.show(delay), 100);
+    }
+  }
+  
+  hide(delay = 0) {
+    if (this.loader) {
+      this.loader.hide(delay);
+    } else {
+      setTimeout(() => this.hide(delay), 100);
+    }
+  }
+}
+
+// Crea un'istanza globale di LoaderManager
+window.LoaderManager = new LoaderManager();

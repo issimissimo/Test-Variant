@@ -25,7 +25,7 @@
 </head>
 
 <body>
-  
+
   <div id="backgroundContainer">
     <div class="circle circle-1"></div>
     <div class="circle circle-2"></div>
@@ -42,16 +42,10 @@
 
 
   <script>
-
     document.addEventListener('DOMContentLoaded', function () {
       const loader = new Loader();
-      loader.show(0);
-
-      setTimeout(() => {
-        loader.hide();
-      }, 10000);
+      loader.show();
     });
-
   </script>
 
 
@@ -72,7 +66,8 @@
     })
   </script>
 
-  <!-- <script type="module" src="/index.jsx"></script> -->
+  <script type="module" src="/index.jsx"></script>
+
 </body>
 
 </html>
