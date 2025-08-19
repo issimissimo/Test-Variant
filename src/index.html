@@ -4,12 +4,17 @@
 <head>
   <title>AR Web</title>
 
+  <!-- scripts -->
+  <script src="/loader.js"></script>
   <!-- <script src="https://launchar.app/sdk/v1?key=VGzctezQqpavQxnTXtegZVxXGkjMRfRt&redirect=true"></script> -->
 
   <link rel="icon" href="/favicon.ico" />
-  <link href="index.css" rel="stylesheet">
-  <!-- <link href="spin.css" rel="stylesheet"> -->
 
+  <!-- css -->
+  <link href="index.css" rel="stylesheet">
+  <link href="loader.css" rel="stylesheet">
+
+  <!-- fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
@@ -17,17 +22,14 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <script src="/loader.js"></script>
-
 </head>
 
 <body>
-  <div id="loaderContainer">
+  <!-- <div id="loaderContainer">
     <span class="loader"></span>
     <span class="loader2"></span>
     <div class="loader-text">Caricamento...</div>
-  </div>
+  </div> -->
 
   <div id="backgroundContainer">
     <div class="circle circle-1"></div>
@@ -45,41 +47,32 @@
 
 
   <script>
-    const loader = new Loader();
-    loader.show(1);
-    
-    setTimeout(()=>{
-      loader.hide();
-    }, 10000)
+    // const loader = new Loader();
+    // loader.show(1);
+
+    // setTimeout(()=>{
+    //   loader.hide();
+    // }, 10000)
+
+
+    // Attendi che tutto il CSS sia caricato prima di mostrare il loader
+    document.addEventListener('DOMContentLoaded', function () {
+      // Crea il loader dinamicamente
+      const loader = new Loader();
+
+      // Mostra il loader solo dopo che il CSS è stato applicato
+      loader.show(1);
+
+      // Esempio: nascondi dopo 10 secondi (da rimuovere in produzione)
+      setTimeout(() => {
+        loader.hide();
+      }, 10000);
+    });
 
   </script>
 
 
-  <!-- <script type="module">
-    import { Spinner } from 'spin.js';
-    const opts = {
-      lines: 5, // The number of lines to draw
-      length: 27, // The length of each line
-      width: 12, // The line thickness
-      radius: 10, // The radius of the inner circle
-      scale: 0.5, // Scales overall size of the spinner
-      corners: 1, // Corner roundness (0..1)
-      speed: 1, // Rounds per second
-      rotate: 0, // The rotation offset
-      animation: 'spinner-line-shrink', // The CSS animation name for the lines
-      direction: 1, // 1: clockwise, -1: counterclockwise
-      color: '#ffffff', // CSS color or array of colors
-      fadeColor: 'transparent', // CSS color or array of colors
-      top: '50%', // Top position relative to parent
-      left: '50%', // Left position relative to parent
-      shadow: '0 0 1px transparent', // Box-shadow for the lines
-      zIndex: 2000000000, // The z-index (defaults to 2e9)
-      className: 'spinner', // The CSS class to assign to the spinner
-      position: 'absolute', // Element positioning
-    };
-    const target = document.getElementById('loading');
-    new Spinner(opts).spin(target);
-  </script> -->
+
 
   <script>
     var iOS = null;
