@@ -9,6 +9,7 @@ export const Container = styled('div')`
     display: flex;
     flex-direction: column;
     height: 100dvh;
+    z-index: 1;
   `;
 
 export const FitHeight = styled(Motion.div)`
