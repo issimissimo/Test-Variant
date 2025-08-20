@@ -52,10 +52,12 @@ const Message = (props) => {
         {props.children}
       </MessageBLock>
 
-      <ButtonSecondary onClick={handleGoToInstructions}>
-        Scopri di più
-        <Fa icon={faChevronRight} size="1x" translateX={0.8} class="icon" />
-      </ButtonSecondary>
+      {props.showReadMore !== false && (
+        <ButtonSecondary onClick={handleGoToInstructions}>
+          Scopri di più
+          <Fa icon={faChevronRight} size="1x" translateX={0.8} class="icon" />
+        </ButtonSecondary>
+      )}
 
     </MessageContainer>
   )

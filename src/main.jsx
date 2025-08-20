@@ -71,6 +71,11 @@ export default function Main() {
     //#region [lifeCycle]
     onMount(() => {
 
+        if (config.production) {
+            // disable log
+            console.log = function () {};
+        }
+
         // We need to copy the function outside
         // so to be able to use it for debug on desktop purpose
         globalGoToArSession = goToArSession;
@@ -80,12 +85,10 @@ export default function Main() {
             navigator.xr.isSessionSupported("immersive-ar").then((supported) => {
 
                 if (!supported && !config.debugOnDesktop) {
-                    console.log("NOOOOOOOOOOOOOOOO")
                     goToArNotSupported();
                     setLoading(false);
                 }
                 else {
-                    console.log("SIIIIIIIIIIIII")
                     // Search for URL query string
                     const urlParams = new URLSearchParams(window.location.search);
                     const hasQueryParams = urlParams.has('userId') && urlParams.has('markerId');
@@ -155,7 +158,8 @@ export default function Main() {
                 goToLogin();
             }
             else {
-                if (!config.isDebug) {
+                if (config.production) {
+                    // update last user login timestamp
                     const userId = firebase.auth.user().uid;
                     await firebase.auth.updateLoginTimestamp(userId)
                 }
@@ -385,7 +389,7 @@ export default function Main() {
 
 
     return (
-        <Container id="AAAA">
+        <Container>
             {renderView()}
         </Container>
     );

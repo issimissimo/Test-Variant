@@ -1,42 +1,55 @@
 import { onMount, createSignal } from 'solid-js';
 import { styled } from 'solid-styled-components';
-import { faMobileAlt, faSadCry } from '@fortawesome/free-solid-svg-icons';
+import { Motion } from 'solid-motionone';
+import { faSadCry } from '@fortawesome/free-solid-svg-icons';
 import { init } from '@hooks/useQRCode';
 
-import { Container, Title } from '@components/smallElements'
+import { Container, Centered } from '@components/smallElements'
 import Message from '@components/Message';
 
-import Fa from 'solid-fa';
+const QrCodeContainer = styled(Motion.div)`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+`;
+
+const QrCodeImg = styled('img')`
+        text-align: center;
+        z-index: 99;
+        width: 150px;
+    `
 
 
 export default function ARUnsupported() {
-  const [mounted, setMounted] = createSignal(false);
 
   onMount(() => {
-    setMounted(true);
+    // create Qr Code
     init();
   });
 
-  const renderQRIcon = () => {
-    return (
-      <QRImage id="qr-code" />
-    );
-  };
-
   return (
-    <Container>
-      <Message
-        icon={faSadCry}
-      >
-        Purtroppo questo dispositivo non è compatibile per questa app! <br></br>
-        Scansiona il Qr Code con un dispositivo compatibile per vivere
-        l'esperienza di realtà aumentata completa.
-      </Message>
+    <Centered>
 
-      {/* <div>
-        {renderQRIcon()}
-      </div> */}
+      <div>
+        <Message
+          icon={faSadCry}
+        >
+          Purtroppo questo dispositivo non è compatibile per questa app! <br></br>
+          Scansiona il Qr Code con un dispositivo compatibile per vivere
+          l'esperienza di realtà aumentata completa.
+        </Message>
+      </div>
 
-    </Container>
+      <div>
+        <QrCodeContainer
+          animate={{ opacity: [0, 1] }}
+          transition={{ duration: 1, easing: "ease-in-out", delay: 0.5 }}>
+          <QrCodeImg id="qr-code" />
+        </QrCodeContainer>
+      </div>
+
+    </Centered>
   );
 }

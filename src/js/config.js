@@ -4,7 +4,7 @@
 // **************************************
 
 let appConfig = {
-  isDebug: false,
+  production: false,
   debugOnDesktop: false
 };
 
@@ -20,8 +20,8 @@ export async function loadConfig() {
 }
 
 export const config = {
-  get isDebug() {
-    return appConfig.isDebug;
+  get production() {
+    return appConfig.production;
   },
   get debugOnDesktop() {
     return appConfig.debugOnDesktop;

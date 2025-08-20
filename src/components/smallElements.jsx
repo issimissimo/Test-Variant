@@ -1,7 +1,7 @@
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
 
-export const Container = styled('div')`
+export const Container = styled(Motion.div)`
     /* padding: 1.5em; */
     box-sizing: border-box;
     width: 100%;
@@ -10,6 +10,11 @@ export const Container = styled('div')`
     flex-direction: column;
     height: 100%;
     z-index: 1;
+  `;
+
+export const Centered = styled(Container)`
+    align-items: center;
+    justify-content: space-evenly;
   `;
 
 export const FitHeight = styled(Motion.div)`
@@ -22,6 +27,8 @@ export const FitHeight = styled(Motion.div)`
 export const FitHeightScrollable = styled(FitHeight)`
     overflow-y: auto;
   `;
+
+
 
 export const Title = styled(Motion.p)`
     font-size: 1.8rem;

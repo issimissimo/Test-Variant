@@ -1,52 +1,103 @@
-import { createSignal, onMount, createEffect } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { styled } from 'solid-styled-components';
+import { Motion } from 'solid-motionone';
 
-// //Components
-// import Welcome from '../anonymous/welcome';
-// import Error from '../anonymous/error';
+import { Container, Centered } from '@components/smallElements'
+import Message from '@components/Message';
 
-// //UI
-// import { ArButtonContainer } from '../../_trash/ui';
+import { faSadCry } from '@fortawesome/free-solid-svg-icons';
 
 
-const ArButtonContainer = styled('div')`
+
+
+//#region [Welcome]
+const Welcome = (props) => {
+
+  const BigTitle = styled(Motion.p)`
+    font-size: 2.6rem;
+    font-family: "Montessori";
+    line-height: 100%;
+    margin: 0;
+  `;
+
+
+  const ArButtonContainer = styled(Motion.div)`
     z-index: 1000;
-    display: ${props => props.viewMode === VIEW_MODE.GAMES ? 'flex' : 'none'};
 `;
 
+  return (
+    <Container>
+      <BigTitle
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0 }}
+      >
+        <span style={{ color: 'var(--color-secondary)' }}>Benvenuto</span>
+      </BigTitle>
+      <BigTitle
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.25 }}
+      >
+        <span style={{ color: 'var(--color-secondary)' }}>nel </span>
+        <span style={{ color: 'var(--color-white)' }}>tuo spazio </span>
+      </BigTitle>
+      <BigTitle
+        color={'var(--color-primary)'}
+        animate={{ opacity: [0, 1] }}
+        transition={{ duration: 0.5, easing: "ease-in-out", delay: 0.5 }}
+      >
+        <span style={{ color: 'var(--color-primary)' }}>web AR</span>
+      </BigTitle>
 
+      <ArButtonContainer id="ArButtonContainer" />
+    </Container>
+  )
+}
+
+
+
+//#region [Unavailable]
+const Unavailable = () => {
+  return (
+    <Message
+      icon={faSadCry}
+      showReadMore={false}
+    >
+      Spiacenti, l'esperienza AR che stai cercando
+      non è più disponibile.<br></br><br></br>
+      Verifica il link o contatta chi ti ha condiviso
+      questa esperienza per ottenere un nuovo collegamento.
+    </Message>
+  )
+}
+
+
+
+//#region [Main]
 export default function Main(props) {
-
-  //#region [constants]
   const [markerValid, setMarkerValid] = createSignal(false)
 
-
-  //#region [lifeCycle]
   onMount(() => {
     if (props.marker.games != null) {
-      if (props.marker.games.length > 0) {
-        setMarkerValid(()=>true);
 
-        setTimeout(()=>{
+
+      if (props.marker.games.length > 0) {
+        setMarkerValid(() => true);
+
+        setTimeout(() => {
           props.initScene();
-        },50)
+        }, 50)
       }
     }
   })
 
-
-  //#region [return]
   return (
-    <div>
-      {/* {
+    <Centered>
+      {
         markerValid() ?
-          <div>
-            <Welcome />
-            <ArButtonContainer id="ArButtonContainer" />
-          </div>
+          <Welcome />
           :
-          <Error />
-      } */}
-    </div>
+          <Unavailable />
+      }
+    </Centered>
   );
 }
