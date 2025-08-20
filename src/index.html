@@ -3,25 +3,27 @@
 
 <head>
   <title>AR Web</title>
+  <link rel="icon" href="/favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- scripts -->
-  <script src="/loader.js"></script>
+  <!-- loader -->
+  <script src="/utils/loader/loader.js"></script>
+  <link href="/utils/loader/loader.css" rel="stylesheet">
+
   <!-- <script src="https://launchar.app/sdk/v1?key=VGzctezQqpavQxnTXtegZVxXGkjMRfRt&redirect=true"></script> -->
 
-  <link rel="icon" href="/favicon.ico" />
+
 
   <!-- css -->
   <link href="index.css" rel="stylesheet">
-  <link href="loader.css" rel="stylesheet">
+
 
   <!-- fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
     rel="stylesheet">
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <body>
@@ -36,20 +38,12 @@
   </div>
 
   <div id="app"></div>
+  <div id="ar-overlay"></div>
 
-  <div id="overlay"></div>
 
-
-  <!-- loader -->
+  <!-- launch -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      window.Loader.show();
-    });
-  </script>
-
-  <!-- variant -->
-  <script>
-    var iOS = null;
+    var iOS;
     window.addEventListener('vlaunch-initialized', (event) => {
       if (event.detail.launchRequired) {
         // //We need to use launch to get WebXR as we're on iOS
@@ -57,7 +51,6 @@
         iOS = true;
       }
       else {
-        console.log("NON SIAMO SU IOS........")
         iOS = false;
       }
     })

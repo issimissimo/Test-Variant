@@ -1,7 +1,7 @@
 import { onMount, createSignal } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
-import ButtonCircle from '@ui/ButtonCircle';
+import ButtonCircle from './ButtonCircle';
 import Fa from 'solid-fa';
 import { faUser, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 

@@ -1,8 +1,8 @@
-import { loadConfig } from './config';
+import { loadConfig } from './js/config';
 import { render } from 'solid-js/web'
-import App from './app.jsx'
+import Main from './main.jsx'
 
 
 loadConfig().then(() => {
-  render(() => <App />, document.getElementById('app'))
+  render(() => <Main />, document.getElementById('app'))
 })

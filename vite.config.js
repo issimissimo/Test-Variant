@@ -23,14 +23,12 @@ export default defineConfig({
   plugins: [solid()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
-      '@ui': resolve(__dirname, './src/ui'),
+      '@views': resolve(__dirname, './src/views'),
       '@components': resolve(__dirname, './src/components'),
-      '@xr': resolve(__dirname, './src/xr'),
-      '@utils': resolve(__dirname, './src/utils'),
+      '@js': resolve(__dirname, './src/js'),
+      '@tools': resolve(__dirname, './src/tools'),
       '@hooks': resolve(__dirname, './src/hooks'),
-      '@arSession': resolve(__dirname, './src/components/arSession'),
-      '@games': resolve(__dirname, './src/components/arSession/games'),
+      '@plugin': resolve(__dirname, './src/plugin'),
     }
   }
 });

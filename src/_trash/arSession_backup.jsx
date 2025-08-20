@@ -1,7 +1,7 @@
 import { createSignal, createEffect, onMount } from 'solid-js';
 import { useFirebase } from '../hooks/useFirebase';
-import { AppMode } from '../app';
-import { config } from '../config';
+import { AppMode } from '../main';
+import { config } from '../js/config';
 import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
 
@@ -14,7 +14,7 @@ import Game from './arSession/game';
 import Playground from './arSession/playground'; // for DEBUG!
 
 // XR
-import SceneManager from '../xr/sceneManager';
+import SceneManager from '../js/sceneManager';
 // import AssetManager from '../xr/assetManager';
 import Reticle from '../xr/reticle';
 
