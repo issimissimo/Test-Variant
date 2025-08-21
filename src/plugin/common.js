@@ -1,28 +1,29 @@
 import { onMount, createContext, useContext } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
+import GAMES_LIST from '.';
 
 
-// ===== GAMES LIST (calibration excluded!) =====
-// This list must be modified
-// to add (or delete) every new game
-export const GAMES_LISTING = [
-    {
-        fileName: "envLight",
-        title: "Environment light",
-        description: "Inserisci un'immagine HDRI 360 come luce ambientale",
-        image: '/images/games/backgrounds/vetro.jpg',
-        allowed: 1,
-        localized: true,
-    },
-    {
-        fileName: "basicRotCube",
-        title: 'Test basico con un cubo che ruota',
-        description: 'Da eliminare, solo di test',
-        image: '/images/games/backgrounds/vetro.jpg',
-        allowed: 1,
-        localized: false,
-    },
-];
+// // ===== GAMES LIST (calibration excluded!) =====
+// // This list must be modified
+// // to add (or delete) every new game
+// export const GAMES_LISTING = [
+//     {
+//         fileName: "envLight",
+//         title: "Environment light",
+//         description: "Inserisci un'immagine HDRI 360 come luce ambientale",
+//         image: '/images/games/backgrounds/vetro.jpg',
+//         allowed: 1,
+//         localized: true,
+//     },
+//     {
+//         fileName: "basicRotCube",
+//         title: 'Test basico con un cubo che ruota',
+//         description: 'Da eliminare, solo di test',
+//         image: '/images/games/backgrounds/vetro.jpg',
+//         allowed: 1,
+//         localized: false,
+//     },
+// ];
 
 
 
@@ -36,7 +37,7 @@ export function useGame(gameName, config = {}) {
     const context = useContext(Context);
     const firebase = useFirebase();
 
-    const gameDetails = GAMES_LISTING.find(g => g.fileName === gameName);
+    const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
 
     onMount(() => {
         context.onReady(game);

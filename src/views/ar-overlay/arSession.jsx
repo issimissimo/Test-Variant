@@ -18,20 +18,6 @@ import GAMES_LIST from '@plugin';
 // XR
 import SceneManager from '@js/sceneManager';
 
-// Context
-
-
-
-// export const BlurBackground = styled('div')`
-//     background: rgba(68, 68, 68, 0.2);
-//     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-//     backdrop-filter: blur(5px);
-//     -webkit-backdrop-filter: blur(7.1px);
-//     `
-
-
-
-
 
 
 export default function ArSession(props) {
@@ -96,7 +82,6 @@ export default function ArSession(props) {
                 }
             }
         }
-
         setLoading(() => false);
     }
 
@@ -234,10 +219,6 @@ export default function ArSession(props) {
             component: module.default,
         }
         setGamesImported((prev) => [...prev, loadedGame]);
-
-
-        // const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
-        // console.log(gameSpecs)
     }
 
 
@@ -265,28 +246,26 @@ export default function ArSession(props) {
             markerId: props.marker.id,
         }}>
             <Container id="arSession">
-                {loading() ? (
-                    <Loader />
-                )
-
+                {loading() ? (<Loader />)
                     :
-
                     !calibrationCompleted() ? (
                         <Calibration
                             planeFound={props.planeFound}
                             setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
                         />
                     )
-
                         :
-
                         (
                             <>
-                                {gamesInitializing() && <h2>INITIALIZING GAMES...</h2>}
+                                {gamesInitializing() && <Loader />}
+
                                 <For each={gamesImported()}>
                                     {(item) => {
                                         const Component = item.component;
-                                        return <Component id={item.id} stored={item.stored} />;
+                                        return <Component
+                                            id={item.id}
+                                            stored={item.stored}
+                                        />;
                                     }}
                                 </For>
                             </>

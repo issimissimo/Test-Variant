@@ -44,7 +44,7 @@ export default function Calibration(props) {
 
     const handleOnDone = () => {
         if (config.debugOnDesktop) {
-            console.warn("Siccome siamo in debug su desktop procediamo senza un reale ancoraggio");
+            console.warn("Siccome siamo in debug su desktop terminiamo la calibrazione senza un reale ancoraggio");
             const fakeHitMatrix = new Matrix4();
             props.setReferenceMatrix(fakeHitMatrix);
         }
