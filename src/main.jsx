@@ -73,7 +73,7 @@ export default function Main() {
 
         if (config.production) {
             // disable log
-            console.log = function () {};
+            console.log = function () { };
         }
 
         // We need to copy the function outside
@@ -204,6 +204,15 @@ export default function Main() {
 
 
     /**
+     * Toggle background visibility
+     */
+    const setBackgroundVisible = (value) => {
+        document.getElementById('backgroundContainer').style.display = value ? 'flex' : 'none';
+    }
+
+
+
+    /**
      * Navigation
      */
     const goToUserProfile = () => {
@@ -222,7 +231,10 @@ export default function Main() {
     }
     const goToEditMarker = () => setCurrentView(VIEWS.EDIT_MARKER);
     const goToAnonymous = () => setCurrentView(VIEWS.ANONYMOUS);
-    const goToArSession = () => setCurrentView(VIEWS.AR_SESSION);
+    const goToArSession = () => {
+        setBackgroundVisible(false);
+        setCurrentView(VIEWS.AR_SESSION);
+    }
     const goToArNotSupported = () => setCurrentView(VIEWS.AR_NOT_SUPPORTED);
     const goToPreviousView = () => setCurrentView(previousView());
 
@@ -289,6 +301,7 @@ export default function Main() {
         setupMarker();
         SceneManager.destroy();
         setGamesRunning(() => []);
+        setBackgroundVisible(true);
         if (currentAppMode() === AppMode.SAVE) goToMarkerList();
         else if (currentAppMode() === AppMode.LOAD) goToAnonymous();
         else console.error("AppMode not defined!")

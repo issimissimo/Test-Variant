@@ -11,14 +11,16 @@ export const GAMES_LISTING = [
         title: "Environment light",
         description: "Inserisci un'immagine HDRI 360 come luce ambientale",
         image: '/images/games/backgrounds/vetro.jpg',
-        allowed: 1
+        allowed: 1,
+        localized: true,
     },
     {
         fileName: "basicRotCube",
         title: 'Test basico con un cubo che ruota',
         description: 'Da eliminare, solo di test',
         image: '/images/games/backgrounds/vetro.jpg',
-        allowed: 1
+        allowed: 1,
+        localized: false,
     },
 ];
 

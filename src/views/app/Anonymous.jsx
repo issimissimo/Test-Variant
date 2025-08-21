@@ -2,7 +2,7 @@ import { createSignal, onMount } from 'solid-js';
 import { styled } from 'solid-styled-components';
 import { Motion } from 'solid-motionone';
 
-import { Container, Centered } from '@components/smallElements'
+import { Container, Centered, BigTitle } from '@components/smallElements'
 import Message from '@components/Message';
 
 import { faSadCry } from '@fortawesome/free-solid-svg-icons';
@@ -12,14 +12,6 @@ import { faSadCry } from '@fortawesome/free-solid-svg-icons';
 
 //#region [Welcome]
 const Welcome = (props) => {
-
-  const BigTitle = styled(Motion.p)`
-    font-size: 2.6rem;
-    font-family: "Montessori";
-    line-height: 100%;
-    margin: 0;
-  `;
-
 
   const ArButtonContainer = styled(Motion.div)`
     z-index: 1000;

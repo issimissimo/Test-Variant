@@ -7,6 +7,7 @@ import Header from '@components/Header';
 import { Container, FitHeightScrollable, Title } from '@components/smallElements'
 import Button from '@components/button';
 import Message from '@components/Message';
+import Loader from '@components/Loader';
 
 import Fa from 'solid-fa';
 import { faPlus, faEdit, faEye, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
@@ -167,8 +168,8 @@ const MarkersList = (props) => {
     const data = await firebase.firestore.fetchMarkers(firebase.auth.user().uid);
     setMarkers(data);
 
-    // props.setLoading(false);
-    setLoading(() => false); // TODO - Better handle initial loadinf of the app and this loading
+    // hide the spinner
+    setLoading(() => false);
   };
 
 
@@ -193,7 +194,7 @@ const MarkersList = (props) => {
       {/* CONTENT */}
       {loading() ?
 
-        <div/>
+        <Loader/>
 
         :
 

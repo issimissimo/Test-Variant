@@ -6,8 +6,6 @@ import { styled } from 'solid-styled-components';
 // Main components
 import UI from './UI';
 
-import Loader from '@components/Loader';
-
 
 import { Context } from '@plugin/common';
 import Calibration from '@plugin/calibration';
@@ -40,11 +38,10 @@ export default function ArSession(props) {
     const [currentView, setCurrentView] = createSignal(null);
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
     const [calibrationCompleted, setCalibrationCompleted] = createSignal(true);
-    const [loading, setLoading] = createSignal(true);
-    const [gamesImported, setGamesImported] = createSignal([]);
-    const [gamesInitializing, setGamesInitializing] = createSignal(false);
+    const [componentsLoaded, setComponentsLoaded] = createSignal([]);
+    const [componentsInitializing, setComponentsInitializing] = createSignal(false);
     let _tapEnabled = true;
-    let _gamesInitialized = 0;
+    let _componentsInitialized = 0;
 
 
     //#region [lifeCycle]
@@ -65,9 +62,21 @@ export default function ArSession(props) {
         });
 
 
-        // Load all games of this marker
-        if (props.marker.games.length > 0) loadAllGames();
-        else setLoading(() => false);
+        // Load all the games that are saved 
+        // on the current marker
+        if (props.marker.games.length > 0) {
+            props.marker.games.forEach((el) => {
+                console.log("GAME:", el)
+
+                // Load all the components by name
+                if (el.enabled) {
+                    loadComponent(el.id, el.name, true);
+
+
+                    
+                }
+            })
+        }
     });
 
 
@@ -75,30 +84,6 @@ export default function ArSession(props) {
         console.log("Loaded Games:", props.games)
     })
 
-
-
-    // Load all the games that are saved 
-    // on the current marker
-    async function loadAllGames() {
-        for (const el of props.marker.games) {
-            console.log("Now loading game:", el)
-            if (el.enabled) {
-
-                // load dynamically the game
-                await loadGame(el.id, el.name, true);
-
-                // check if the game need calibration
-                const gameSpecs = GAMES_LIST.find(g => g.fileName === el.name);
-                if (gameSpecs.localized) {
-                    console.log("Il game " + el.name + " richiede la calibrazione!")
-
-                    setCalibrationCompleted(() => false);
-                }
-            }
-        }
-
-        setLoading(() => false);
-    }
 
 
     //#region [handlers]
@@ -121,7 +106,7 @@ export default function ArSession(props) {
         setReferenceMatrix(() => matrix);
         setCalibrationCompleted(() => true);
         console.log("CALIBRATION COMPLETED! Matrix:", referenceMatrix());
-        setGamesInitializing(() => true);
+        setComponentsInitializing(() => true);
     }
 
 
@@ -148,11 +133,10 @@ export default function ArSession(props) {
     * to hide the initializing component message
     */
     const handleGameInitialized = () => {
-        _gamesInitialized++;
-        if (_gamesInitialized === gamesImported().length) {
+        _componentsInitialized++;
+        if (_componentsInitialized === componentsLoaded().length) {
             console.log("all games initialized!")
-            console.log(SceneManager.scene)
-            setGamesInitializing(() => false);
+            setComponentsInitializing(() => false);
         }
     }
 
@@ -225,19 +209,19 @@ export default function ArSession(props) {
     * Each "gameRunning" will be added automatically as loaded
     * with the function "handleGameReady")
     */
-    async function loadGame(gameId, gameName, storedOnDatabase) {
-        const module = await import(`../../plugin/${gameName}.jsx`);
-        const loadedGame = {
-            id: gameId,
-            name: gameName,
+    async function loadComponent(componentId, componentName, storedOnDatabase) {
+        const module = await import(`../../plugin/${componentName}.jsx`);
+        const loadedComponent = {
+            id: componentId,
+            name: componentName,
             stored: storedOnDatabase,
             component: module.default,
         }
-        setGamesImported((prev) => [...prev, loadedGame]);
+        setComponentsLoaded((prev) => [...prev, loadedComponent]);
 
 
-        // const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
-        // console.log(gameSpecs)
+        const gameSpecs = GAMES_LIST.find(g => g.fileName === componentName);
+        console.log(gameSpecs)
     }
 
 
@@ -263,34 +247,46 @@ export default function ArSession(props) {
             appMode: props.appMode,
             userId: props.userId,
             markerId: props.marker.id,
+
         }}>
             <Container id="arSession">
-                {loading() ? (
-                    <Loader />
-                )
 
-                    :
+                {/* <BackButton onClick={handleGoBack} /> */}
 
-                    !calibrationCompleted() ? (
-                        <Calibration
-                            planeFound={props.planeFound}
-                            setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
-                        />
-                    )
+                {/* {componentsInitializing() && <h2>LOADING...</h2>} */}
 
-                        :
+                {/* <Calibration
+                    planeFound={props.planeFound}
+                    setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
+                />; */}
 
-                        (
-                            <>
-                                {gamesInitializing() && <h2>INITIALIZING GAMES...</h2>}
-                                <For each={gamesImported()}>
-                                    {(item) => {
-                                        const Component = item.component;
-                                        return <Component id={item.id} stored={item.stored} />;
-                                    }}
-                                </For>
-                            </>
-                        )}
+                {/* {renderView()} */}
+
+                {/* <For each={componentsLoaded()}>
+                    {(item) => {
+                        const Component = item.component;
+                        return <Component id={item.id} stored={item.stored} />;
+                    }}
+                </For> */}
+
+                {!calibrationCompleted() ? (
+                    <Calibration
+                        planeFound={props.planeFound}
+                        setReferenceMatrix={(matrix) => handleCalibrationCompleted(matrix)}
+                    />
+                ) : (
+                    <>
+                        {componentsInitializing() && <h2>INITIALIZING COMPONENTS...</h2>}
+
+                        <For each={componentsLoaded()}>
+                            {(item) => {
+                                const Component = item.component;
+                                return <Component id={item.id} stored={item.stored} />;
+                            }}
+                        </For>
+                    </>
+                )}
+
             </Container>
         </Context.Provider>
     );

@@ -1,7 +1,9 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
 import { useGame } from './common';
+import { config } from '@js/config';
 import { styled } from 'solid-styled-components';
 import Reticle from '@js/reticle';
+import { Matrix4 } from 'three';
 
 
 export default function Calibration(props) {
@@ -17,9 +19,9 @@ export default function Calibration(props) {
             // // Call super
             // interactable.super.onTap();
 
-            if (props.planeFound || !Reticle.usePlaneDetection()) {
-                props.setReferenceMatrix(Reticle.getHitMatrix());
-            }
+            // if (props.planeFound || !Reticle.usePlaneDetection()) {
+            //     props.setReferenceMatrix(Reticle.getHitMatrix());
+            // }
         },
 
         renderLoop: () => {
@@ -38,6 +40,20 @@ export default function Calibration(props) {
         console.log("App MODE:", game.appMode);
     });
 
+
+
+    const handleOnDone = () => {
+        if (config.debugOnDesktop) {
+            console.warn("Siccome siamo in debug su desktop procediamo senza un reale ancoraggio");
+            const fakeHitMatrix = new Matrix4();
+            props.setReferenceMatrix(fakeHitMatrix);
+        }
+        else {
+            if (props.planeFound) {
+                props.setReferenceMatrix(Reticle.getHitMatrix());
+            }
+        }
+    }
 
 
 
@@ -69,6 +85,10 @@ export default function Calibration(props) {
                     LOOK...
                 </div>
             }
+
+            <button
+                onClick={handleOnDone}
+            >DONE</button>
         </div>
     );
 }

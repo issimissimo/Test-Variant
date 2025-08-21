@@ -85,8 +85,8 @@ canvas {
   /* height: 100vh; */
   /* justify-content: center; */
   /* align-items: center; */
-  /* z-index: 999; */
-  /* position: relative; */
+  z-index: 999;
+  position: relative;
 }
 
 .xr-button-overlay {
@@ -100,7 +100,7 @@ canvas {
 #backgroundContainer {
   position: relative;
   min-height: 100dvh;
-  background-color: var(--color-background);
+  /* background-color: var(--color-background); */
   overflow: hidden;
   width: 100%;
   display: flex;
