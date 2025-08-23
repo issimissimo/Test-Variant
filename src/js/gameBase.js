@@ -1,7 +1,8 @@
-import { onMount, useContext } from 'solid-js';
+import { onMount, createEffect, useContext } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
 import GAMES_LIST from '@plugin';
 import { Context } from '@views/ar-overlay/arSession';
+import SceneManager from '@js/sceneManager';
 
 
 
@@ -12,15 +13,23 @@ export function useGame(gameName, config = {}) {
     const firebase = useFirebase();
 
     const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
+    const gameAssets = [];
+
 
     onMount(() => {
-        console.log("*** onMount: ", gameName)
         context.onLoaded(game);
     });
 
+    createEffect(()=>{
+        console.log("@@@@@ loc completed:", context.localizationCompleted)
+    })
 
     const initialized = () => {
         context.onInitialized();
+    }
+
+    const localizationCompleted = () => {
+        context.localizationCompleted;
     }
 
     // Define functions for Realtime Database
@@ -54,10 +63,28 @@ export function useGame(gameName, config = {}) {
     }
 
 
+    const addToScene = (asset) => {
+        // add new property
+        asset.hidden = !asset.visible;
+        gameAssets.push(asset);
+        // add to scene
+        SceneManager.scene.add(asset);
+        console.log("gameAssets:", gameAssets)
+    }
+
+
+    const setVisible = (value) => {
+        gameAssets.forEach(asset => {
+            if (asset.isMesh && !asset.hidden) asset.visible = value;
+        });
+    }
 
 
 
     // Define base functions
+    // const _onLocalizationCompletedBase = () => {
+    //     console.log(`${gameName} onLocalizationCompletedBase`);
+    // };
     const _onTapBase = () => {
         console.log(`${gameName} onTapBase`);
     };
@@ -67,6 +94,7 @@ export function useGame(gameName, config = {}) {
 
 
     // Define overridable / super functions
+    // const onLocalizationCompleted = config.onLocalizationCompleted || _onLocalizationCompletedBase;
     const onTap = config.onTap || _onTapBase;
     const renderLoop = config.renderLoop || _renderLoopBase;
 
@@ -75,11 +103,14 @@ export function useGame(gameName, config = {}) {
         name: gameName,
         appMode: context.appMode,
         initialized,
+        localizationCompleted,
         onTap,
         super: { onTap: _onTapBase },
         renderLoop,
         loadGameData,
         saveGame,
+        addToScene,
+        setVisible,
         gameDetails
     }
 

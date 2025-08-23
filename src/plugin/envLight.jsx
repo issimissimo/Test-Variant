@@ -27,7 +27,6 @@ export default function EnvLight(props) {
     * DATA
     */
     const [gameData, setGameData] = createSignal(null)
-
     const defaultGameData = {
         fileName: "images/hdr/studio.hdr",
         rotation: 0

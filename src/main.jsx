@@ -225,7 +225,7 @@ export default function Main() {
         setCurrentView(VIEWS.LOGIN);
     }
     const goToMarkerList = () => {
-        setLoading(() => false); // TODO - better handle the initial spinner of the app, and the loading spinner of the markers from firebase
+        setLoading(() => false);
         setUserId(() => firebase.auth.user().uid);
         setCurrentView(VIEWS.MARKER_LIST);
     }
@@ -309,13 +309,6 @@ export default function Main() {
     }
 
 
-
-
-    // //#region [style]
-    // const Container = styled('div')`
-    //     width: 100%;
-    //     height: 100%;
-    // `
 
 
     //#region [return]

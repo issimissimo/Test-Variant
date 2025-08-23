@@ -1,8 +1,7 @@
-import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
+import { onMount } from 'solid-js';
 import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
-import SceneManager from '@js/sceneManager';
-import { BoxGeometry, MeshBasicMaterial, Mesh, MeshPhysicalMaterial } from 'three';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 
 
@@ -41,7 +40,15 @@ export default function Baloons(props) {
     /*
     * SETUP SCENE
     */
-    function setupScene() {
+    async function setupScene() {
+        const gltflLoader = new GLTFLoader()
+        const gltf = await gltflLoader.loadAsync("models/baloons.glb");
+        const model = gltf.scene;
+        model.position.z = -5;
+        game.addToScene(model);
+
+
+
 
         /*
         * Don't forget to call "game.initialized()" at finish 
@@ -54,7 +61,7 @@ export default function Baloons(props) {
     * LOOP
     */
     function loop() {
-        
+
     }
 
 

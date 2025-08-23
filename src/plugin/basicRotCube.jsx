@@ -1,7 +1,6 @@
-import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
+import { onMount } from 'solid-js';
 import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
-import SceneManager from '@js/sceneManager';
 import { BoxGeometry, MeshBasicMaterial, Mesh, MeshPhysicalMaterial } from 'three';
 
 
@@ -47,7 +46,7 @@ export default function BasicRotCube(props) {
         const material2 = new MeshPhysicalMaterial({ color: 0x00ff00, metalness: 0, roughness: 0.1 });
         cube = new Mesh(geometry, material2);
         cube.position.z = -5;
-        SceneManager.scene.add(cube);
+        game.addToScene(cube);
 
         /*
         * Don't forget to call "game.initialized()" at finish 

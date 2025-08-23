@@ -86,12 +86,7 @@ export default function ArSession(props) {
 
     createEffect(() => {
         console.log("---- Games running:", props.gamesRunning)
-        console.log("---- Games imported:", gamesImported())
     })
-    createEffect(() => {
-
-    })
-
 
 
     /**
@@ -133,6 +128,8 @@ export default function ArSession(props) {
     const handleLocalizationCompleted = (matrix) => {
         setReferenceMatrix(() => matrix);
 
+        // Show all the meshes of all the games
+        setGamesVisible(true);
 
         setLocalizationState(() => LOCALIZATION_STATE.COMPLETED);
         console.log("LOCALIZATION COMPLETED! Matrix:", referenceMatrix());
@@ -202,7 +199,16 @@ export default function ArSession(props) {
 
 
 
-
+    const setGamesVisible = (value, gameName = null) => {
+        props.gamesRunning.forEach(el => {
+            // only one game
+            if (gameName) {
+                if (el.name === gameName) el.setVisible(value);
+            }
+            // all games
+            else el.setVisible(value);
+        });
+    }
 
 
 
@@ -256,6 +262,10 @@ export default function ArSession(props) {
         // as soon as all the games are loaded
         const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
         if (gameSpecs.localized && localizationState() !== LOCALIZATION_STATE.COMPLETED) {
+
+            // Hide all the meshes of all the games
+            setGamesVisible(false);
+
             setLocalizationState(() => LOCALIZATION_STATE.REQUIRED);
         }
     }
@@ -265,66 +275,7 @@ export default function ArSession(props) {
 
 
 
-    //#region [style]
-
-    // const Container = styled('div')`
-    //     /* min-height: 100vh;
-    //     width: 100vw; */
-    // `;
-
-
-
     //#region [return]
-
-    // return (
-    //     <Context.Provider value={{
-    //         onLoaded: handleGameLoaded,
-    //         onInitialized: handleGameInitialized,
-    //         appMode: props.appMode,
-    //         userId: props.userId,
-    //         markerId: props.marker.id,
-    //     }}>
-    //         <Container id="arSession">
-
-    //             {/* HEADER */}
-    //             <Header
-    //                 showUser={false}
-    //                 onClickBack={handleGoBack}
-    //             />
-    //             {loading() ? (<Loader />)
-    //                 :
-    //                 localizationState() === LOCALIZATION_STATE.REQUIRED ? (
-    //                     <Calibration
-    //                         planeFound={props.planeFound}
-    //                         setReferenceMatrix={(matrix) => handleLocalizationCompleted(matrix)}
-    //                     />
-    //                 )
-    //                     :
-    //                     (
-    //                         <>
-    //                             {gamesInitializing() && <Loader text={'Inizializzo'} />}
-
-    //                             <For each={gamesImported()}>
-    //                                 {(item) => {
-    //                                     const Component = item.component;
-    //                                     return <Component
-    //                                         id={item.id}
-    //                                         stored={item.stored}
-    //                                         showUI={false}
-    //                                     />;
-    //                                 }}
-    //                             </For>
-
-    //                             <UI
-    //                                 marker={props.marker}
-    //                                 loadGame={(gameName) => loadGame(null, gameName, false)}
-    //                             />
-    //                         </>
-    //                     )}
-    //         </Container>
-    //     </Context.Provider>
-    // );
-
 
     return (
         <Context.Provider value={{
@@ -333,6 +284,8 @@ export default function ArSession(props) {
             appMode: props.appMode,
             userId: props.userId,
             markerId: props.marker.id,
+            referenceMatrix: referenceMatrix(),
+            localizationCompleted: localizationState === LOCALIZATION_STATE.COMPLETED ? true : false
         }}>
             <Container id="arSession">
 
