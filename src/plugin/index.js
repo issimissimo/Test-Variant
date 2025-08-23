@@ -29,7 +29,7 @@ export const GAMES_LIST = [
     {
         fileName: "baloons",
         title: 'Palloncini fluttuanti',
-        description: '',
+        description: 'Inserisci dei palloncini a cazzo dove vuoi',
         image: '/images/games/backgrounds/vetro.jpg',
         category: '',
         allowed: 1,

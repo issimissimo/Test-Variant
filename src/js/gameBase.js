@@ -7,7 +7,7 @@ import SceneManager from '@js/sceneManager';
 
 
 // ===== HOOK BASE =====
-export function useGame(gameName, config = {}) {
+export function useGame(gameName, gameId, config = {}) {
 
     const context = useContext(Context);
     const firebase = useFirebase();
@@ -30,7 +30,7 @@ export function useGame(gameName, config = {}) {
     }
 
 
-    
+
     // Define functions for Realtime Database
     const loadGameData = async (gameId, callback) => {
         try {
@@ -46,14 +46,14 @@ export function useGame(gameName, config = {}) {
         // const jsonData = JSON.stringify(data);
         // console.log(jsonData)
 
-        const gameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
-        console.log('Creato in Firestore il game con ID:', gameId)
+        const newGameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
+        console.log('Creato in Firestore il game con ID:', newGameId)
 
         if (gameData) {
             try {
-                const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
+                const path = `${context.userId}/markers/${context.markerId}/games/${newGameId}`;
                 await firebase.realtimeDb.saveData(path, gameData);
-                console.log('Creato in RealtimeDB il JSON con ID:', gameId)
+                console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
 
             } catch (error) {
                 console.log("Errore nel salvataggio JSON:", error);
@@ -96,6 +96,7 @@ export function useGame(gameName, config = {}) {
     // This
     const game = {
         name: gameName,
+        id: gameId,
         appMode: context.appMode,
         initialized,
         localizationCompleted,
@@ -110,6 +111,6 @@ export function useGame(gameName, config = {}) {
     }
 
     return {
-        game: game
+        game
     };
 }

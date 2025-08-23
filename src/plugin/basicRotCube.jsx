@@ -11,7 +11,7 @@ export default function BasicRotCube(props) {
     /*
     * Put here derived functions from Game
     */
-    const { game } = useGame("basicRotCube", {
+    const { game } = useGame("basicRotCube", props.id, {
 
         onTap: () => {
 

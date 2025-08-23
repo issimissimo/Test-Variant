@@ -44,10 +44,11 @@ export default function ArSession(props) {
     const [loading, setLoading] = createSignal(true);
     const [gamesImported, setGamesImported] = createSignal([]);
     const [gamesInitializing, setGamesInitializing] = createSignal(false);
+    const [selectedGameId, setSelectedGameId] = createSignal(null);
 
     let _tapEnabled = true;
     let _gamesInitialized = 0;
-    let _selectedGame = null;
+
 
 
 
@@ -81,7 +82,7 @@ export default function ArSession(props) {
         });
         // }
 
-        if (props.marker.games.length > 0) loadAllGames();
+        if (props.marker.games.length > 0) loadAllModules();
         else setLoading(() => false);
     });
 
@@ -96,13 +97,11 @@ export default function ArSession(props) {
     * Load all the games (as bundles) of the marker.
     * In this way we keep the main bundle as small as possible!
     */
-    async function loadAllGames() {
-        console.log("---- loadAllGames")
+    async function loadAllModules() {
         for (const el of props.marker.games) {
             if (el.enabled) {
-
-                // load dynamically the game
-                await loadGame(el.id, el.name, true);
+                // load dynamically the module
+                await loadModule(el.id, el.name, true);
 
                 setGamesInitializing(() => true);
             }
@@ -250,20 +249,20 @@ export default function ArSession(props) {
     * Each "gameRunning" will be added automatically as loaded
     * with the function "handleGameLoaded")
     */
-    async function loadGame(gameId, gameName, storedOnDatabase) {
-        const module = await import(`../../plugin/${gameName}.jsx`);
-        const loadedGame = {
-            id: gameId,
-            name: gameName,
+    async function loadModule(moduleId, moduleName, storedOnDatabase) {
+        const raw = await import(`../../plugin/${moduleName}.jsx`);
+        const newModule = {
+            id: moduleId,
+            name: moduleName,
             stored: storedOnDatabase,
-            component: module.default,
+            component: raw.default,
         }
-        setGamesImported((prev) => [...prev, loadedGame]);
+        setGamesImported((prev) => [...prev, newModule]);
 
         // If just one of the game need localization,
         // we need to show the Localization component
         // as soon as all the games are loaded
-        const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
+        const gameSpecs = GAMES_LIST.find(g => g.fileName === moduleName);
         if (gameSpecs.localized && localizationState() !== LOCALIZATION_STATE.COMPLETED) {
 
             // Hide all the meshes of all the games
@@ -271,6 +270,12 @@ export default function ArSession(props) {
 
             setLocalizationState(() => LOCALIZATION_STATE.REQUIRED);
         }
+
+
+
+
+        // TODO ------
+        setSelectedGameId("temporaryModuleID");
     }
 
 
@@ -305,12 +310,12 @@ export default function ArSession(props) {
                             {gamesInitializing() && <Loader />}
 
                             <For each={gamesImported()}>
-                                {(item) => {
+                                {item => {
                                     const Component = item.component;
                                     return <Component
                                         id={item.id}
                                         stored={item.stored}
-                                        showUI={false}
+                                        showUI={item.id === selectedGameId() ? true : false}
                                     />;
                                 }}
                             </For>
@@ -323,7 +328,7 @@ export default function ArSession(props) {
                                 :
                                 <UI
                                     marker={props.marker}
-                                    loadGame={(gameName) => loadGame(null, gameName, false)}
+                                    addNewModule={(id, name) => loadModule(id, name, false)}
                                 />
                             }
                         </>

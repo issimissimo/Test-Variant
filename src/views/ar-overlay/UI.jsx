@@ -45,7 +45,7 @@ export default function UI(props) {
             {
                 GAMES_LIST.map(gameSpecs => (
                     <Button
-                        onClick={() => props.loadGame(gameSpecs.fileName)}
+                        onClick={() => props.addNewModule("temporaryModuleID", gameSpecs.fileName)}
                         enabled={getGamesAvailableByName(gameSpecs.fileName) > 0 ? true : false}
                     >{gameSpecs.title}</Button>
                 ))

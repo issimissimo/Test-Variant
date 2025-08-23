@@ -11,7 +11,7 @@ export default function EnvLight(props) {
     /*
     * Put here derived functions from Game
     */
-    const { game } = useGame("envLight", {
+    const { game } = useGame("envLight", props.id, {
 
         onTap: () => {
 

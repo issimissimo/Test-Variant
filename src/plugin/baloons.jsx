@@ -11,7 +11,7 @@ export default function Baloons(props) {
     /*
     * Put here derived functions from Game
     */
-    const { game } = useGame("baloons", {
+    const { game } = useGame("baloons", props.id, {
 
         onTap: () => {
 
@@ -78,14 +78,16 @@ export default function Baloons(props) {
     * STYLE
     */
     const Container = styled('div')`
+    position: absolute;
         width: 100%;
-        height: 100vh;
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
         padding: 2em;
+        pointer-events: none;
     `
     const Title = styled('h2')`
         text-align: center;
@@ -110,9 +112,6 @@ export default function Baloons(props) {
             <Container>
                 <Title>{game.gameDetails.title}</Title>
                 <Description>{game.gameDetails.description}</Description>
-                <Button
-                    onClick={() => game.saveGame()}
-                >Test salva game</Button>
             </Container>
 
             :
