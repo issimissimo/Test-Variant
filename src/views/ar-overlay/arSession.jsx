@@ -285,7 +285,7 @@ export default function ArSession(props) {
             userId: props.userId,
             markerId: props.marker.id,
             referenceMatrix: referenceMatrix(),
-            localizationCompleted: localizationState === LOCALIZATION_STATE.COMPLETED ? true : false
+            localizationCompleted: () => localizationState() === LOCALIZATION_STATE.COMPLETED
         }}>
             <Container id="arSession">
 

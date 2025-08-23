@@ -20,18 +20,17 @@ export function useGame(gameName, config = {}) {
         context.onLoaded(game);
     });
 
-    createEffect(()=>{
-        console.log("@@@@@ loc completed:", context.localizationCompleted)
-    })
 
     const initialized = () => {
         context.onInitialized();
     }
 
     const localizationCompleted = () => {
-        context.localizationCompleted;
+        return context.localizationCompleted();
     }
 
+
+    
     // Define functions for Realtime Database
     const loadGameData = async (gameId, callback) => {
         try {
@@ -82,9 +81,6 @@ export function useGame(gameName, config = {}) {
 
 
     // Define base functions
-    // const _onLocalizationCompletedBase = () => {
-    //     console.log(`${gameName} onLocalizationCompletedBase`);
-    // };
     const _onTapBase = () => {
         console.log(`${gameName} onTapBase`);
     };
@@ -94,7 +90,6 @@ export function useGame(gameName, config = {}) {
 
 
     // Define overridable / super functions
-    // const onLocalizationCompleted = config.onLocalizationCompleted || _onLocalizationCompletedBase;
     const onTap = config.onTap || _onTapBase;
     const renderLoop = config.renderLoop || _renderLoopBase;
 

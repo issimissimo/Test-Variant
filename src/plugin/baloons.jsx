@@ -1,4 +1,4 @@
-import { onMount } from 'solid-js';
+import { onMount, createEffect } from 'solid-js';
 import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -32,9 +32,17 @@ export default function Baloons(props) {
     * On mount
     */
     onMount(() => {
-        console.log("Baloons: onMount")
-        setupScene();
     });
+
+
+    /*
+    * On localizationCompleted
+    */
+    createEffect(() => {
+        if (game.localizationCompleted()) {
+            setupScene();
+        }
+    })
 
 
     /*
@@ -61,7 +69,6 @@ export default function Baloons(props) {
     * LOOP
     */
     function loop() {
-
     }
 
 
