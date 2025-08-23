@@ -379,7 +379,7 @@ export default function Main() {
                             onBack={handleReset}
                             planeFound={planeFound()}
                             gamesRunning={gamesRunning()}
-                            addGame={(el) => setGamesRunning(prev => [...prev, el])}
+                            addGame={el => setGamesRunning(prev => [...prev, el])}
                         />
                     </Portal>
                 );

@@ -44,8 +44,10 @@ export default function ArSession(props) {
     const [loading, setLoading] = createSignal(true);
     const [gamesImported, setGamesImported] = createSignal([]);
     const [gamesInitializing, setGamesInitializing] = createSignal(false);
+
     let _tapEnabled = true;
     let _gamesInitialized = 0;
+    let _selectedGame = null;
 
 
 
@@ -86,6 +88,7 @@ export default function ArSession(props) {
 
     createEffect(() => {
         console.log("---- Games running:", props.gamesRunning)
+        console.log("---- Games imported:", gamesImported());
     })
 
 
@@ -145,7 +148,7 @@ export default function ArSession(props) {
     * to display the UI of each module!)
     */
     const handleGameLoaded = (el) => {
-        console.log("GAME LOADED: ", el)
+        console.log("MODULE LOADED: ", el)
         props.addGame(el);
 
         // update the DOM elements that can be clicked

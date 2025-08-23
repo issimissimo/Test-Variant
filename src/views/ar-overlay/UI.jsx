@@ -20,8 +20,6 @@ export default function UI(props) {
     }
 
 
-
-
     const Container = styled('div')`
         width: 100vw;
         height: 100vh;
@@ -52,6 +50,10 @@ export default function UI(props) {
                     >{gameSpecs.title}</Button>
                 ))
             }
+
+            <button
+                onClick={() => console.log("SAVE GAME")}
+            >SAVE GAME</button>
 
         </Container>
     )
