@@ -1,5 +1,5 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
-import { useGame } from './common';
+import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
 import SceneManager from '@js/sceneManager';
 
@@ -120,6 +120,8 @@ export default function EnvLight(props) {
     * RENDER
     */
     return (
+        props.showUI ?
+        
         <Container>
             <Title>{game.gameDetails.title}</Title>
             <Description>{game.gameDetails.description}</Description>
@@ -130,6 +132,9 @@ export default function EnvLight(props) {
                 onClick={() => game.loadData(props.id, (data) => setGameData(() => data))}
             >Test carica dati</Button> */}
         </Container>
+
+        :
+        <div/>
     );
 
 }

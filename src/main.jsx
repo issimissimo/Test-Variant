@@ -276,6 +276,7 @@ export default function Main() {
      * and go to ARSession
      */
     const handleInitScene = () => {
+        if (SceneManager.initialized()) return;
         SceneManager.init();
         SceneManager.renderer.setAnimationLoop(render);
         SceneManager.renderer.xr.addEventListener("sessionstart", () => {
@@ -384,7 +385,7 @@ export default function Main() {
                             marker={currentMarker()}
                             onBack={handleReset}
                             planeFound={planeFound()}
-                            games={gamesRunning()}
+                            gamesRunning={gamesRunning()}
                             addGame={(el) => setGamesRunning(prev => [...prev, el])}
                         />
                     </Portal>

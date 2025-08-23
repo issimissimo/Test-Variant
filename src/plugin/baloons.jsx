@@ -7,12 +7,12 @@ import { BoxGeometry, MeshBasicMaterial, Mesh, MeshPhysicalMaterial } from 'thre
 
 
 
-export default function BasicRotCube(props) {
+export default function Baloons(props) {
 
     /*
     * Put here derived functions from Game
     */
-    const { game } = useGame("basicRotCube", {
+    const { game } = useGame("baloons", {
 
         onTap: () => {
 
@@ -33,6 +33,7 @@ export default function BasicRotCube(props) {
     * On mount
     */
     onMount(() => {
+        console.log("Baloons: onMount")
         setupScene();
     });
 
@@ -40,14 +41,7 @@ export default function BasicRotCube(props) {
     /*
     * SETUP SCENE
     */
-    let cube;
     function setupScene() {
-        const geometry = new BoxGeometry(0.5, 0.5, 0.5);
-        const material = new MeshBasicMaterial({ color: 0x00ff00 });
-        const material2 = new MeshPhysicalMaterial({ color: 0x00ff00, metalness: 0, roughness: 0.1 });
-        cube = new Mesh(geometry, material2);
-        cube.position.z = -5;
-        SceneManager.scene.add(cube);
 
         /*
         * Don't forget to call "game.initialized()" at finish 
@@ -60,8 +54,7 @@ export default function BasicRotCube(props) {
     * LOOP
     */
     function loop() {
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
+        
     }
 
 

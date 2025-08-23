@@ -1,5 +1,5 @@
 import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
-import { useGame } from './common';
+import { useGame } from '@js/gameBase';
 import { config } from '@js/config';
 import { styled } from 'solid-styled-components';
 import Reticle from '@js/reticle';

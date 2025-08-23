@@ -1,34 +1,8 @@
-import { onMount, createContext, useContext } from 'solid-js';
+import { onMount, useContext } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
-import GAMES_LIST from '.';
+import GAMES_LIST from '@plugin';
+import { Context } from '@views/ar-overlay/arSession';
 
-
-// // ===== GAMES LIST (calibration excluded!) =====
-// // This list must be modified
-// // to add (or delete) every new game
-// export const GAMES_LISTING = [
-//     {
-//         fileName: "envLight",
-//         title: "Environment light",
-//         description: "Inserisci un'immagine HDRI 360 come luce ambientale",
-//         image: '/images/games/backgrounds/vetro.jpg',
-//         allowed: 1,
-//         localized: true,
-//     },
-//     {
-//         fileName: "basicRotCube",
-//         title: 'Test basico con un cubo che ruota',
-//         description: 'Da eliminare, solo di test',
-//         image: '/images/games/backgrounds/vetro.jpg',
-//         allowed: 1,
-//         localized: false,
-//     },
-// ];
-
-
-
-// ===== CONTEXT =====
-export const Context = createContext();
 
 
 // ===== HOOK BASE =====
@@ -40,7 +14,8 @@ export function useGame(gameName, config = {}) {
     const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
 
     onMount(() => {
-        context.onReady(game);
+        console.log("*** onMount: ", gameName)
+        context.onLoaded(game);
     });
 
 
@@ -103,8 +78,8 @@ export function useGame(gameName, config = {}) {
         onTap,
         super: { onTap: _onTapBase },
         renderLoop,
-        loadGameData: loadGameData,
-        saveGame: saveGame,
+        loadGameData,
+        saveGame,
         gameDetails
     }
 
