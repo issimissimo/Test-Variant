@@ -22,10 +22,14 @@ export default function Baloons(props) {
     /*
     * DATA
     */
-    const defaultGameData = {
-        fileName: "images/hdr/studio.hdr",
-        rotation: 0
-    }
+    const defaultGameData = [
+        {
+            position: "la posizione del primo palloncino",
+        },
+        {
+            position: "la posizione del secondo palloncino",
+        }
+    ]
 
 
     /*
@@ -56,7 +60,8 @@ export default function Baloons(props) {
         game.addToScene(model);
 
 
-
+        /// test per aggiungere dati
+        game.gameData = defaultGameData;
 
         /*
         * Don't forget to call "game.initialized()" at finish 
@@ -104,7 +109,7 @@ export default function Baloons(props) {
     * RENDER
     */
     return (
-        props.showUI ?
+        props.selected ?
 
             <Container>
                 <Title>{game.gameDetails.title}</Title>

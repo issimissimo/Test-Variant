@@ -13,10 +13,13 @@ export default function UI(props) {
         const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
         const totalAllowed = gameSpecs.allowed;
         let nGames = 0;
-        props.marker.games.map(game => {
-            if (game.name === gameName) nGames++;
-        });
-        return totalAllowed - nGames;
+        if (props.marker.games) {
+            props.marker.games.map(game => {
+                if (game.name === gameName) nGames++;
+            });
+            return totalAllowed - nGames;
+        }
+        return 0;
     }
 
 
@@ -51,9 +54,10 @@ export default function UI(props) {
                 ))
             }
 
-            <button
-                onClick={() => console.log("SAVE GAME")}
-            >SAVE GAME</button>
+            <Button
+                onClick={props.saveGame}
+                enabled={props.saveEnabled}
+            >SAVE GAME</Button>
 
         </Container>
     )

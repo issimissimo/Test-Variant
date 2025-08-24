@@ -97,14 +97,14 @@ export default function BasicRotCube(props) {
     * RENDER
     */
     return (
-        props.showUI ?
+        props.selected ?
 
             <Container>
                 <Title>{game.gameDetails.title}</Title>
                 <Description>{game.gameDetails.description}</Description>
-                <Button
+                {/* <Button
                     onClick={() => game.saveGame()}
-                >Test salva game</Button>
+                >Test salva game</Button> */}
             </Container>
 
             :

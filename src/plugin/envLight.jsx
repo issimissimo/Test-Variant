@@ -119,14 +119,14 @@ export default function EnvLight(props) {
     * RENDER
     */
     return (
-        props.showUI ?
+        props.selected ?
         
         <Container>
             <Title>{game.gameDetails.title}</Title>
             <Description>{game.gameDetails.description}</Description>
-            <Button
+            {/* <Button
                 onClick={() => game.saveGame(gameData)}
-            >Test salva game e dati</Button>
+            >Test salva game e dati</Button> */}
             {/* <Button
                 onClick={() => game.loadData(props.id, (data) => setGameData(() => data))}
             >Test carica dati</Button> */}

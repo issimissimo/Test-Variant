@@ -13,9 +13,11 @@ export function useGame(gameName, gameId, config = {}) {
     const context = useContext(Context);
     const firebase = useFirebase();
 
-    const [gameData, setGameData] = createSignal(null)
+    // const [gameData, setGameData] = createSignal(null)
     const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
     const gameAssets = [];
+    const gameData = null;
+
     const loader = new modelLoader();
 
 
@@ -34,7 +36,7 @@ export function useGame(gameName, gameId, config = {}) {
 
 
 
-    // Define functions for Realtime Database
+    // Load game data from Realtime Database
     const loadGameData = async (gameId, callback) => {
         try {
             const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
@@ -45,24 +47,24 @@ export function useGame(gameName, gameId, config = {}) {
         }
     }
 
-    const saveGame = async (gameData = null) => {
-        // const jsonData = JSON.stringify(data);
-        // console.log(jsonData)
+    // const saveGame = async (gameData = null) => {
+    //     // const jsonData = JSON.stringify(data);
+    //     // console.log(jsonData)
 
-        const newGameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
-        console.log('Creato in Firestore il game con ID:', newGameId)
+    //     const newGameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
+    //     console.log('Creato in Firestore il game con ID:', newGameId)
 
-        if (gameData) {
-            try {
-                const path = `${context.userId}/markers/${context.markerId}/games/${newGameId}`;
-                await firebase.realtimeDb.saveData(path, gameData);
-                console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
+    //     if (gameData) {
+    //         try {
+    //             const path = `${context.userId}/markers/${context.markerId}/games/${newGameId}`;
+    //             await firebase.realtimeDb.saveData(path, gameData);
+    //             console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
 
-            } catch (error) {
-                console.log("Errore nel salvataggio JSON:", error);
-            }
-        }
-    }
+    //         } catch (error) {
+    //             console.log("Errore nel salvataggio JSON:", error);
+    //         }
+    //     }
+    // }
 
 
     const addToScene = (asset) => {
@@ -107,12 +109,10 @@ export function useGame(gameName, gameId, config = {}) {
         super: { onTap: _onTapBase },
         renderLoop,
         loadGameData,
-        saveGame,
         addToScene,
         setVisible,
         gameDetails,
-        gameData: gameData(),
-        setGameData: setGameData(),
+        gameData,
         loader
     }
 

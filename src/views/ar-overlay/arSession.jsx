@@ -1,4 +1,5 @@
 import { createSignal, createEffect, createContext, onMount, For } from 'solid-js';
+import { useFirebase } from '@hooks/useFirebase';
 import { config } from '@js/config';
 import { Matrix4 } from 'three';
 import { styled } from 'solid-styled-components';
@@ -38,6 +39,7 @@ const LOCALIZATION_STATE = {
 export default function ArSession(props) {
 
     //#region [constants]
+    const firebase = useFirebase();
     const [currentView, setCurrentView] = createSignal(null);
     const [localizationState, setLocalizationState] = createSignal(LOCALIZATION_STATE.NONE);
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
@@ -90,6 +92,7 @@ export default function ArSession(props) {
     createEffect(() => {
         console.log("---- Games running:", props.gamesRunning)
         console.log("---- Games imported:", gamesImported());
+        console.log("---- Game id selected:", selectedGameId());
     })
 
 
@@ -215,6 +218,50 @@ export default function ArSession(props) {
 
 
 
+    // const handleSaveSelectedGame = async (gameData = null) => {
+    //     // const jsonData = JSON.stringify(data);
+    //     const newGameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
+    //     console.log('Creato in Firestore il game con ID:', newGameId)
+
+    //     if (gameData) {
+    //         try {
+    //             const path = `${context.userId}/markers/${context.markerId}/games/${newGameId}`;
+    //             await firebase.realtimeDb.saveData(path, gameData);
+    //             console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
+
+    //         } catch (error) {
+    //             console.log("Errore nel salvataggio JSON:", error);
+    //         }
+    //     }
+    // }
+
+    const handleSaveSelectedGame = async () => {
+
+        const gameToSave = props.gamesRunning.find((el) => el.id === selectedGameId());
+        setSelectedGameId(null);
+
+        console.log("GAME TO SAVE:", gameToSave);
+
+        const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, gameToSave.name);
+        console.log('Creato in Firestore il game con ID:', newGameId)
+
+        if (gameToSave.gameData) {
+            try {
+                const path = `${props.userId}/markers/${props.marker.id}/games/${newGameId}`;
+                await firebase.realtimeDb.saveData(path, gameToSave.gameData);
+                console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
+
+            } catch (error) {
+                console.log("Errore nel salvataggio JSON:", error);
+            }
+        }
+
+
+        
+    }
+
+
+
 
     /**
      * The view that will be showed
@@ -251,7 +298,7 @@ export default function ArSession(props) {
     * Each "gameRunning" will be added automatically as loaded
     * with the function "handleGameLoaded")
     */
-    async function loadModule(moduleId, moduleName, storedOnDatabase) {
+    async function loadModule(moduleId, moduleName, storedOnDatabase, selectOnEnd = false) {
         const raw = await import(`../../plugin/${moduleName}.jsx`);
         const newModule = {
             id: moduleId,
@@ -276,8 +323,11 @@ export default function ArSession(props) {
 
 
 
-        // TODO ------
-        setSelectedGameId("temporaryModuleID");
+        // // TODO ------
+        if (selectOnEnd) {
+            setSelectedGameId(moduleId);
+        }
+        // setSelectedGameId("temporaryModuleID");
     }
 
 
@@ -317,7 +367,7 @@ export default function ArSession(props) {
                                     return <Component
                                         id={item.id}
                                         stored={item.stored}
-                                        showUI={item.id === selectedGameId() ? true : false}
+                                        selected={item.id === selectedGameId() ? true : false}
                                     />;
                                 }}
                             </For>
@@ -330,7 +380,9 @@ export default function ArSession(props) {
                                 :
                                 <UI
                                     marker={props.marker}
-                                    addNewModule={(id, name) => loadModule(id, name, false)}
+                                    addNewModule={(id, name) => loadModule(id, name, false, true)}
+                                    saveEnabled={selectedGameId() !== null ? true : false}
+                                    saveGame={handleSaveSelectedGame}
                                 />
                             }
                         </>
