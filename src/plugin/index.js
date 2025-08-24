@@ -6,7 +6,7 @@
 export const GAMES_LIST = [
     {
         fileName: "envLight",
-        title: "Environment light",
+        title: "Luce HDRI",
         description: "Inserisci un'immagine HDRI 360 come luce ambientale",
         image: '/images/games/backgrounds/vetro.jpg',
         category: 'light',
@@ -31,9 +31,20 @@ export const GAMES_LIST = [
         title: 'Palloncini fluttuanti',
         description: 'Inserisci dei palloncini a cazzo dove vuoi',
         image: '/images/games/backgrounds/vetro.jpg',
-        category: '',
+        category: 'placeOnAir',
         allowed: 1,
         localized: true,
+        tags: [],
+        requirements: {}
+    },
+    {
+        fileName: "growingFlowers",
+        title: 'Fiori che crescono',
+        description: 'Posiziona sulle superfici dei fiori che crescono',
+        image: '/images/games/backgrounds/vetro.jpg',
+        category: 'placeOnSurface',
+        allowed: 1,
+        localized: false,
         tags: [],
         requirements: {}
     },

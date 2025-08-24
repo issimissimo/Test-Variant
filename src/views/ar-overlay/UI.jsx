@@ -1,13 +1,16 @@
-import { createEffect, createSignal, onMount } from 'solid-js';
-import { useFirebase } from '@hooks/useFirebase';
+import { createEffect, createSignal, onMount, useContext } from 'solid-js';
 import { config } from '@js/config';
 import { styled } from 'solid-styled-components';
+
+import { Context } from '@views/ar-overlay/arSession';
+import { AppMode } from '@/main';
 
 import GAMES_LIST from '@plugin';
 
 
 export default function UI(props) {
 
+    const context = useContext(Context);
 
     const getGamesAvailableByName = (gameName) => {
         const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
@@ -42,22 +45,35 @@ export default function UI(props) {
 
 
     return (
-        <Container id="Inventory">
-            <p>INVENTORY</p>
+        <Container>
 
-            {
-                GAMES_LIST.map(gameSpecs => (
+            {context.appMode === AppMode.SAVE ?
+
+                <>
+
+                    <p>INVENTORY</p>
+
+                    {
+                        GAMES_LIST.map(gameSpecs => (
+                            <Button
+                                onClick={() => props.addNewModule("temporaryModuleID", gameSpecs.fileName)}
+                                enabled={getGamesAvailableByName(gameSpecs.fileName) > 0 ? true : false}
+                            >{gameSpecs.title}</Button>
+                        ))
+                    }
+
                     <Button
-                        onClick={() => props.addNewModule("temporaryModuleID", gameSpecs.fileName)}
-                        enabled={getGamesAvailableByName(gameSpecs.fileName) > 0 ? true : false}
-                    >{gameSpecs.title}</Button>
-                ))
-            }
+                        onClick={props.saveGame}
+                        enabled={props.saveEnabled}
+                    >SAVE GAME</Button>
 
-            <Button
-                onClick={props.saveGame}
-                enabled={props.saveEnabled}
-            >SAVE GAME</Button>
+                </>
+
+                :
+
+                <div></div>
+
+            }
 
         </Container>
     )

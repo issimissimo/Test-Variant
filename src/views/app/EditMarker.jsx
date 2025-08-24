@@ -12,6 +12,8 @@ import ButtonSecondary from '@components/ButtonSecondary';
 import Toggle from '@components/toggle';
 import Message from '@components/Message';
 
+import GAMES_LIST from '@plugin';
+
 import Fa from 'solid-fa';
 import { faSave, faQrcode, faPuzzlePiece, faTrash, faDownload } from "@fortawesome/free-solid-svg-icons";
 
@@ -261,17 +263,21 @@ const EditMarker = (props) => {
     const [game, setGame] = createSignal(props.game);
 
     const handleToggleGameEnabled = (value) => {
-
       // update game()
       setGame(prev => ({ ...prev, enabled: !value }));
 
       // wait for the animation of the toggle
       setTimeout(() => {
-
         // call handleUpdateGame
         handleUpdateGame(game());
       }, 250)
     };
+
+    const getGameTitle = (gameName) => {
+      const gameSpecs = GAMES_LIST.find(g => g.fileName === gameName);
+      return gameSpecs.title;
+    }
+
 
     const GameItemContainer = styled(Motion.div)`
             width: 100%;
@@ -312,7 +318,7 @@ const EditMarker = (props) => {
         <GameName
           enabled={game().enabled}
         >
-          {game().name}
+          {getGameTitle(game().name)}
         </GameName>
         <Toggle
           checked={game().enabled}
