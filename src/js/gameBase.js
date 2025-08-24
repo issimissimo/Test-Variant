@@ -49,9 +49,14 @@ export function useGame(gameName, gameId, config = {}) {
 
 
     const addToScene = (asset) => {
+
         // add new property
-        asset.hidden = !asset.visible;
+        const customProps = {
+            hidden: !asset.visible
+        }
+        asset.customProps = customProps;
         gameAssets.push(asset);
+
         // add to scene
         SceneManager.scene.add(asset);
     }
@@ -59,7 +64,7 @@ export function useGame(gameName, gameId, config = {}) {
 
     const setVisible = (value) => {
         gameAssets.forEach(asset => {
-            if (asset.isMesh && !asset.hidden) asset.visible = value;
+            if (asset.isMesh && !asset.customProps.hidden) asset.visible = value;
         });
     }
 

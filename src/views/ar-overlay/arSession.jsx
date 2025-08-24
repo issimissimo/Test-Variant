@@ -40,7 +40,6 @@ export default function ArSession(props) {
 
     //#region [constants]
     const firebase = useFirebase();
-    const [currentView, setCurrentView] = createSignal(null);
     const [localizationState, setLocalizationState] = createSignal(LOCALIZATION_STATE.NONE);
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
     const [loading, setLoading] = createSignal(true);
@@ -256,6 +255,8 @@ export default function ArSession(props) {
                 console.log("Errore nel salvataggio JSON:", error);
             }
         }
+
+        props.onNewGameSaved();
     }
 
 

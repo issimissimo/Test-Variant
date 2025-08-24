@@ -380,6 +380,7 @@ export default function Main() {
                             planeFound={planeFound()}
                             gamesRunning={gamesRunning()}
                             addGame={el => setGamesRunning(prev => [...prev, el])}
+                            onNewGameSaved={() => setupMarker(currentMarker().id, currentMarker().name)}
                         />
                     </Portal>
                 );
