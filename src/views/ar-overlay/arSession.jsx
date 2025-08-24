@@ -59,8 +59,6 @@ export default function ArSession(props) {
     //#region [lifeCycle]
     onMount(() => {
 
-        console.log("---- onMount")
-
         // Let's avoid annoying issue that each time I modify something
         // in this code the controller is "undefined", so I have to 
         // reload everything!
@@ -91,9 +89,9 @@ export default function ArSession(props) {
 
     createEffect(() => {
         console.log("---- Games running:", props.gamesRunning)
-        console.log("---- Games imported:", gamesImported());
-        console.log("---- Game id selected:", selectedGameId());
-        console.log("---- Games initializing:", gamesInitializing());
+        // console.log("---- Games imported:", gamesImported());
+        // console.log("---- Game id selected:", selectedGameId());
+        // console.log("---- Games initializing:", gamesInitializing());
     })
 
 
@@ -248,10 +246,10 @@ export default function ArSession(props) {
         const newGameId = await firebase.firestore.addGame(props.userId, props.marker.id, gameToSave.name);
         console.log('Creato in Firestore il game con ID:', newGameId)
 
-        if (gameToSave.gameData) {
+        if (gameToSave.gameData()) {
             try {
                 const path = `${props.userId}/markers/${props.marker.id}/games/${newGameId}`;
-                await firebase.realtimeDb.saveData(path, gameToSave.gameData);
+                await firebase.realtimeDb.saveData(path, gameToSave.gameData());
                 console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
 
             } catch (error) {

@@ -148,7 +148,7 @@ const EditMarker = (props) => {
 
     if (props.marker.games.length > 0) {
       console.log("cancello dati realtime DB...")
-      const path = `${props.userId}/${props.marker.id}`;
+      const path = `${props.userId}/markers/${props.marker.id}/games`;
       await firebase.realtimeDb.deleteData(path);
 
       // return to Marker List
@@ -190,6 +190,10 @@ const EditMarker = (props) => {
 
     // delete game on Firestore
     await firebase.firestore.deleteGame(props.userId, props.marker.id, game.id);
+
+    // delete game on Realtime Database
+    const path = `${props.userId}/markers/${props.marker.id}/games/${game.id}`;
+    await firebase.realtimeDb.deleteData(path);
 
     // refresh games()
     setGames(prevGames => prevGames.filter(g => g.id !== game.id));
@@ -254,9 +258,6 @@ const EditMarker = (props) => {
 
 
   const GameItem = (props) => {
-    onMount(() => {
-      console.log("ON MOUNT: GameItem");
-    })
     const [game, setGame] = createSignal(props.game);
 
     const handleToggleGameEnabled = (value) => {

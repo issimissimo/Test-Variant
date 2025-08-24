@@ -24,10 +24,10 @@ export default function Baloons(props) {
     */
     const defaultGameData = [
         {
-            position: "la posizione del primo palloncino",
+            position: "la posizione del primo baloon",
         },
         {
-            position: "la posizione del secondo palloncino",
+            position: "la posizione del secondo baloon",
         }
     ]
 
@@ -50,7 +50,16 @@ export default function Baloons(props) {
     */
     createEffect(() => {
         if (game.localizationCompleted()) {
-            setupScene();
+
+            async function waitForGltf() {
+                while (!game.loader.gltf) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                setupScene();
+            }
+
+            waitForGltf();
+            // setupScene();
         }
     })
 
@@ -66,8 +75,7 @@ export default function Baloons(props) {
 
 
         /// test per aggiungere dati
-        game.gameData = defaultGameData;
-       
+        game.setGameData(defaultGameData);
     }
 
 

@@ -13,10 +13,9 @@ export function useGame(gameName, gameId, config = {}) {
     const context = useContext(Context);
     const firebase = useFirebase();
 
-    // const [gameData, setGameData] = createSignal(null)
     const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
     const gameAssets = [];
-    const gameData = null;
+    const [gameData, setGameData] = createSignal(null);
 
     const loader = new modelLoader();
 
@@ -40,31 +39,13 @@ export function useGame(gameName, gameId, config = {}) {
     const loadGameData = async (gameId, callback = null) => {
         try {
             const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
-            const gameData = await firebase.realtimeDb.loadData(path);
-            if (callback) callback(gameData);
+            const data = await firebase.realtimeDb.loadData(path);
+            setGameData(data);
+            if (callback) callback(data);
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
         }
     }
-
-    // const saveGame = async (gameData = null) => {
-    //     // const jsonData = JSON.stringify(data);
-    //     // console.log(jsonData)
-
-    //     const newGameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
-    //     console.log('Creato in Firestore il game con ID:', newGameId)
-
-    //     if (gameData) {
-    //         try {
-    //             const path = `${context.userId}/markers/${context.markerId}/games/${newGameId}`;
-    //             await firebase.realtimeDb.saveData(path, gameData);
-    //             console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
-
-    //         } catch (error) {
-    //             console.log("Errore nel salvataggio JSON:", error);
-    //         }
-    //     }
-    // }
 
 
     const addToScene = (asset) => {
@@ -73,7 +54,6 @@ export function useGame(gameName, gameId, config = {}) {
         gameAssets.push(asset);
         // add to scene
         SceneManager.scene.add(asset);
-        console.log("gameAssets:", gameAssets)
     }
 
 
@@ -113,6 +93,7 @@ export function useGame(gameName, gameId, config = {}) {
         setVisible,
         gameDetails,
         gameData,
+        setGameData,
         loader
     }
 

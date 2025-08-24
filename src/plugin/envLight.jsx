@@ -1,4 +1,4 @@
-import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
+import { onMount, onCleanup, createEffect } from 'solid-js';
 import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
 import SceneManager from '@js/sceneManager';
@@ -18,7 +18,7 @@ export default function EnvLight(props) {
         },
 
         renderLoop: () => {
-            // console.log("Environment light anim in loop!")
+            
         }
     });
 
@@ -26,7 +26,6 @@ export default function EnvLight(props) {
     /*
     * DATA
     */
-
     const defaultGameData = {
         fileName: "images/hdr/studio.hdr",
         rotation: 0
@@ -45,18 +44,20 @@ export default function EnvLight(props) {
 
         if (props.stored) {
             // Load the game data from RealtimeDB
-            console.log("Load the game data from RealtimeDB");
-            game.loadGameData(props.id, (data) => {
-                game.gameData = data;
-                setupScene();
-            });
+            game.loadGameData(props.id)
         }
         else {
             // Set default gameData
-            console.log("Set default gameData");
-            game.gameData = defaultGameData;
+            game.setGameData(() => defaultGameData)
         }
     });
+
+
+    createEffect(() => {
+        if (game.gameData()) {
+            setupScene();
+        }
+    })
 
 
 
@@ -67,11 +68,11 @@ export default function EnvLight(props) {
 
         // initialize environment
         const rgbeLoader = new RGBELoader()
-        rgbeLoader.load(game.gameData.fileName, (envMap) => {
+        rgbeLoader.load(game.gameData().fileName, (envMap) => {
             const environment = envMap;
             environment.mapping = EquirectangularReflectionMapping;
             SceneManager.scene.environment = environment;
-            SceneManager.scene.environmentRotation = game.gameData.rotation;
+            SceneManager.scene.environmentRotation = game.gameData().rotation;
             SceneManager.scene.remove(SceneManager.light);
 
             /*
@@ -105,30 +106,27 @@ export default function EnvLight(props) {
         text-align: center;
     `
 
-    const Button = styled('button')`
-        margin: 1em;
-    `
-
+  
 
     /*
     * RENDER
     */
     return (
         props.selected ?
-
-            <Container>
-                <Title>{game.gameDetails.title}</Title>
-                <Description>{game.gameDetails.description}</Description>
-                {/* <Button
+        
+        <Container>
+            <Title>{game.gameDetails.title}</Title>
+            <Description>{game.gameDetails.description}</Description>
+            {/* <Button
                 onClick={() => game.saveGame(gameData)}
             >Test salva game e dati</Button> */}
-                {/* <Button
+            {/* <Button
                 onClick={() => game.loadData(props.id, (data) => setGameData(() => data))}
             >Test carica dati</Button> */}
-            </Container>
+        </Container>
 
-            :
-            <div />
+        :
+        <div/>
     );
 
 }
