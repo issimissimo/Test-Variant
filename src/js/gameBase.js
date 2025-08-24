@@ -3,6 +3,7 @@ import { useFirebase } from '@hooks/useFirebase';
 import GAMES_LIST from '@plugin';
 import { Context } from '@views/ar-overlay/arSession';
 import SceneManager from '@js/sceneManager';
+import modelLoader from '@tools/three/modelLoader';
 
 
 
@@ -15,6 +16,7 @@ export function useGame(gameName, gameId, config = {}) {
     const [gameData, setGameData] = createSignal(null)
     const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
     const gameAssets = [];
+    const loader = new modelLoader();
 
 
     onMount(() => {
@@ -110,7 +112,8 @@ export function useGame(gameName, gameId, config = {}) {
         setVisible,
         gameDetails,
         gameData: gameData(),
-        setGameData: setGameData()
+        setGameData: setGameData(),
+        loader
     }
 
     return {

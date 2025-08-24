@@ -1,10 +1,6 @@
 import { onMount, createEffect } from 'solid-js';
 import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import modelLoader from '@tools/three/modelLoader';
-
-
 
 
 export default function Baloons(props) {
@@ -26,13 +22,17 @@ export default function Baloons(props) {
     /*
     * DATA
     */
-
+    const defaultGameData = {
+        fileName: "images/hdr/studio.hdr",
+        rotation: 0
+    }
 
 
     /*
     * On mount
     */
     onMount(() => {
+        game.loader.load("models/baloon.glb");
     });
 
 
@@ -51,11 +51,11 @@ export default function Baloons(props) {
     */
     async function setupScene() {
 
-        const loader = new modelLoader();
-        const gltf = await loader.load("models/baloon.glb");
-        const model = gltf.scene;
+        const model = game.loader.gltf.scene;
         model.position.z = -3;
         game.addToScene(model);
+
+
 
 
         /*
@@ -69,6 +69,8 @@ export default function Baloons(props) {
     * LOOP
     */
     function loop() {
+        if (game.loader.loaded())
+            game.loader.animate();
     }
 
 
@@ -96,11 +98,6 @@ export default function Baloons(props) {
     const Description = styled('p')`
         text-align: center;
     `
-
-    const Button = styled('button')`
-        margin: 1em;
-    `
-
 
 
     /*

@@ -1,5 +1,3 @@
-// import * as from 'three';
-
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ARButton } from "./ARButton";
 import {
