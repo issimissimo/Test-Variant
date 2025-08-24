@@ -43,7 +43,7 @@ export default function ArSession(props) {
     const [localizationState, setLocalizationState] = createSignal(LOCALIZATION_STATE.NONE);
     const [referenceMatrix, setReferenceMatrix] = createSignal(new Matrix4());
     const [loading, setLoading] = createSignal(true);
-    const [gamesImported, setGamesImported] = createSignal([]);
+    const [modules, setModules] = createSignal([]);
     const [gamesInitializing, setGamesInitializing] = createSignal(false);
     const [selectedGameId, setSelectedGameId] = createSignal(null);
 
@@ -99,12 +99,15 @@ export default function ArSession(props) {
     * In this way we keep the main bundle as small as possible!
     */
     async function loadAllModules() {
-        for (const el of props.marker.games) {
-            if (el.enabled) {
-                // load dynamically the module
-                await loadModule(el.id, el.name, true);
+        if (props.marker.games, length > 0) {
+            
+            setGamesInitializing(() => true);
 
-
+            for (const el of props.marker.games) {
+                if (el.enabled) {
+                    // load dynamically the module
+                    await loadModule(el.id, el.name, true);
+                }
             }
         }
         setLoading(() => false);
@@ -142,13 +145,12 @@ export default function ArSession(props) {
 
     /**
     * This function is called each time
-    * a new Game is mounted,
+    * a new module is mounted,
     * to add it with its functions to gamesRunning of app.jsx
     * (N.B. the gameRunning IS NOT the module that we use here in the return 
     * to display the UI of each module!)
     */
-    const handleGameLoaded = (el) => {
-        console.log("MODULE LOADED: ", el)
+    const handleModuleLoaded = (el) => {
         props.addGame(el);
 
         // update the DOM elements that can be clicked
@@ -163,8 +165,10 @@ export default function ArSession(props) {
     * to hide the initializing component message
     */
     const handleGameInitialized = () => {
+
         _gamesInitialized++;
-        if (_gamesInitialized === gamesImported().length) {
+
+        if (_gamesInitialized === modules().length) {
             console.log("all games initialized!")
             setGamesInitializing(() => false);
 
@@ -267,11 +271,11 @@ export default function ArSession(props) {
     * (N.B. the module IS NOT the "gameRunning" that we use here and in app.jsx
     * to access its functions!
     * Each "gameRunning" will be added automatically as loaded
-    * with the function "handleGameLoaded")
+    * with the function "handleModuleLoaded")
     */
     async function loadModule(moduleId, moduleName, storedOnDatabase, selectOnEnd = false) {
 
-        setGamesInitializing(() => true);
+        
 
         const raw = await import(`../../plugin/${moduleName}.jsx`);
         const newModule = {
@@ -280,7 +284,7 @@ export default function ArSession(props) {
             stored: storedOnDatabase,
             component: raw.default,
         }
-        setGamesImported((prev) => [...prev, newModule]);
+        setModules((prev) => [...prev, newModule]);
 
 
         // Select the new game created
@@ -298,7 +302,7 @@ export default function ArSession(props) {
 
     return (
         <Context.Provider value={{
-            onLoaded: handleGameLoaded,
+            onLoaded: handleModuleLoaded,
             onInitialized: handleGameInitialized,
             appMode: props.appMode,
             userId: props.userId,
@@ -320,7 +324,7 @@ export default function ArSession(props) {
                         <>
                             {gamesInitializing() && <Loader text="Inizializzo" />}
 
-                            <For each={gamesImported()}>
+                            <For each={modules()}>
                                 {item => {
                                     const Component = item.component;
                                     return <Component
@@ -331,19 +335,20 @@ export default function ArSession(props) {
                                 }}
                             </For>
 
-                            {localizationState() === LOCALIZATION_STATE.REQUIRED ?
-                                <Calibration
-                                    planeFound={props.planeFound}
-                                    setReferenceMatrix={(matrix) => handleLocalizationCompleted(matrix)}
-                                />
-                                :
-                                <UI
-                                    marker={props.marker}
-                                    addNewModule={(id, name) => loadModule(id, name, false, true)}
-                                    saveEnabled={selectedGameId() !== null ? true : false}
-                                    saveGame={handleSaveSelectedGame}
-                                />
-                            }
+                            {!gamesInitializing() && (
+                                localizationState() === LOCALIZATION_STATE.REQUIRED ?
+                                    <Calibration
+                                        planeFound={props.planeFound}
+                                        setReferenceMatrix={(matrix) => handleLocalizationCompleted(matrix)}
+                                    />
+                                    :
+                                    <UI
+                                        marker={props.marker}
+                                        addNewModule={(id, name) => loadModule(id, name, false, true)}
+                                        saveEnabled={selectedGameId() !== null ? true : false}
+                                        saveGame={handleSaveSelectedGame}
+                                    />
+                            )}
                         </>
                 }
             </Container>
