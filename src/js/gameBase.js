@@ -37,11 +37,11 @@ export function useGame(gameName, gameId, config = {}) {
 
 
     // Load game data from Realtime Database
-    const loadGameData = async (gameId, callback) => {
+    const loadGameData = async (gameId, callback = null) => {
         try {
             const path = `${context.userId}/markers/${context.markerId}/games/${gameId}`;
             const gameData = await firebase.realtimeDb.loadData(path);
-            callback(gameData);
+            if (callback) callback(gameData);
         } catch (error) {
             console.error("Errore nel caricamento JSON:", error);
         }

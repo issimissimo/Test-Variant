@@ -93,6 +93,7 @@ export default function ArSession(props) {
         console.log("---- Games running:", props.gamesRunning)
         console.log("---- Games imported:", gamesImported());
         console.log("---- Game id selected:", selectedGameId());
+        console.log("---- Games initializing:", gamesInitializing());
     })
 
 
@@ -106,7 +107,7 @@ export default function ArSession(props) {
                 // load dynamically the module
                 await loadModule(el.id, el.name, true);
 
-                setGamesInitializing(() => true);
+
             }
         }
         setLoading(() => false);
@@ -169,6 +170,25 @@ export default function ArSession(props) {
         if (_gamesInitialized === gamesImported().length) {
             console.log("all games initialized!")
             setGamesInitializing(() => false);
+
+            // If just one of the game need localization,
+            // we need to show the Localization component
+            // as soon as all the games initialized
+
+            for (let i = 0; i < props.gamesRunning.length; i++) {
+                const _game = props.gamesRunning[i];
+
+                const gameSpecs = GAMES_LIST.find(g => g.fileName === _game.name);
+                if (gameSpecs.localized && localizationState() !== LOCALIZATION_STATE.COMPLETED) {
+
+                    // Hide all the meshes of all the games
+                    setGamesVisible(false);
+                    // Show the Localization view
+                    setLocalizationState(() => LOCALIZATION_STATE.REQUIRED);
+
+                    break;
+                }
+            }
         }
     }
 
@@ -177,12 +197,10 @@ export default function ArSession(props) {
 
 
     let _clickableDomElements = [];
-
     function disableTap(e) {
         _tapEnabled = false;
         e.stopPropagation();
     };
-
     function updateClickableDomElements() {
         removeClickableDomElements();
         _clickableDomElements = document.querySelectorAll('#ar-overlay button, #ar-overlay a, #ar-overlay [data-interactive]');
@@ -193,7 +211,6 @@ export default function ArSession(props) {
         });
         console.log("clickable DOM elements:", _clickableDomElements)
     };
-
     function removeClickableDomElements() {
         _clickableDomElements.forEach(element => {
             // remove with same capture option (passive doesn't affect removal but keep options explicit)
@@ -204,6 +221,7 @@ export default function ArSession(props) {
 
 
 
+
     const setGamesVisible = (value, gameName = null) => {
         props.gamesRunning.forEach(el => {
             // only one game
@@ -211,29 +229,14 @@ export default function ArSession(props) {
                 if (el.name === gameName) el.setVisible(value);
             }
             // all games
-            else el.setVisible(value);
+            else {
+                el.setVisible(value);
+            }
         });
     }
 
 
 
-
-    // const handleSaveSelectedGame = async (gameData = null) => {
-    //     // const jsonData = JSON.stringify(data);
-    //     const newGameId = await firebase.firestore.addGame(context.userId, context.markerId, gameName);
-    //     console.log('Creato in Firestore il game con ID:', newGameId)
-
-    //     if (gameData) {
-    //         try {
-    //             const path = `${context.userId}/markers/${context.markerId}/games/${newGameId}`;
-    //             await firebase.realtimeDb.saveData(path, gameData);
-    //             console.log('Creato in RealtimeDB il JSON con ID:', newGameId)
-
-    //         } catch (error) {
-    //             console.log("Errore nel salvataggio JSON:", error);
-    //         }
-    //     }
-    // }
 
     const handleSaveSelectedGame = async () => {
 
@@ -255,38 +258,7 @@ export default function ArSession(props) {
                 console.log("Errore nel salvataggio JSON:", error);
             }
         }
-
-
-        
     }
-
-
-
-
-    /**
-     * The view that will be showed
-     */
-    const renderView = () => {
-
-        if (config.debugOnDesktop) {
-            return (
-                <UI>
-
-                </UI>
-            )
-        }
-        else {
-            return (
-                <Calibration
-                    planeFound={props.planeFound}
-                    setAnimation={props.setAnimation}
-                    setReferenceMatrix={(matrix) => handleLocalizationCompleted(matrix)}
-                />
-            )
-        }
-    };
-
-
 
 
 
@@ -299,6 +271,9 @@ export default function ArSession(props) {
     * with the function "handleGameLoaded")
     */
     async function loadModule(moduleId, moduleName, storedOnDatabase, selectOnEnd = false) {
+
+        setGamesInitializing(() => true);
+
         const raw = await import(`../../plugin/${moduleName}.jsx`);
         const newModule = {
             id: moduleId,
@@ -308,26 +283,11 @@ export default function ArSession(props) {
         }
         setGamesImported((prev) => [...prev, newModule]);
 
-        // If just one of the game need localization,
-        // we need to show the Localization component
-        // as soon as all the games are loaded
-        const gameSpecs = GAMES_LIST.find(g => g.fileName === moduleName);
-        if (gameSpecs.localized && localizationState() !== LOCALIZATION_STATE.COMPLETED) {
 
-            // Hide all the meshes of all the games
-            setGamesVisible(false);
-
-            setLocalizationState(() => LOCALIZATION_STATE.REQUIRED);
-        }
-
-
-
-
-        // // TODO ------
+        // Select the new game created
         if (selectOnEnd) {
             setSelectedGameId(moduleId);
         }
-        // setSelectedGameId("temporaryModuleID");
     }
 
 
@@ -359,7 +319,7 @@ export default function ArSession(props) {
                     loading() ? (<Loader />)
                         :
                         <>
-                            {gamesInitializing() && <Loader />}
+                            {gamesInitializing() && <Loader text="Inizializzo" />}
 
                             <For each={gamesImported()}>
                                 {item => {

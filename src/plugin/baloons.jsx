@@ -35,8 +35,13 @@ export default function Baloons(props) {
     /*
     * On mount
     */
-    onMount(() => {
-        game.loader.load("models/baloon.glb");
+    onMount(async () => {
+        const gltf = await game.loader.load("models/baloon.glb");
+
+        /*
+        * Don't forget to call "game.initialized()" at finish 
+        */
+        game.initialized();
     });
 
 
@@ -62,11 +67,7 @@ export default function Baloons(props) {
 
         /// test per aggiungere dati
         game.gameData = defaultGameData;
-
-        /*
-        * Don't forget to call "game.initialized()" at finish 
-        */
-        game.initialized();
+       
     }
 
 
