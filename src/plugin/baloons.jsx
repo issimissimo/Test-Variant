@@ -2,6 +2,7 @@ import { onMount, createEffect } from 'solid-js';
 import { useGame } from '@js/gameBase';
 import { styled } from 'solid-styled-components';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import modelLoader from '@tools/three/modelLoader';
 
 
 
@@ -49,13 +50,12 @@ export default function Baloons(props) {
     * SETUP SCENE
     */
     async function setupScene() {
-        const gltflLoader = new GLTFLoader()
-        const gltf = await gltflLoader.loadAsync("models/baloons.glb");
+
+        const loader = new modelLoader();
+        const gltf = await loader.load("models/baloon.glb");
         const model = gltf.scene;
-        model.position.z = -5;
+        model.position.z = -3;
         game.addToScene(model);
-
-
 
 
         /*

@@ -1,4 +1,4 @@
-import { onMount, createEffect, useContext } from 'solid-js';
+import { onMount, createSignal, useContext } from 'solid-js';
 import { useFirebase } from '@hooks/useFirebase';
 import GAMES_LIST from '@plugin';
 import { Context } from '@views/ar-overlay/arSession';
@@ -12,6 +12,7 @@ export function useGame(gameName, gameId, config = {}) {
     const context = useContext(Context);
     const firebase = useFirebase();
 
+    const [gameData, setGameData] = createSignal(null)
     const gameDetails = GAMES_LIST.find(g => g.fileName === gameName);
     const gameAssets = [];
 
@@ -107,7 +108,9 @@ export function useGame(gameName, gameId, config = {}) {
         saveGame,
         addToScene,
         setVisible,
-        gameDetails
+        gameDetails,
+        gameData: gameData(),
+        setGameData: setGameData()
     }
 
     return {
